@@ -57,7 +57,10 @@ class MaterialTheme {
   }
 
   ThemeData light() {
-    return theme(lightScheme());
+    return ThemeData(
+      colorScheme: lightScheme(),
+      scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+    );
   }
 
   static ColorScheme lightMediumContrastScheme() {
@@ -344,7 +347,7 @@ class MaterialTheme {
        bodyColor: colorScheme.onSurface,
        displayColor: colorScheme.onSurface,
      ),
-     scaffoldBackgroundColor: colorScheme.background,
+     scaffoldBackgroundColor: colorScheme.surface,
      canvasColor: colorScheme.surface,
   );
 
