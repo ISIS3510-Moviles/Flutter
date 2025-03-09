@@ -1,3 +1,4 @@
+import 'package:campus_bites/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,6 +17,7 @@ class HomeScreen extends StatelessWidget {
       body: Center(
         child: childView,
       ),
+      bottomNavigationBar: CustomBottomNavigation(childView: childView),
     );
   }
 }

@@ -12,11 +12,17 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/',
-              builder: (context, state) => const HomeView()
+              builder: (context, state) => const HomeView(),
+              routes: [
+                GoRoute(
+                  path: '/restaurant',
+                  builder: (context, state) => const RestaurantView()
+                )
+              ]
             ),
           ]
         ),
       ]
-    )
+    ),
   ]
 );
