@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class CustomSliverAppbar extends StatelessWidget {
   const CustomSliverAppbar({super.key});
@@ -29,7 +30,7 @@ class _CustomAppbar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             IconButton(
-              onPressed: () {},
+              onPressed: () => context.go('/notifications'),
               icon: const Icon(Icons.notifications_active_outlined),
             ),
             IconButton(
