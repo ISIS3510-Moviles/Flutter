@@ -8,10 +8,10 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const images = [
-      'https://s3-alpha-sig.figma.com/img/1995/2cd0/36213709e2a517588988536a59ae29e7?Expires=1742169600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=sGdTF5yLsmBK0i1QEbiaalrN1gf5i113PSGzcrqRpZPDGKdUuDoFZjdTLkqtrVGWk-pbCyOP~Qieln3UfgEbMXr8QceLSg47H95-8IjCLLenKJDvG8JrFJgxhgjxEDpyxEVmnD5LKgBlV-ZDsnSv7gGkoWngnelbgzhG919lHmQK28KqbJ~ZraxbPzyek2VY6pkitI5Tf-U-hAer5rY4YjggrUic9rDaWbiDk2z9xnx3~Gy0YjF5kfswTA1Z8tsULHdDekVuLfb0l5JQfwWi52-A5QPVlvoKKzcqJ4YxzdHdNapRuEyCaIpyPY2W68uvj5jbUkupOtwubp4oWifIrg__',
-      'https://s3-alpha-sig.figma.com/img/9316/a05b/72c94cd65165d22d9e4a454d8097daf2?Expires=1742169600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=EVlE6Z2Ni0~lTOT0PhFK6~v6MWPopFaDz3zRdgaJM5stz8SF1a1Yc2h2pIQ78D9kO8UyzGa~ew07AD8-iMFQ69s7nyiL7ZhdiUaPhCzQjHCuZU7fgEzCEldcIZGoRXe706x1rEqzoWYbLDqJU7PZ29rJ-OHGcGElwSk~~yUAb5alZIqTn~FPeS0wl90ojhr8sPxS-IE9UuwOVpQGNaNTgW~O~m90ma~nvCtNs6e8vqpSZOdEaTQk113jCkUJmTD~lkGDpYym3gDaKfb0MgZ-qVqEkJGbg7SEnUv1Sf6aPP9GV7bKbZtWZRWF9mpCUQewc9yqGaNsEpe7m9-It9um5g__',
-      'https://s3-alpha-sig.figma.com/img/9c64/2538/ae0a2f492bf2fb4b720c92ab27bba7e9?Expires=1742169600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=JO1MKtGTdjLEturNsIIBVDh8Mavu0GzcRpxXSPtm~exbqHTJPJrL0o24oc1h6AwtPP6K4Cr~-0WjNlZlWqRsvLqGJw7L2hLkiQeSO2Z1I9MrcweGoWRFiSc5L0OT2qDkZSXZY5DL5T4RP-KwaYb4J~lcnOCOhla9z1pq2Bw0u76uoCUOrj-eVsPTGx3C2lOzqTr8ES3uRD12kQl69~9taD52aclzwTNUl9HVsA3n9ySVpHvtzptY7zn7oJlAVg4L5aeLvFOAu8T67daNjIsV3p3rmBWS2GLFZLWojA7uuzI57ikzz2YzY6wJ5dAj5dJs7cWNSLLCeQUuWv8~tgZ5yA__',
-      'https://s3-alpha-sig.figma.com/img/f3a8/35e6/a63019cb0d331911c0e74e573cdd9700?Expires=1742169600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=LOvXOCI7h0RZ-ZE-vEWXBspp9w1pRVWZnVjEn4Yb8WBvKOa-fnmIx4d6ttlgJEhDXektz9O18fcWcshivs~9j0bfSEw3qoRUz5-4s0iB-bf5CHW0siD5P2E4za5XOyNoGIZ2ZQlIvMSCw0Bwmve8615tYJCOMZdJNHbr0G8XnPZO4fyrqCSJ8xa0xkZZrV5ArJpUeQiQLhQ~U~GY9RYPHMfLw3jOvQAbNgJbm8h8e-XzClVTv42oH4rHfzPNRDGaOS8ZHAofBYE4f7Rv-d4BalCfWffeXEWhB3s06SSxGNw3UXKMPo~rhRgoXiiadCFqDeyifnuPAA3CjzTacznaTA__'
+      'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
+      'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
+      'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
+      'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
     ];
     return CustomScrollView(
       slivers: [

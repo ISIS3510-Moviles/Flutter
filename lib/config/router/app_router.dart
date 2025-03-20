@@ -16,7 +16,7 @@ final appRouter = GoRouter(
               routes: [
                 GoRoute(
                   path: '/restaurant',
-                  builder: (context, state) => const RestaurantView()
+                  builder: (context, state) => const RestaurantScreen()
                 )
               ]
             ),
