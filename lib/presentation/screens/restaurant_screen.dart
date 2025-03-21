@@ -39,7 +39,7 @@ class RestaurantScreenState extends State<RestaurantScreen> with SingleTickerPro
       DescriptionTab(),
       FoodTab(),
       BookTab(),
-      Text('Directions'),
+      ArriveTab(),
       ReviewsTab(),
     ];
     return Scaffold(

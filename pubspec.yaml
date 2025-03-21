@@ -11,8 +11,9 @@ dependencies:
     sdk: flutter
   go_router: ^14.8.1
   google_fonts: ^6.2.1
-  responsive_builder: ^0.7.1
+  google_maps_flutter: ^2.11.0
   intl: ^0.18.0
+  responsive_builder: ^0.7.1
 
 dev_dependencies:
   flutter_lints: ^5.0.0
