@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
 import 'package:campus_bites/presentation/views/views.dart';
 import 'package:campus_bites/presentation/views/restaurant/reviews_tab.dart';
+import 'package:campus_bites/presentation/views/restaurant/book_tab.dart';
 
 class RestaurantScreen extends StatefulWidget {
   const RestaurantScreen({super.key});
@@ -36,7 +37,7 @@ class RestaurantScreenState extends State<RestaurantScreen> with SingleTickerPro
     final tabs = [
       DescriptionTab(),
       Text('Menu'),
-      Text('Calendar'),
+      BookTab(),
       Text('Directions'),
       ReviewsTab(),
     ];
