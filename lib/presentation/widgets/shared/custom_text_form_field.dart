@@ -9,6 +9,7 @@ class CustomTextFormField extends StatelessWidget {
   final bool obscureText;
   final Function(String)? onChanged;
   final String? Function(String?)? validator;
+  final Function()? filterTap;
 
   const CustomTextFormField({
     super.key, 
@@ -17,7 +18,8 @@ class CustomTextFormField extends StatelessWidget {
     this.errorMessage, 
     this.obscureText = false,
     this.onChanged, 
-    this.validator, 
+    this.validator,
+    this.filterTap
   });
 
   @override
@@ -46,7 +48,7 @@ class CustomTextFormField extends StatelessWidget {
         hintText: hint,
         errorText: errorMessage,
         focusColor: colors.primary,
-        prefixIcon: Icon(Icons.filter_alt_outlined),
+        prefixIcon: IconButton(onPressed: filterTap, icon: Icon(Icons.filter_alt_outlined)),
         suffixIcon: Icon(Icons.search_outlined),
       ),
     );
