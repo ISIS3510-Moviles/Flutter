@@ -14,7 +14,7 @@ class FoodCard extends StatelessWidget {
     required this.imageUrl,
     required this.title,
     required this.price,
-    required this.subtitle,
+    this.subtitle = '',
   });
 
   @override
@@ -63,12 +63,14 @@ class FoodCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 6),
-                      Text(
-                        subtitle,
-                        maxLines: 1,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
+                      subtitle.isNotEmpty
+                          ? Text(
+                            subtitle,
+                            maxLines: 1,
+                            style: const TextStyle(
+                              fontSize: 12, color: Colors.grey),
+                          )
+                          : const SizedBox(),
                     ],
                   ),
                 ),

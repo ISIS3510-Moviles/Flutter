@@ -97,7 +97,6 @@ class FoodSlider extends StatelessWidget {
                     imageUrl: items[index].imageUrl,
                     title: items[index].name,
                     price: '\$${items[index].price.toStringAsFixed(2)}',
-                    subtitle: 'Delicious ${items[index].name}',
                     id: index.toString(),
                   ),
                 ),
