@@ -34,7 +34,7 @@ class _CustomAppbar extends StatelessWidget {
               icon: const Icon(Icons.notifications_active_outlined),
             ),
             IconButton(
-              onPressed: () {},
+              onPressed:  () => context.go('/profile'),
               icon: const Icon(Icons.account_circle_outlined),
             ),
           ],

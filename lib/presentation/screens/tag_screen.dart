@@ -1,5 +1,5 @@
-import 'package:campus_bites/presentation/widgets/shared/silver_list_food_restaurant.dart';
-import 'package:campus_bites/presentation/widgets/shared/silver_tab_food_restaurant.dart';
+import 'package:campus_bites/presentation/widgets/shared/sliver_list_food_restaurant.dart';
+import 'package:campus_bites/presentation/widgets/shared/sliver_tab_food_restaurant.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
 
