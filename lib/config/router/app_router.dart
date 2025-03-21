@@ -3,6 +3,7 @@ import 'package:campus_bites/presentation/screens/tag_screen.dart';
 import 'package:campus_bites/presentation/views/views.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:campus_bites/presentation/screens/food_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -33,7 +34,7 @@ final appRouter = GoRouter(
                   path: 'food/:foodId',
                   builder: (context, state) {
                     final foodId = state.pathParameters['foodId'];
-                    return Text('Food ID: $foodId');
+                    return FoodScreen(foodId: foodId!);
                   },
                 ),
 
