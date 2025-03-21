@@ -6,6 +6,7 @@ import 'package:campus_bites/presentation/views/views.dart';
 import 'package:go_router/go_router.dart';
 import 'package:campus_bites/presentation/screens/food_screen.dart';
 
+
 final appRouter = GoRouter(initialLocation: '/', routes: [
   StatefulShellRoute.indexedStack(
       builder: (context, state, child) => HomeScreen(childView: child),
@@ -49,3 +50,4 @@ final appRouter = GoRouter(initialLocation: '/', routes: [
         ]),
       ]),
 ]);
+
