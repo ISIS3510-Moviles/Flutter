@@ -3,8 +3,15 @@ import 'package:campus_bites/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -14,78 +21,237 @@ class HomeView extends StatelessWidget {
       'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
       'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
     ];
-    return CustomScrollView(
-      slivers: [
-        CustomSliverAppbar(),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: Align(
-                alignment: Alignment.center,
-                child: SizedBox(
-                    width: 314,
-                    child: CustomTextFormField(
-                      label: 'Search food',
-                    ))),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: _TagBox(images: images),
+    return Scaffold(
+      appBar: null,
+      key: _scaffoldKey,
+      drawer: CustomDrawer(
+        closeDrawer: () => _scaffoldKey.currentState!.openEndDrawer(),
+      ),
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            CustomSliverAppbar(),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Align(
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                        width: 314,
+                        child: CustomTextFormField(
+                          label: 'Search food',
+                          filterTap: () =>
+                              _scaffoldKey.currentState!.openDrawer(),
+                        ))),
+              ),
             ),
-          ),
-        ),
-        SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: Column(
-              children: [
-                SizedBox(
-                  width: 314,
-                  child: Column(
-                    children: [
-                      _Title(title: 'Restaurants', subTitle: 'Near to you'),
-                      RestaurantCard(
-                        title: 'Starbucks (Andes)',
-                        rating: '3.0',
-                        distance: '200 meters',
-                        imageUrl:
-                            'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
-                      ),
-                      RestaurantCard(
-                        title: 'Starbucks (Andes)',
-                        rating: '3.0',
-                        distance: '200 meters',
-                        imageUrl:
-                            'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
-                      ),
-                      RestaurantCard(
-                        title: 'Starbucks (Andes)',
-                        rating: '3.0',
-                        distance: '200 meters',
-                        imageUrl:
-                            'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
-                      ),
-                      RestaurantCard(
-                        title: 'Starbucks (Andes)',
-                        rating: '3.0',
-                        distance: '200 meters',
-                        imageUrl:
-                            'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
-                      )
-                    ],
-                  ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: _TagBox(images: images),
                 ),
-                const SizedBox(height: 20),
-              ],
+              ),
             ),
-          );
-        }, childCount: 1))
-      ],
+            SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: 314,
+                      child: Column(
+                        children: [
+                          _Title(title: 'Restaurants', subTitle: 'Near to you'),
+                          RestaurantCard(
+                            title: 'Starbucks (Andes)',
+                            rating: '3.0',
+                            distance: '200 meters',
+                            imageUrl:
+                                'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
+                          ),
+                          RestaurantCard(
+                            title: 'Starbucks (Andes)',
+                            rating: '3.0',
+                            distance: '200 meters',
+                            imageUrl:
+                                'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
+                          ),
+                          RestaurantCard(
+                            title: 'Starbucks (Andes)',
+                            rating: '3.0',
+                            distance: '200 meters',
+                            imageUrl:
+                                'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
+                          ),
+                          RestaurantCard(
+                            title: 'Starbucks (Andes)',
+                            rating: '3.0',
+                            distance: '200 meters',
+                            imageUrl:
+                                'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
+                          )
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              );
+            }, childCount: 1))
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CustomDrawer extends StatelessWidget {
+  final Function() closeDrawer;
+
+  const CustomDrawer({
+    super.key, required this.closeDrawer,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Food', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('All')
+                        ]),
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Meat')
+                        ]),
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Fish')
+                        ]),
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Chicken')
+                        ]),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Sample')
+                        ]),
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Sample')
+                        ]),
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Sample')
+                        ]),
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Sample')
+                        ]),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 48),
+
+              Text('Preferences', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('All')
+                        ]),
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Vegan')
+                        ]),
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Vegetarian')
+                        ]),
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Sample')
+                        ]),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Sample')
+                        ]),
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Sample')
+                        ]),
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Sample')
+                        ]),
+                        Row(children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text('Sample')
+                        ]),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 48),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FilledButton(
+                    style: ButtonStyle(
+                      visualDensity: VisualDensity.compact,
+                      backgroundColor: WidgetStateProperty.all(Color(0xFFF46417)),
+                      foregroundColor: WidgetStateProperty.all(Colors.white),
+                      fixedSize: WidgetStateProperty.all(Size(180, 50)),
+                      shape: WidgetStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    onPressed: closeDrawer,
+                    child: Text('Done'),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      )
     );
   }
 }
@@ -98,44 +264,46 @@ class _TagBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        width: 314,
-        child: GridView.builder(
-          padding: EdgeInsets.zero,
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-          ),
-          itemCount: 8,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () {context.push('/tags/tagName$index');},
-              child: SizedBox(
-                width: 70,
-                height: 70,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xFFF9A825),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Image.network(
-                        images[index % 4],
-                        fit: BoxFit.cover,
-                      ),
+      width: 314,
+      child: GridView.builder(
+        padding: EdgeInsets.zero,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        ),
+        itemCount: 8,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () {
+              context.push('/tags/tagName$index');
+            },
+            child: SizedBox(
+              width: 70,
+              height: 70,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFFF9A825),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Image.network(
+                      images[index % 4],
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
               ),
-            );
-          },
-        ),
-      );
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 
