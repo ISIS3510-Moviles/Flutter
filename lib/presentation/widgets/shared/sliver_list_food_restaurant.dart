@@ -1,7 +1,7 @@
-import 'package:campus_bites/presentation/widgets/shared/food_card.dart';
+import 'package:campus_bites/presentation/widgets/shared/responsive_food_list.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/restaurant_card.dart';
-import 'package:responsive_builder/responsive_builder.dart';
+
 
 class SilverListFoodRestaurant extends StatelessWidget {
   final tabs = [
@@ -235,31 +235,7 @@ class _FoodTab extends StatelessWidget {
       },
     ];
 
-    return ResponsiveBuilder(
-      builder: (context, sizingInformation) {
-        return SizedBox(
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              mainAxisExtent: 260,
-              crossAxisCount:
-                  (sizingInformation.localWidgetSize.width / 250).round(),
-            ),
-            itemCount: food.length,
-            itemBuilder: (context, index) {
-              final item = food[index];
-              return FoodCard(
-                id: item['id'] ?? '0',
-                imageUrl: item['imageUrl']!,
-                title: item['title']!,
-                price: item['price']!,
-                subtitle: item['subtitle']!,
-              );
-            },
-          ),
-        );
-      },
-    );
+    return ResponsiveFoodList(food: food);
   }
 }
+

@@ -1,4 +1,5 @@
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
+import 'package:campus_bites/presentation/widgets/shared/tag_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -32,12 +33,12 @@ class FoodScreen extends StatelessWidget {
                     spacing: 10,
                     runSpacing: 10,
                     children: [
-                      _buildTagChip(context, "Under \$20.000"),
-                      _buildTagChip(context, "Breakfast"),
-                      _buildTagChip(context, "Lunch"),
-                      _buildTagChip(context, "Dinner"),
-                      _buildTagChip(context, "Vegan"),
-                      _buildTagChip(context, "Gluten-Free"),
+                      TagChip(tagName: "Under \$20.000"),
+                      TagChip(tagName: "Breakfast"),
+                      TagChip(tagName: "Lunch"),
+                      TagChip(tagName: "Dinner"),
+                      TagChip(tagName: "Vegan"),
+                      TagChip(tagName: "Gluten-Free")
                     ],
                   ),
 
@@ -107,15 +108,6 @@ class FoodScreen extends StatelessWidget {
   }
 }
 
-Widget _buildTagChip(BuildContext context, String tagName) {
-  return GestureDetector(
-    onTap: () => context.push('/tags/tagName'),
-    child: Chip(
-      label: Text(tagName),
-      backgroundColor: const Color(0xFFF9A825),
-    ),
-  );
-}
 
 class BulletPointList extends StatelessWidget {
   final List<String> items;
