@@ -1,20 +1,34 @@
+import 'package:campus_bites/domain/entities/entities.dart';
+import 'package:campus_bites/presentation/providers/restaurants/initial_loading_provider.dart';
+import 'package:campus_bites/presentation/providers/restaurants/restaurants_provider.dart';
 import 'package:campus_bites/presentation/widgets/shared/restaurant_card.dart';
 import 'package:campus_bites/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class HomeView extends StatefulWidget {
+class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
 
   @override
-  State<HomeView> createState() => _HomeViewState();
+  HomeViewState createState() => HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class HomeViewState extends ConsumerState<HomeView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
+  void initState() {
+    super.initState();
+    ref.read(getRestaurantsProvider.notifier).fetch();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final bool initialLoading = ref.watch(initialLoadingProvider);
+    if (initialLoading) return const FullScreenLoader();
+
+    final List<RestaurantEntity> restaurants = ref.watch(getRestaurantsProvider);
     const images = [
       'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
       'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
@@ -55,52 +69,35 @@ class _HomeViewState extends State<HomeView> {
               ),
             ),
             SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: 314,
-                      child: Column(
-                        children: [
-                          _Title(title: 'Restaurants', subTitle: 'Near to you'),
-                          RestaurantCard(
-                            title: 'Starbucks (Andes)',
-                            rating: '3.0',
-                            distance: '200 meters',
-                            imageUrl:
-                                'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
-                          ),
-                          RestaurantCard(
-                            title: 'Starbucks (Andes)',
-                            rating: '3.0',
-                            distance: '200 meters',
-                            imageUrl:
-                                'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
-                          ),
-                          RestaurantCard(
-                            title: 'Starbucks (Andes)',
-                            rating: '3.0',
-                            distance: '200 meters',
-                            imageUrl:
-                                'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
-                          ),
-                          RestaurantCard(
-                            title: 'Starbucks (Andes)',
-                            rating: '3.0',
-                            distance: '200 meters',
-                            imageUrl:
-                                'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
-                          )
-                        ],
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: 314,
+                        child: Column(
+                          children: [
+                            _Title(title: 'Restaurants', subTitle: 'Near to you'),
+                            ...restaurants.map((restaurant) {
+                              return RestaurantCard(
+                                title: restaurant.name,
+                                rating: restaurant.rating.toString(),
+                                distance: '200 meters', // Aquí puedes colocar la distancia real si la tienes
+                                imageUrl: restaurant.profilePhoto!,
+                              );
+                            })
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              );
-            }, childCount: 1))
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                );
+              },
+              childCount: 1
+              )
+            )
           ],
         ),
       ),
