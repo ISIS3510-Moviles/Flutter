@@ -1,7 +1,6 @@
 import 'package:campus_bites/presentation/screens/screens.dart';
 import 'package:campus_bites/presentation/screens/tag_screen.dart';
 import 'package:campus_bites/presentation/views/views.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:campus_bites/presentation/screens/food_screen.dart';
 
