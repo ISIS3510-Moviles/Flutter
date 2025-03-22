@@ -17,4 +17,13 @@ class RestaurantBackendDatasource extends RestaurantDatasource {
     final response = await dio.get('/restaurant');
     return _jasonToRestaurants(response.data);
   }
+
+  @override
+  Future<List<RestaurantEntity>> getRestaurantsByTag(String tag) async {
+    var response = await getRestaurants();
+    response = response
+        .where((restaurant) => restaurant.foodTagsIds?.contains(tag) ?? false)
+        .toList();
+    return response;
+  }
 }
