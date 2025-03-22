@@ -1,3 +1,5 @@
+import 'package:campus_bites/domain/entities/pending_state.dart';
+import 'package:campus_bites/domain/entities/reservation_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -9,18 +11,28 @@ class BookTab extends StatefulWidget {
 }
 
 class BookTabState extends State<BookTab> {
-  DateTime selectedDate = DateTime.now();
-  String? selectedHour;
-  int comensals = 1;
+  late ReservationEntity reservation;
   final FocusNode _comensalsFocusNode = FocusNode();
-  Color _borderColor = Color(0xFF817570);
+  Color _borderColor = const Color(0xFF817570);
+  late TextEditingController _dateController;
+  late TextEditingController _comensalsController;
 
   @override
   void initState() {
     super.initState();
+    reservation = ReservationEntity(
+      id: "1",
+      date: DateFormat('MM/dd/yyyy').format(DateTime.now()),
+      time: "12:00",
+      numberComensals: 1,
+      state: PendingState(),
+    );
+    _dateController = TextEditingController(text: reservation.date);
+    _comensalsController = TextEditingController(text: reservation.numberComensals.toString());
+
     _comensalsFocusNode.addListener(() {
       setState(() {
-        _borderColor = _comensalsFocusNode.hasFocus ? Colors.black : Color(0xFF817570);
+        _borderColor = _comensalsFocusNode.hasFocus ? Colors.black : const Color(0xFF817570);
       });
     });
   }
@@ -28,52 +40,53 @@ class BookTabState extends State<BookTab> {
   @override
   void dispose() {
     _comensalsFocusNode.dispose();
+    _dateController.dispose();
+    _comensalsController.dispose();
     super.dispose();
   }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate,
+      initialDate: DateFormat('MM/dd/yyyy').parse(reservation.date),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
-    if (picked != null && picked != selectedDate) {
+    if (picked != null) {
       setState(() {
-        selectedDate = picked;
+        reservation.date = DateFormat('MM/dd/yyyy').format(picked);
+        _dateController.text = reservation.date;
       });
     }
-
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      margin: EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Date:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF277A46))),
+            const Text("Date:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF277A46))),
             TextField(
-              controller: TextEditingController(text: DateFormat('MM/dd/yyyy').format(selectedDate)),
+              controller: _dateController,
               readOnly: true,
               decoration: InputDecoration(
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.calendar_today),
+                  icon: const Icon(Icons.calendar_today),
                   onPressed: () => _selectDate(context),
                 ),
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
-            Text("Hour", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 16),
+            const Text("Hour", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             DropdownButtonFormField<String>(
-              value: selectedHour,
+              value: reservation.time,
               items: ["12:00", "13:00", "14:00", "15:00", "16:00"].map((hour) {
                 return DropdownMenuItem(
                   value: hour,
@@ -82,15 +95,15 @@ class BookTabState extends State<BookTab> {
               }).toList(),
               onChanged: (value) {
                 setState(() {
-                  selectedHour = value;
+                  reservation.time = value!;
                 });
               },
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
-            Text("Comensals", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF277A46))),
+            const SizedBox(height: 16),
+            const Text("Comensals", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF277A46))),
             GestureDetector(
               onTap: () {
                 FocusScope.of(context).requestFocus(_comensalsFocusNode);
@@ -103,28 +116,32 @@ class BookTabState extends State<BookTab> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.remove),
+                      icon: const Icon(Icons.remove),
                       onPressed: () {
                         setState(() {
-                          if (comensals > 1) comensals--;
+                          if (reservation.numberComensals > 1) {
+                            reservation.numberComensals--;
+                            _comensalsController.text = reservation.numberComensals.toString();
+                          }
                         });
                       },
                     ),
                     Expanded(
                       child: TextField(
                         focusNode: _comensalsFocusNode,
-                        controller: TextEditingController(text: comensals.toString()),
+                        controller: _comensalsController,
                         readOnly: true,
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                        decoration: InputDecoration(border: InputBorder.none),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                        decoration: const InputDecoration(border: InputBorder.none),
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.add),
+                      icon: const Icon(Icons.add),
                       onPressed: () {
                         setState(() {
-                          comensals++;
+                          reservation.numberComensals++;
+                          _comensalsController.text = reservation.numberComensals.toString();
                         });
                       },
                     ),
@@ -132,17 +149,17 @@ class BookTabState extends State<BookTab> {
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Center(
               child: ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF277A46),
+                  backgroundColor: const Color(0xFF277A46),
                   foregroundColor: Colors.white,
                 ),
-                child: Text("Book"),
+                child: const Text("Book"),
               ),
-            )
+            ),
           ],
         ),
       ),
