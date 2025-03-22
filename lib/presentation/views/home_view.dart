@@ -6,6 +6,7 @@ import 'package:campus_bites/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -16,11 +17,45 @@ class HomeView extends ConsumerStatefulWidget {
 
 class HomeViewState extends ConsumerState<HomeView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  DateTime? _viewEntryTime;
+  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
   @override
   void initState() {
     super.initState();
     ref.read(getRestaurantsProvider.notifier).fetch();
+    _viewEntryTime = DateTime.now();
+    _logScreenView();
+  }
+
+  @override
+  void dispose() {
+    // Calculate time spent in the view when leaving
+    _logTimeSpent();
+    super.dispose();
+  }
+
+  // Add these two new methods to your HomeViewState class:
+  void _logScreenView() {
+    _analytics.logScreenView(
+      screenName: 'HomeView',
+      screenClass: 'HomeView',
+    );
+  }
+
+  void _logTimeSpent() {
+    if (_viewEntryTime != null) {
+      final DateTime exitTime = DateTime.now();
+      final int timeSpentSeconds = exitTime.difference(_viewEntryTime!).inSeconds;
+      
+      _analytics.logEvent(
+        name: 'recommendation_section_average_time',
+        parameters: {
+          'screen_name': 'HomeView',
+          'time_spent_seconds': timeSpentSeconds,
+        },
+      );
+    }
   }
 
   @override
