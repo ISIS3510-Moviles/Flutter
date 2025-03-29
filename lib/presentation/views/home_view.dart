@@ -17,11 +17,45 @@ class HomeView extends ConsumerStatefulWidget {
 
 class HomeViewState extends ConsumerState<HomeView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  DateTime? _viewEntryTime;
+  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
   @override
   void initState() {
     super.initState();
     ref.read(getRestaurantsProvider.notifier).fetch();
+    _viewEntryTime = DateTime.now();
+    _logScreenView();
+  }
+
+  @override
+  void dispose() {
+    // Calculate time spent in the view when leaving
+    _logTimeSpent();
+    super.dispose();
+  }
+
+  // Add these two new methods to your HomeViewState class:
+  void _logScreenView() {
+    _analytics.logScreenView(
+      screenName: 'HomeView',
+      screenClass: 'HomeView',
+    );
+  }
+
+  void _logTimeSpent() {
+    if (_viewEntryTime != null) {
+      final DateTime exitTime = DateTime.now();
+      final int timeSpentSeconds = exitTime.difference(_viewEntryTime!).inSeconds;
+      
+      _analytics.logEvent(
+        name: 'recommendation_section_average_time',
+        parameters: {
+          'screen_name': 'HomeView',
+          'time_spent_seconds': timeSpentSeconds,
+        },
+      );
+    }
   }
 
   @override
@@ -188,7 +222,7 @@ class CustomDrawer extends StatelessWidget {
                           Checkbox(
                             value: false, 
                             onChanged: (value) {
-                              FirebaseAnalytics.instance.logEvent(
+                              _analytics.logEvent(
                                 name: 'dietary_filter',
                                 parameters: {
                                   'dietary_filter': 'vegan'
@@ -202,7 +236,7 @@ class CustomDrawer extends StatelessWidget {
                          Checkbox(
                             value: false, 
                             onChanged: (value) {
-                              FirebaseAnalytics.instance.logEvent(
+                              _analytics.logEvent(
                                 name: 'dietary_filter',
                                 parameters: {
                                   'dietary_filter': 'vegetarian'

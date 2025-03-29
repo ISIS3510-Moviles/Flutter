@@ -1,56 +1,156 @@
-import 'package:campus_bites/domain/entities/comment_entity.dart';
-import 'package:campus_bites/presentation/providers/comments/comment_provider.dart';
-import 'package:campus_bites/presentation/providers/comments/initial_loading_provider.dart';
-import 'package:campus_bites/presentation/widgets/shared/full_screen_loader.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+class ReviewsTab extends StatelessWidget {
 
-class ReviewsTab extends ConsumerStatefulWidget {
   const ReviewsTab({super.key});
-
-  @override
-  ReviewsTabState createState() =>ReviewsTabState();
-}
-
-class ReviewsTabState extends ConsumerState<ReviewsTab> {
-
-  @override
-  void initState() {
-    super.initState();
-    ref.read(getCommentsProvider.notifier).fetch();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final bool initialLoading = ref.watch(initialLoadingProvider);
-    if (initialLoading) return const FullScreenLoader();
-
-    final List<CommentEntity> comments = ref.watch(getCommentsProvider);
-
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
-          const SizedBox(height: 16),
-          ...comments.map((comment) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: ReviewCard(
-                  name: comment.authorId.toString(),
-                  date: comment.datetime,
-                  review: comment.message,
-                  rating: comment.rating,
-                ),
-              )),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+                    SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+                    SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+                    SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+                    SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+                    SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          SizedBox(height: 16),
+          ReviewCard(
+            name: "Wilmer",
+            date: "31/01/2025",
+            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
+            rating: 3,
+          ),
+          
         ],
       ),
     );
   }
 }
-
 class ReviewCard extends StatelessWidget {
   final String name;
-  final DateTime date;
+  final String date;
   final String review;
   final int rating;
 
@@ -85,7 +185,7 @@ class ReviewCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${date.day}/${date.month}/${date.year}',
+                  date,
                   style: const TextStyle(
                     fontSize: 12.0,
                     color: Colors.grey,
