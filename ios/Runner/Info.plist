@@ -45,5 +45,18 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+	<dict>
+		<key>CFBundleURLSchemes</key>
+		<array>
+		<string>com.googleusercontent.apps.119422410652-77fqqikb48cgqal9jnv8pjnqie0usp0c</string>
+		</array>
+	</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+	<string>google</string>
+	</array>
 </dict>
 </plist>

@@ -1,7 +1,6 @@
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
 import 'package:campus_bites/presentation/widgets/shared/tag_chip.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class FoodScreen extends StatelessWidget {
   final String foodId;

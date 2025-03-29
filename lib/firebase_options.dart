@@ -17,29 +17,17 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -52,11 +40,53 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBTDAHZ-St8JieN0hAIkLunxzcALhYOXAA',
+    appId: '1:119422410652:web:7cce223d3123e404973259',
+    messagingSenderId: '119422410652',
+    projectId: 'campusbites-72033',
+    authDomain: 'campusbites-72033.firebaseapp.com',
+    storageBucket: 'campusbites-72033.firebasestorage.app',
+    measurementId: 'G-H5VJR0DNQH',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDa2eXn7-A0A6n8YHwz7FPMZbUcLu4oyFY',
     appId: '1:119422410652:android:3d892f8b42d74e7c973259',
     messagingSenderId: '119422410652',
     projectId: 'campusbites-72033',
     storageBucket: 'campusbites-72033.firebasestorage.app',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyD_kwcttoOvoqZomcBaeBf53oMb6a2m7ug',
+    appId: '1:119422410652:ios:1fc5890da0ff47df973259',
+    messagingSenderId: '119422410652',
+    projectId: 'campusbites-72033',
+    storageBucket: 'campusbites-72033.firebasestorage.app',
+    androidClientId: '119422410652-0pmljrvbipcr3bheu8286vcc5k2innf3.apps.googleusercontent.com',
+    iosClientId: '119422410652-77fqqikb48cgqal9jnv8pjnqie0usp0c.apps.googleusercontent.com',
+    iosBundleId: 'com.wilmer.campusBites',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyD_kwcttoOvoqZomcBaeBf53oMb6a2m7ug',
+    appId: '1:119422410652:ios:e51e0ab04c1b0057973259',
+    messagingSenderId: '119422410652',
+    projectId: 'campusbites-72033',
+    storageBucket: 'campusbites-72033.firebasestorage.app',
+    androidClientId: '119422410652-0pmljrvbipcr3bheu8286vcc5k2innf3.apps.googleusercontent.com',
+    iosClientId: '119422410652-k97pad00h15dol60qe2lf6i77m11otrk.apps.googleusercontent.com',
+    iosBundleId: 'com.example.campusBites',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBTDAHZ-St8JieN0hAIkLunxzcALhYOXAA',
+    appId: '1:119422410652:web:00d6a5a317e976de973259',
+    messagingSenderId: '119422410652',
+    projectId: 'campusbites-72033',
+    authDomain: 'campusbites-72033.firebaseapp.com',
+    storageBucket: 'campusbites-72033.firebasestorage.app',
+    measurementId: 'G-VFMDQ1PF9L',
   );
 }
