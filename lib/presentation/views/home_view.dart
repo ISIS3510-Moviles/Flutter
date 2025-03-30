@@ -18,11 +18,14 @@ class HomeView extends ConsumerStatefulWidget {
 class HomeViewState extends ConsumerState<HomeView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   DateTime? _viewEntryTime;
+  DateTime? _fetchStartTime; // Nuevo: Tiempo de inicio de carga
+  bool _hasLoggedLoadTime = false; // Nuevo: Control para evitar múltiples logs
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
   @override
   void initState() {
     super.initState();
+    _fetchStartTime = DateTime.now(); 
     ref.read(getRestaurantsProvider.notifier).fetch();
     _viewEntryTime = DateTime.now();
     _logScreenView();
@@ -30,12 +33,10 @@ class HomeViewState extends ConsumerState<HomeView> {
 
   @override
   void dispose() {
-    // Calculate time spent in the view when leaving
     _logTimeSpent();
     super.dispose();
   }
 
-  // Add these two new methods to your HomeViewState class:
   void _logScreenView() {
     _analytics.logScreenView(
       screenName: 'HomeView',
@@ -61,15 +62,29 @@ class HomeViewState extends ConsumerState<HomeView> {
   @override
   Widget build(BuildContext context) {
     final bool initialLoading = ref.watch(initialLoadingProvider);
+    final List<RestaurantEntity> restaurants = ref.watch(getRestaurantsProvider);
+
+    if (!initialLoading && restaurants.isNotEmpty && !_hasLoggedLoadTime) {
+      final duration = DateTime.now().difference(_fetchStartTime!).inMilliseconds;
+      
+      _analytics.logEvent(
+        name: 'restaurant_load_time',
+        parameters: {
+          'duration_ms': duration,
+        },
+      );
+      _hasLoggedLoadTime = true;
+    }
+
     if (initialLoading) return const FullScreenLoader();
 
-    final List<RestaurantEntity> restaurants = ref.watch(getRestaurantsProvider);
     const images = [
       'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
       'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
       'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
       'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
     ];
+    
     return Scaffold(
       appBar: null,
       key: _scaffoldKey,
@@ -90,7 +105,7 @@ class HomeViewState extends ConsumerState<HomeView> {
                         child: CustomTextFormField(
                           label: 'Search food',
                           filterTap: () =>
-                              _scaffoldKey.currentState!.openDrawer(),
+                              _scaffoldKey.currentState!.openDrawer(), onSubmitted: (query) {  },
                         ))),
               ),
             ),
@@ -118,7 +133,7 @@ class HomeViewState extends ConsumerState<HomeView> {
                               return RestaurantCard(
                                 title: restaurant.name,
                                 rating: restaurant.rating.toString(),
-                                distance: '200 meters', // Aquí puedes colocar la distancia real si la tienes
+                                distance: '200 meters',
                                 imageUrl: restaurant.profilePhoto!,
                               );
                             })
