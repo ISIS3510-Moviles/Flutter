@@ -3,10 +3,10 @@ import 'package:campus_bites/presentation/providers/restaurants/initial_loading_
 import 'package:campus_bites/presentation/providers/restaurants/restaurants_provider.dart';
 import 'package:campus_bites/presentation/widgets/shared/restaurant_card.dart';
 import 'package:campus_bites/presentation/widgets/widgets.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -219,11 +219,31 @@ class CustomDrawer extends StatelessWidget {
                           Text('All')
                         ]),
                         Row(children: [
-                          Checkbox(value: false, onChanged: (value) {}),
+                          Checkbox(
+                            value: false, 
+                            onChanged: (value) {
+                              _analytics.logEvent(
+                                name: 'dietary_filter',
+                                parameters: {
+                                  'dietary_filter': 'vegan'
+                                }
+                              ); 
+                            }
+                          ),
                           Text('Vegan')
                         ]),
                         Row(children: [
-                          Checkbox(value: false, onChanged: (value) {}),
+                         Checkbox(
+                            value: false, 
+                            onChanged: (value) {
+                              _analytics.logEvent(
+                                name: 'dietary_filter',
+                                parameters: {
+                                  'dietary_filter': 'vegetarian'
+                                }
+                              ); 
+                            }
+                          ),
                           Text('Vegetarian')
                         ]),
                         Row(children: [
