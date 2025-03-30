@@ -149,6 +149,7 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
     return Drawer(
       child: SafeArea(
         child: Padding(
@@ -222,7 +223,7 @@ class CustomDrawer extends StatelessWidget {
                           Checkbox(
                             value: false, 
                             onChanged: (value) {
-                              _analytics.logEvent(
+                              analytics.logEvent(
                                 name: 'dietary_filter',
                                 parameters: {
                                   'dietary_filter': 'vegan'
@@ -236,7 +237,7 @@ class CustomDrawer extends StatelessWidget {
                          Checkbox(
                             value: false, 
                             onChanged: (value) {
-                              _analytics.logEvent(
+                              analytics.logEvent(
                                 name: 'dietary_filter',
                                 parameters: {
                                   'dietary_filter': 'vegetarian'
