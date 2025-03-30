@@ -22,6 +22,7 @@ class _CustomAppbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String currentLocation = GoRouter.of(context).routeInformationProvider.value.uri.toString();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: SizedBox(
@@ -30,11 +31,11 @@ class _CustomAppbar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             IconButton(
-              onPressed: () => context.go('/notifications'),
+              onPressed: () => currentLocation == '/notifications' ? null : context.push('/notifications'),
               icon: const Icon(Icons.notifications_active_outlined),
             ),
             IconButton(
-              onPressed:  () => context.go('/profile'),
+              onPressed:  () => currentLocation == '/profile' ? null : context.push('/profile'),
               icon: const Icon(Icons.account_circle_outlined),
             ),
           ],
