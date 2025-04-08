@@ -15,7 +15,7 @@ class HomeView extends ConsumerStatefulWidget {
   HomeViewState createState() => HomeViewState();
 }
 
-class HomeViewState extends ConsumerState<HomeView> {
+class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   DateTime? _viewEntryTime;
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
@@ -23,6 +23,9 @@ class HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
+     print("INITTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
+    // Register as an observer to detect app lifecycle changes
+    WidgetsBinding.instance.addObserver(this);
     ref.read(getRestaurantsProvider.notifier).fetch();
     _viewEntryTime = DateTime.now();
     _logScreenView();
@@ -30,9 +33,23 @@ class HomeViewState extends ConsumerState<HomeView> {
 
   @override
   void dispose() {
-    // Calculate time spent in the view when leaving
-    _logTimeSpent();
+    print("DISPOSEEEEEEEEEEEEEEE");
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+     print("CHANGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+    // Track when app goes to background
+    if (state == AppLifecycleState.paused) {
+      _logTimeSpent();
+      // Reset the timer since we're logging the session that just ended
+      _viewEntryTime = null;
+    } else if (state == AppLifecycleState.resumed && _viewEntryTime == null) {
+      // If coming back to foreground, restart the timer
+      _viewEntryTime = DateTime.now();
+    }
   }
 
   // Add these two new methods to your HomeViewState class:
@@ -47,6 +64,8 @@ class HomeViewState extends ConsumerState<HomeView> {
     if (_viewEntryTime != null) {
       final DateTime exitTime = DateTime.now();
       final int timeSpentSeconds = exitTime.difference(_viewEntryTime!).inSeconds;
+      print("LOOOOOOOOOOOOOOOOOOOGGGGGGGGGGGOOOG");
+      print(timeSpentSeconds);
       
       _analytics.logEvent(
         name: 'recommendation_section_average_time',
@@ -55,6 +74,9 @@ class HomeViewState extends ConsumerState<HomeView> {
           'time_spent_seconds': timeSpentSeconds,
         },
       );
+      
+      // Reset entry time after logging
+      _viewEntryTime = null;
     }
   }
 

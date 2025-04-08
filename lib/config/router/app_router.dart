@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:campus_bites/presentation/screens/food_screen.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/login',
+  initialLocation: '/',
   routes: [
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen(),),
     StatefulShellRoute.indexedStack(
