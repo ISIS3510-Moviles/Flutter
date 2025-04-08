@@ -32,6 +32,10 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+local.properties
+**/local.properties
+google-services.json
+**/google-services.json
 
 # Symbolication related
 app.*.symbols

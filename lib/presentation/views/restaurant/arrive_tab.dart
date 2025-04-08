@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 
 class ArriveTab extends StatefulWidget {
   const ArriveTab({super.key});
@@ -12,6 +15,32 @@ class ArriveTab extends StatefulWidget {
 
 class _ArriveTabState extends State<ArriveTab> {
   final Completer<GoogleMapController> _controller = Completer<GoogleMapController>();
+
+  @override
+  void initState() {
+    super.initState();
+    _requestLocationPermission();
+  }
+
+  Future<bool> _requestLocationPermission() async {
+    var status = await Permission.location.status;
+
+    if (status.isDenied) {
+      status = await Permission.location.request();
+    }
+
+    if (status.isGranted) {
+      print("Location permission granted");
+      return true;
+    } else if (status.isPermanentlyDenied) {
+      print(
+          "Location permission permanently denied. Please enable it from settings.");
+    } else {
+      print("Location permission denied");
+    }
+
+    return false;
+  }
 
   static const CameraPosition _kUniversityLosAndes = CameraPosition(
     target: LatLng(4.60142035, -74.0649170096208),
@@ -31,17 +60,29 @@ class _ArriveTabState extends State<ArriveTab> {
             child: GoogleMap(
               mapType: MapType.normal,
               initialCameraPosition: _kUniversityLosAndes,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              zoomGesturesEnabled: true,
+              scrollGesturesEnabled: true,
+              rotateGesturesEnabled: true,
+              tiltGesturesEnabled: true,
+              gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+                Factory<OneSequenceGestureRecognizer>(
+                    () => EagerGestureRecognizer()),
+              },
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
               },
             ),
           ),
-          SizedBox(height: 16,),
+          SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            child: Text('Exit the ML building, head down the Environmental Axis, one block before City U, turn right.', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400)),
+            child: Text(
+              'Exit the ML building, head down the Environmental Axis, one block before City U, turn right.',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+            ),
           ),
-          
         ],
       ),
     );
