@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 
 class ArriveTab extends StatefulWidget {
   const ArriveTab({super.key});
@@ -60,19 +62,26 @@ class _ArriveTabState extends State<ArriveTab> {
               initialCameraPosition: _kUniversityLosAndes,
               myLocationEnabled: true,
               myLocationButtonEnabled: true,
+              zoomGesturesEnabled: true,
+              scrollGesturesEnabled: true,
+              rotateGesturesEnabled: true,
+              tiltGesturesEnabled: true,
+              gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+                Factory<OneSequenceGestureRecognizer>(
+                    () => EagerGestureRecognizer()),
+              },
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
               },
             ),
           ),
-          SizedBox(
-            height: 16,
-          ),
+          SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: Text(
-                'Exit the ML building, head down the Environmental Axis, one block before City U, turn right.',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400)),
+              'Exit the ML building, head down the Environmental Axis, one block before City U, turn right.',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+            ),
           ),
         ],
       ),
