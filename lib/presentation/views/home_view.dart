@@ -28,7 +28,6 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
   @override
   void initState() {
     super.initState();
-     print("INITTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
     // Register as an observer to detect app lifecycle changes
     WidgetsBinding.instance.addObserver(this);
     ref.read(getRestaurantsProvider.notifier).fetch();
@@ -37,7 +36,6 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
 
   @override
   void didChangeDependencies() {
-    print("DEPENDENCIEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEES");
     super.didChangeDependencies();
     final route = ModalRoute.of(context);
     if (route != null) {
@@ -52,7 +50,6 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
   }
 
   void _handleRouteChange() {
-    print("ROUTEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
     final newLocation = _router.routerDelegate.currentConfiguration.fullPath;
     if (_currentLocation != newLocation) {
       // Navigated away from HomeView
@@ -60,7 +57,6 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
         _logTimeSpent(); // Leaving HomeView
       }
       if (newLocation == '/') {
-        print("RESET TIMEEEEEEEEEEEEEEEEEEEEEE");
         _viewEntryTime = DateTime.now(); // Entering HomeView again
       }
       _currentLocation = newLocation;
@@ -70,7 +66,6 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
         _insideNestedRoute = true; // Set the flag to indicate that we are in a nested route
         _logTimeSpent(); // Leaving HomeView
       } else {
-        print("RESET TIMEEEEEEEEEEEEEEEEEEEEEE");
         _insideNestedRoute = false; // Reset the flag for future checks
         _viewEntryTime = DateTime.now(); // Entering HomeView again
       }
@@ -79,7 +74,6 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
 
   @override
   void dispose() {
-    print("DISPOSEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
     _logTimeSpent();
     routeObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
@@ -91,7 +85,6 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-     print("CHANGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
     // Track when app goes to background
     if (state == AppLifecycleState.paused) {
       _logTimeSpent();
@@ -99,8 +92,7 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
       // Only reset if we don't have an active timer and if we are back on the HomeView
       _currentLocation = _router.routerDelegate.currentConfiguration.fullPath;
       if (_currentLocation == '/' && !_insideNestedRoute) { 
-        print("RESET TIMEEEEEEEEEEEEEEEEEEEEEE FROM RESUME");
-        _viewEntryTime ??= DateTime.now();
+        _viewEntryTime = DateTime.now();
       }
     }
   }
@@ -108,14 +100,12 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
   void _logTimeSpent() {
     if (_viewEntryTime != null) {
       final DateTime exitTime = DateTime.now();
-      final int timeSpentSeconds = exitTime.difference(_viewEntryTime!).inSeconds;
-      print("LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOG");
+      final int timeSeconds = exitTime.difference(_viewEntryTime!).inSeconds;
       
       _analytics.logEvent(
-        name: 'recommendation_section_average_time',
+        name: 'home_view_spent_time',
         parameters: {
-          'screen_name': 'HomeView',
-          'time_spent_seconds': timeSpentSeconds,
+          'time_seconds': timeSeconds,
         },
       );
       
