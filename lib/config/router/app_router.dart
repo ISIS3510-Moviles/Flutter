@@ -11,7 +11,7 @@ import 'package:flutter/widgets.dart';
 final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
 
 final appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/login',
   observers: [routeObserver],
   routes: [
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen(),),

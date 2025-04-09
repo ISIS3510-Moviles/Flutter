@@ -31,7 +31,7 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
     // Register as an observer to detect app lifecycle changes
     WidgetsBinding.instance.addObserver(this);
     ref.read(getRestaurantsProvider.notifier).fetch();
-    _viewEntryTime ??= DateTime.now();
+    _viewEntryTime = DateTime.now();
   }
 
   @override
@@ -74,7 +74,6 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
 
   @override
   void dispose() {
-    _logTimeSpent();
     routeObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     if (_routerInitialized) {
