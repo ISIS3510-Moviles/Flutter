@@ -6,9 +6,13 @@ import 'package:campus_bites/presentation/screens/tag_screen.dart';
 import 'package:campus_bites/presentation/views/views.dart';
 import 'package:go_router/go_router.dart';
 import 'package:campus_bites/presentation/screens/food_screen.dart';
+import 'package:flutter/widgets.dart';
+
+final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
 
 final appRouter = GoRouter(
   initialLocation: '/login',
+  observers: [routeObserver],
   routes: [
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen(),),
     StatefulShellRoute.indexedStack(
@@ -21,11 +25,11 @@ final appRouter = GoRouter(
               builder: (context, state) => const HomeView(),
               routes: [
                 GoRoute(
-                  path: '/profile',
+                  path: 'profile',
                   builder: (context, state) => ProfileScreen(),
                 ),
                 GoRoute(
-                  path: '/restaurant',
+                  path: 'restaurant',
                   builder: (context, state) => const RestaurantScreen()),
                 GoRoute(
                   path: 'tags/:tagName',
@@ -42,7 +46,7 @@ final appRouter = GoRouter(
                   },
                 ),
                 GoRoute(
-                  path: '/notifications',
+                  path: 'notifications',
                   builder: (context, state) => const NotificationsScreen()
                 )
               ]
