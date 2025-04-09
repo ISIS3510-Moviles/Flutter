@@ -20,7 +20,10 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   DateTime? _viewEntryTime;
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
-  
+  late final GoRouter _router;
+  late String _currentLocation;
+  bool _routerInitialized = false;
+
   @override
   void initState() {
     super.initState();
@@ -33,11 +36,33 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
 
   @override
   void didChangeDependencies() {
-    print("DEPENDENCIEDEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEES");
+    print("DEPENDENCIEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEES");
     super.didChangeDependencies();
     final route = ModalRoute.of(context);
     if (route != null) {
       routeObserver.subscribe(this, route);
+    }
+    if (!_routerInitialized) {
+      _router = GoRouter.of(context);
+      _currentLocation = _router.routerDelegate.currentConfiguration.fullPath;
+      _router.routerDelegate.addListener(_handleRouteChange);
+      _routerInitialized = true;
+    }
+  }
+
+  void _handleRouteChange() {
+    print("ROUTEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+    final newLocation = _router.routerDelegate.currentConfiguration.fullPath;
+    if (_currentLocation != newLocation) {
+      // Navigated away from HomeView
+      print("Route changed from $_currentLocation to $newLocation");
+      if (_currentLocation == '/') {
+        _logTimeSpent(); // Leaving HomeView
+      }
+      if (newLocation == '/') {
+        _viewEntryTime = DateTime.now(); // Entering HomeView again
+      }
+      _currentLocation = newLocation;
     }
   }
 
@@ -46,6 +71,9 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
     print("DISPOSEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
     routeObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
+    if (_routerInitialized) {
+      _router.routerDelegate.removeListener(_handleRouteChange);
+    }
     super.dispose();
   }
 
