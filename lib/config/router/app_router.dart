@@ -25,11 +25,11 @@ final appRouter = GoRouter(
               builder: (context, state) => const HomeView(),
               routes: [
                 GoRoute(
-                  path: '/profile',
+                  path: 'profile',
                   builder: (context, state) => ProfileScreen(),
                 ),
                 GoRoute(
-                  path: '/restaurant',
+                  path: 'restaurant',
                   builder: (context, state) => const RestaurantScreen()),
                 GoRoute(
                   path: 'tags/:tagName',
@@ -46,7 +46,7 @@ final appRouter = GoRouter(
                   },
                 ),
                 GoRoute(
-                  path: '/notifications',
+                  path: 'notifications',
                   builder: (context, state) => const NotificationsScreen()
                 )
               ]

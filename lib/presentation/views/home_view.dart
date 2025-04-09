@@ -23,6 +23,7 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
   late final GoRouter _router;
   late String _currentLocation;
   bool _routerInitialized = false;
+  bool _insideNestedRoute = false;
 
   @override
   void initState() {
@@ -55,20 +56,31 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
     final newLocation = _router.routerDelegate.currentConfiguration.fullPath;
     if (_currentLocation != newLocation) {
       // Navigated away from HomeView
-      print("Route changed from $_currentLocation to $newLocation");
       if (_currentLocation == '/') {
         _logTimeSpent(); // Leaving HomeView
       }
       if (newLocation == '/') {
+        print("RESET TIMEEEEEEEEEEEEEEEEEEEEEE");
         _viewEntryTime = DateTime.now(); // Entering HomeView again
       }
       _currentLocation = newLocation;
+    } else {
+      // It is a change between a nested route and HomeView
+      if (!_insideNestedRoute) {
+        _insideNestedRoute = true; // Set the flag to indicate that we are in a nested route
+        _logTimeSpent(); // Leaving HomeView
+      } else {
+        print("RESET TIMEEEEEEEEEEEEEEEEEEEEEE");
+        _insideNestedRoute = false; // Reset the flag for future checks
+        _viewEntryTime = DateTime.now(); // Entering HomeView again
+      }
     }
   }
 
   @override
   void dispose() {
     print("DISPOSEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+    _logTimeSpent();
     routeObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     if (_routerInitialized) {
@@ -84,8 +96,12 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
     if (state == AppLifecycleState.paused) {
       _logTimeSpent();
     } else if (state == AppLifecycleState.resumed) {
-      // Only reset if we don't have an active timer
-      _viewEntryTime ??= DateTime.now();
+      // Only reset if we don't have an active timer and if we are back on the HomeView
+      _currentLocation = _router.routerDelegate.currentConfiguration.fullPath;
+      if (_currentLocation == '/' && !_insideNestedRoute) { 
+        print("RESET TIMEEEEEEEEEEEEEEEEEEEEEE FROM RESUME");
+        _viewEntryTime ??= DateTime.now();
+      }
     }
   }
 
