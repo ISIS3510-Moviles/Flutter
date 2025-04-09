@@ -6,9 +6,13 @@ import 'package:campus_bites/presentation/screens/tag_screen.dart';
 import 'package:campus_bites/presentation/views/views.dart';
 import 'package:go_router/go_router.dart';
 import 'package:campus_bites/presentation/screens/food_screen.dart';
+import 'package:flutter/widgets.dart';
+
+final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
 
 final appRouter = GoRouter(
   initialLocation: '/',
+  observers: [routeObserver],
   routes: [
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen(),),
     StatefulShellRoute.indexedStack(

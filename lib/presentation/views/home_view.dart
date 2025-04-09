@@ -7,6 +7,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:campus_bites/config/router/app_router.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -15,11 +16,11 @@ class HomeView extends ConsumerStatefulWidget {
   HomeViewState createState() => HomeViewState();
 }
 
-class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver {
+class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver, RouteAware {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   DateTime? _viewEntryTime;
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
-
+  
   @override
   void initState() {
     super.initState();
@@ -27,13 +28,23 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver 
     // Register as an observer to detect app lifecycle changes
     WidgetsBinding.instance.addObserver(this);
     ref.read(getRestaurantsProvider.notifier).fetch();
-    _viewEntryTime = DateTime.now();
-    _logScreenView();
+    _viewEntryTime ??= DateTime.now();
+  }
+
+  @override
+  void didChangeDependencies() {
+    print("DEPENDENCIEDEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEES");
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      routeObserver.subscribe(this, route);
+    }
   }
 
   @override
   void dispose() {
-    print("DISPOSEEEEEEEEEEEEEEE");
+    print("DISPOSEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+    routeObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -44,28 +55,17 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver 
     // Track when app goes to background
     if (state == AppLifecycleState.paused) {
       _logTimeSpent();
-      // Reset the timer since we're logging the session that just ended
-      _viewEntryTime = null;
-    } else if (state == AppLifecycleState.resumed && _viewEntryTime == null) {
-      // If coming back to foreground, restart the timer
-      _viewEntryTime = DateTime.now();
+    } else if (state == AppLifecycleState.resumed) {
+      // Only reset if we don't have an active timer
+      _viewEntryTime ??= DateTime.now();
     }
-  }
-
-  // Add these two new methods to your HomeViewState class:
-  void _logScreenView() {
-    _analytics.logScreenView(
-      screenName: 'HomeView',
-      screenClass: 'HomeView',
-    );
   }
 
   void _logTimeSpent() {
     if (_viewEntryTime != null) {
       final DateTime exitTime = DateTime.now();
       final int timeSpentSeconds = exitTime.difference(_viewEntryTime!).inSeconds;
-      print("LOOOOOOOOOOOOOOOOOOOGGGGGGGGGGGOOOG");
-      print(timeSpentSeconds);
+      print("LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOG");
       
       _analytics.logEvent(
         name: 'recommendation_section_average_time',
