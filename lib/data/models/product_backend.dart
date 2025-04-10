@@ -5,6 +5,8 @@ class ProductBackend {
   final int rating;
   final int price;
   final bool isAvailable;
+  final String? photo;
+  final List<String>? tags;
 
   ProductBackend({
     required this.id,
@@ -13,16 +15,22 @@ class ProductBackend {
     required this.rating,
     required this.price,
     required this.isAvailable,
+    this.photo,
+    this.tags,
   });
 
   factory ProductBackend.fromJson(Map<String, dynamic> json) {
     return ProductBackend(
-      id: json['id'],
-      name: json['name'],
-      description: json['description'],
-      rating: json['rating'],
-      price: json['price'],
-      isAvailable: json['isAvailable'],
+      id: json['id'] as String? ?? 'Unknown ID',
+      name: json['name'] as String? ?? 'Unknown Name', 
+      description: json['description'] as String? ?? 'No description',
+      rating: (json['rating'] as num?)?.toInt() ?? 0,
+      price: (json['price'] as num?)?.toInt() ?? 0,
+      isAvailable: json['isAvailable'] as bool? ?? false,
+      photo: json['photo'] as String?,
+      tags: json['tags'] != null
+          ? List<String>.from(json['tags'])
+          : null, 
     );
   }
 
@@ -34,6 +42,8 @@ class ProductBackend {
       'rating': rating,
       'price': price,
       'isAvailable': isAvailable,
+      'photo': photo,
+      'tags': tags,
     };
   }
 }

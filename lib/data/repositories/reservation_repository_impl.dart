@@ -9,7 +9,7 @@ class ReservationRepositoryImpl extends ReservationRepository {
   ReservationRepositoryImpl(this.reservationBackendDatasource);
   
   @override
-  Future<List<ReservationEntity>> getReservations() {
-    return reservationBackendDatasource.getReservations();
+  Future<List<ReservationEntity>> getReservationsByUserId(String id) {
+    return reservationBackendDatasource.getReservationsByUserId(id);
   }
 }

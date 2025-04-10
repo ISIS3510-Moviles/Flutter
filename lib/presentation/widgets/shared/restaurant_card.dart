@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-
-
 class RestaurantCard extends StatelessWidget {
   final String title;
   final String rating;
   final String distance;
   final String imageUrl;
+  final List<String> tags;
 
-  const RestaurantCard({super.key, required this.title, required this.rating, required this.distance, required this.imageUrl});
-
+  const RestaurantCard({
+    super.key,
+    required this.title,
+    required this.rating,
+    required this.distance,
+    required this.imageUrl,
+    required this.tags,
+  });
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -31,6 +36,14 @@ class RestaurantCard extends StatelessWidget {
                   width: 80,
                   height: 80,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      'assets/placeholder.png',
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    );
+                  },
                 ),
               ),
               SizedBox(width: 16),
@@ -40,12 +53,16 @@ class RestaurantCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.star_border_outlined, size: 18, color: Color(0xFFF9A825)),
+                        Icon(Icons.star_border_outlined,
+                            size: 18, color: Color(0xFFF9A825)),
                         SizedBox(width: 4),
                         Text(rating),
                       ],
@@ -59,12 +76,10 @@ class RestaurantCard extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 8),
-                    Row(
-                      children: [
-                        _buildTag('Dinner'),
-                        SizedBox(width: 8),
-                        _buildTag('Breakfast'),
-                      ],
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: tags.map((tag) => _buildTag(tag)).toList(),
                     ),
                   ],
                 ),

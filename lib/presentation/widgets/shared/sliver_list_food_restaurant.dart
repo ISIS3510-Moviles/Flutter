@@ -2,17 +2,25 @@ import 'package:campus_bites/presentation/widgets/shared/responsive_food_list.da
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/restaurant_card.dart';
 
-
 class SilverListFoodRestaurant extends StatelessWidget {
-  final tabs = [
-    _RestaurantTab(),
-    _FoodTab(),
-  ];
+  final List<Map<String, dynamic>> restaurants;
+  final List<Map<String, String>> foods;
   final int currentTabIndex;
-  SilverListFoodRestaurant({super.key, required this.currentTabIndex});
+
+  const SilverListFoodRestaurant({
+    super.key,
+    required this.restaurants,
+    required this.foods,
+    required this.currentTabIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final tabs = [
+      _RestaurantTab(restaurants: restaurants),
+      _FoodTab(foods: foods),
+    ];
+
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, index) => tabs[currentTabIndex],
@@ -23,33 +31,12 @@ class SilverListFoodRestaurant extends StatelessWidget {
 }
 
 class _RestaurantTab extends StatelessWidget {
-  const _RestaurantTab();
+  final List<Map<String, dynamic>> restaurants;
+
+  const _RestaurantTab({required this.restaurants});
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> restaurants = [
-      {
-        'title': 'Starbucks (Andes)',
-        'rating': '4.5',
-        'distance': '300 meters',
-        'imageUrl': 'https://cdn-icons-png.flaticon.com/512/16183/16183661.png'
-      },
-      {
-        'title': 'Tostao (Andes)',
-        'rating': '4.5',
-        'distance': '300 meters',
-        'imageUrl':
-            'https://mir-s3-cdn-cf.behance.net/projects/404/f7aa47209881437.Y3JvcCw4MDgsNjMyLDAsMA.png'
-      },
-      {
-        'title': 'Juan Valdez (Andes)',
-        'rating': '4.5',
-        'distance': '300 meters',
-        'imageUrl':
-            'https://mir-s3-cdn-cf.behance.net/projects/404/5a9d41129272323.Y3JvcCwxMDE4LDc5NywyLDA.png'
-      }
-    ];
-
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -61,6 +48,7 @@ class _RestaurantTab extends StatelessWidget {
           rating: restaurant['rating'] ?? '0.0',
           distance: restaurant['distance'] ?? '',
           imageUrl: restaurant['imageUrl'] ?? '',
+          tags: restaurant['tags'] ?? [],
         );
       },
     );
@@ -68,174 +56,12 @@ class _RestaurantTab extends StatelessWidget {
 }
 
 class _FoodTab extends StatelessWidget {
-  const _FoodTab();
+  final List<Map<String, String>> foods;
+
+  const _FoodTab({required this.foods});
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> food = [
-      {
-        'id': '1',
-        'title': 'SeneTamale',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-      },
-      {
-        'id': '2',
-        'title': 'Seneca Burguer',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-      },
-      {
-        'id': '3',
-        'title': 'SeneTamale',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-      },
-      {
-        'id': '4',
-        'title': 'Seneca Burguer',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-      },
-      {
-        'id': '5',
-        'title': 'SeneTamale',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-      },
-      {
-        'id': '6',
-        'title': 'Seneca Burguer',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-      },
-      {
-        'id': '7',
-        'title': 'SeneTamale',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-      },
-      {
-        'id': '8',
-        'title': 'Seneca Burguer',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-      },
-      {
-        'id': '9',
-        'title': 'SeneTamale',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-      },
-      {
-        'id': '10',
-        'title': 'Seneca Burguer',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-      },
-      {
-        'id': '11',
-        'title': 'SeneTamale',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-      },
-      {
-        'id': '12',
-        'title': 'Seneca Burguer',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-      },
-      {
-        'id': '13',
-        'title': 'SeneTamale',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-      },
-      {
-        'id': '14',
-        'title': 'Seneca Burguer',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-      },
-      {
-        'id': '15',
-        'title': 'SeneTamale',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-      },
-      {
-        'id': '16',
-        'title': 'Seneca Burguer',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-      },
-      {
-        'id': '17',
-        'title': 'SeneTamale',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-      },
-      {
-        'id': '18',
-        'title': 'Seneca Burguer',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-      },
-      {
-        'id': '19',
-        'title': 'SeneTamale',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-      },
-      {
-        'id': '20',
-        'title': 'Seneca Burguer',
-        'price': '\$40.000',
-        'subtitle': 'Seneca Food',
-        'imageUrl':
-            'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-      },
-    ];
-
-    return ResponsiveFoodList(food: food);
+    return ResponsiveFoodList(food: foods);
   }
 }
-

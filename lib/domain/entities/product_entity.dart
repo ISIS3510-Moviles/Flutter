@@ -5,6 +5,7 @@ class ProductEntity {
   final int rating;
   final int price;
   final bool isAvailable;
+  final String? photo;
   final List<String>? tags;
 
   ProductEntity({
@@ -14,8 +15,7 @@ class ProductEntity {
     required this.rating,
     required this.price,
     required this.isAvailable,
+    this.photo,
     this.tags,
   });
-
-  
 }

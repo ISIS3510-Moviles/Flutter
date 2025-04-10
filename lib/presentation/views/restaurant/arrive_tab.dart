@@ -28,16 +28,6 @@ class _ArriveTabState extends State<ArriveTab> {
     if (status.isDenied) {
       status = await Permission.location.request();
     }
-
-    if (status.isGranted) {
-      print("Location permission granted");
-      return true;
-    } else if (status.isPermanentlyDenied) {
-      print("Location permission permanently denied. Please enable it from settings.");
-    } else {
-      print("Location permission denied");
-    }
-
     return false;
   }
 

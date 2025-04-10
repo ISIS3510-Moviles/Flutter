@@ -17,8 +17,9 @@ class RestaurantNotifier extends StateNotifier<List<RestaurantEntity>> {
     required this.fetchRestaurants
   }) : super([]);
 
-  Future<void> fetch() async {
-    final List<RestaurantEntity> restaurants = await fetchRestaurants();
-    state = restaurants;
-  }
+
+Future<void> fetch() async {
+  final List<RestaurantEntity> restaurants = await fetchRestaurants();
+  state = restaurants;
+}
 }
