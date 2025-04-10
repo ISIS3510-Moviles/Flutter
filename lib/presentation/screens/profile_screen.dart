@@ -30,7 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         throw Exception("No user ID found in GlobalUser.");
       }
 
-      final user = await _backendDatasource.getUser(userId);
+      final user = await _backendDatasource.getUser("mhb5GrYjKYb52x7Cub5yT7LlPIo1");
 
       setState(() {
         _user = user;

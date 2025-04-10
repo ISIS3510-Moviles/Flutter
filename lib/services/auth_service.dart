@@ -45,7 +45,7 @@ class AuthService {
       final user = userCredential.user;
       if (user != null) {
         final userEntity = UserEntity(
-          id: user.uid,
+          id: "mhb5GrYjKYb52x7Cub5yT7LlPIo1",
           name: user.displayName ?? "Unknown",
           phone: user.phoneNumber ?? "",
           email: user.email ?? "",
