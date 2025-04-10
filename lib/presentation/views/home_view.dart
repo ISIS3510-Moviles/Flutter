@@ -19,6 +19,8 @@ class HomeView extends ConsumerStatefulWidget {
 class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver, RouteAware {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   DateTime? _viewEntryTime;
+  DateTime? _fetchStartTime; // Nuevo: Tiempo de inicio de carga
+  bool _hasLoggedLoadTime = false; // Nuevo: Control para evitar múltiples logs
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
   late final GoRouter _router;
   late String _currentLocation;
@@ -28,6 +30,7 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
   @override
   void initState() {
     super.initState();
+    _fetchStartTime = DateTime.now(); 
     // Register as an observer to detect app lifecycle changes
     WidgetsBinding.instance.addObserver(this);
     ref.read(getRestaurantsProvider.notifier).fetch();
@@ -116,15 +119,29 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
   @override
   Widget build(BuildContext context) {
     final bool initialLoading = ref.watch(initialLoadingProvider);
+    final List<RestaurantEntity> restaurants = ref.watch(getRestaurantsProvider);
+
+    if (!initialLoading && restaurants.isNotEmpty && !_hasLoggedLoadTime) {
+      final duration = DateTime.now().difference(_fetchStartTime!).inMilliseconds;
+      
+      _analytics.logEvent(
+        name: 'restaurant_load_time',
+        parameters: {
+          'duration_ms': duration,
+        },
+      );
+      _hasLoggedLoadTime = true;
+    }
+
     if (initialLoading) return const FullScreenLoader();
 
-    final List<RestaurantEntity> restaurants = ref.watch(getRestaurantsProvider);
     const images = [
       'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
       'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
       'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
       'https://cdn-icons-png.flaticon.com/512/7184/7184115.png',
     ];
+    
     return Scaffold(
       appBar: null,
       key: _scaffoldKey,
@@ -145,7 +162,7 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
                         child: CustomTextFormField(
                           label: 'Search food',
                           filterTap: () =>
-                              _scaffoldKey.currentState!.openDrawer(),
+                              _scaffoldKey.currentState!.openDrawer(), onSubmitted: (query) {  },
                         ))),
               ),
             ),
@@ -173,7 +190,7 @@ class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver,
                               return RestaurantCard(
                                 title: restaurant.name,
                                 rating: restaurant.rating.toString(),
-                                distance: '200 meters', // Aquí puedes colocar la distancia real si la tienes
+                                distance: '200 meters',
                                 imageUrl: restaurant.profilePhoto!,
                               );
                             })

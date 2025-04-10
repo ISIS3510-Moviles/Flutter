@@ -19,7 +19,7 @@ class CustomTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.onChanged, 
     this.validator,
-    this.filterTap
+    this.filterTap, required Null Function(dynamic query) onSubmitted
   });
 
   @override
