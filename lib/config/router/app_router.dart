@@ -6,27 +6,31 @@ import 'package:campus_bites/presentation/screens/tag_screen.dart';
 import 'package:campus_bites/presentation/views/views.dart';
 import 'package:go_router/go_router.dart';
 import 'package:campus_bites/presentation/screens/food_screen.dart';
+import 'package:flutter/widgets.dart';
 
-final appRouter = GoRouter(initialLocation: '/', routes: [
-  StatefulShellRoute.indexedStack(
+final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
+
+final appRouter = GoRouter(
+  initialLocation: '/login',
+  observers: [routeObserver],
+  routes: [
+    GoRoute(path: '/login', builder: (context, state) => const LoginScreen(),),
+    StatefulShellRoute.indexedStack(
       builder: (context, state, child) => HomeScreen(childView: child),
       branches: [
-        StatefulShellBranch(routes: [
-          GoRoute(
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
               path: '/',
-              builder: (context, state) => const LoginScreen(),
+              builder: (context, state) => const HomeView(),
               routes: [
                 GoRoute(
-                  path: '/home',
-                  builder: (context, state) => const HomeView(),
-                ),
-                GoRoute(
-                  path: '/profile',
+                  path: 'profile',
                   builder: (context, state) => ProfileScreen(),
                 ),
                 GoRoute(
-                    path: '/restaurant',
-                    builder: (context, state) => const RestaurantScreen()),
+                  path: 'restaurant',
+                  builder: (context, state) => const RestaurantScreen()),
                 GoRoute(
                   path: 'tags/:tagName',
                   builder: (context, state) {
@@ -42,15 +46,23 @@ final appRouter = GoRouter(initialLocation: '/', routes: [
                   },
                 ),
                 GoRoute(
-                    path: '/notifications',
-                    builder: (context, state) => const NotificationsScreen())
-              ]),
-        ]),
-        StatefulShellBranch(routes: [
-          GoRoute(
-            path: '/reservations',
-            builder: (context, state) => const ReservationScreen(),
-          )
-        ]),
-      ]),
-]);
+                  path: 'notifications',
+                  builder: (context, state) => const NotificationsScreen()
+                )
+              ]
+            ),
+          ]
+        ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/reservations',
+              builder: (context, state) => const ReservationScreen(),
+            )
+          ]
+        ),
+      ]
+    ),
+  ]
+);

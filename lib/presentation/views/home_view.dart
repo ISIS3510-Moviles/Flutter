@@ -7,6 +7,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:campus_bites/config/router/app_router.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -15,47 +16,103 @@ class HomeView extends ConsumerStatefulWidget {
   HomeViewState createState() => HomeViewState();
 }
 
-class HomeViewState extends ConsumerState<HomeView> {
+class HomeViewState extends ConsumerState<HomeView> with WidgetsBindingObserver, RouteAware {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   DateTime? _viewEntryTime;
   DateTime? _fetchStartTime; // Nuevo: Tiempo de inicio de carga
   bool _hasLoggedLoadTime = false; // Nuevo: Control para evitar múltiples logs
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+  late final GoRouter _router;
+  late String _currentLocation;
+  bool _routerInitialized = false;
+  bool _insideNestedRoute = false;
 
   @override
   void initState() {
     super.initState();
     _fetchStartTime = DateTime.now(); 
+    // Register as an observer to detect app lifecycle changes
+    WidgetsBinding.instance.addObserver(this);
     ref.read(getRestaurantsProvider.notifier).fetch();
     _viewEntryTime = DateTime.now();
-    _logScreenView();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      routeObserver.subscribe(this, route);
+    }
+    if (!_routerInitialized) {
+      _router = GoRouter.of(context);
+      _currentLocation = _router.routerDelegate.currentConfiguration.fullPath;
+      _router.routerDelegate.addListener(_handleRouteChange);
+      _routerInitialized = true;
+    }
+  }
+
+  void _handleRouteChange() {
+    final newLocation = _router.routerDelegate.currentConfiguration.fullPath;
+    if (_currentLocation != newLocation) {
+      // Navigated away from HomeView
+      if (_currentLocation == '/') {
+        _logTimeSpent(); // Leaving HomeView
+      }
+      if (newLocation == '/') {
+        _viewEntryTime = DateTime.now(); // Entering HomeView again
+      }
+      _currentLocation = newLocation;
+    } else {
+      // It is a change between a nested route and HomeView
+      if (!_insideNestedRoute) {
+        _insideNestedRoute = true; // Set the flag to indicate that we are in a nested route
+        _logTimeSpent(); // Leaving HomeView
+      } else {
+        _insideNestedRoute = false; // Reset the flag for future checks
+        _viewEntryTime = DateTime.now(); // Entering HomeView again
+      }
+    }
   }
 
   @override
   void dispose() {
-    _logTimeSpent();
+    routeObserver.unsubscribe(this);
+    WidgetsBinding.instance.removeObserver(this);
+    if (_routerInitialized) {
+      _router.routerDelegate.removeListener(_handleRouteChange);
+    }
     super.dispose();
   }
 
-  void _logScreenView() {
-    _analytics.logScreenView(
-      screenName: 'HomeView',
-      screenClass: 'HomeView',
-    );
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Track when app goes to background
+    if (state == AppLifecycleState.paused) {
+      _logTimeSpent();
+    } else if (state == AppLifecycleState.resumed) {
+      // Only reset if we don't have an active timer and if we are back on the HomeView
+      _currentLocation = _router.routerDelegate.currentConfiguration.fullPath;
+      if (_currentLocation == '/' && !_insideNestedRoute) { 
+        _viewEntryTime = DateTime.now();
+      }
+    }
   }
 
   void _logTimeSpent() {
     if (_viewEntryTime != null) {
       final DateTime exitTime = DateTime.now();
-      final int timeSpentSeconds = exitTime.difference(_viewEntryTime!).inSeconds;
+      final int timeSeconds = exitTime.difference(_viewEntryTime!).inSeconds;
       
       _analytics.logEvent(
-        name: 'recommendation_section_average_time',
+        name: 'home_view_spent_time',
         parameters: {
-          'screen_name': 'HomeView',
-          'time_spent_seconds': timeSpentSeconds,
+          'time_seconds': timeSeconds,
         },
       );
+      
+      // Reset entry time after logging
+      _viewEntryTime = null;
     }
   }
 
