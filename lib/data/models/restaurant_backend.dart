@@ -25,6 +25,7 @@ class RestaurantBackend {
   final List<String>? visitsIds;
   final List<String>? commentsIds;
   final List<String>? productsIds;
+  final List<String>? tags;
 
   RestaurantBackend({
     required this.id,
@@ -53,67 +54,63 @@ class RestaurantBackend {
     this.visitsIds,
     this.commentsIds,
     this.productsIds,
+    this.tags,
   });
 
   factory RestaurantBackend.fromJson(Map<String, dynamic> json) {
     return RestaurantBackend(
-      id: json['id'],
-      name: json['name'],
-      description: json['description'],
-      latitude: json['latitude'],
-      longitude: json['longitude'],
-      routeIndications: json['routeIndications'],
-      openingTime: DateTime.parse(json['openingTime']),
-      closingTime: DateTime.parse(json['closingTime']),
-      opensHolidays: json['opensHolidays'],
-      opensWeekends: json['opensWeekends'],
-      isActive: json['isActive'],
-      rating: json['rating']?.toDouble(),
-      address: json['address'],
-      phone: json['phone'],
-      email: json['email'],
-      overviewPhoto: json['overviewPhoto'],
-      profilePhoto: json['profilePhoto'],
-      photos: json['photos'] != null ? List<String>.from(json['photos']) : null,
-      foodTagsIds: json['foodTagsIds'] != null ? List<String>.from(json['foodTagsIds']) : null,
-      dietaryTagsIds: json['dietaryTagsIds'] != null ? List<String>.from(json['dietaryTagsIds']) : null,
-      alertsIds: json['alertsIds'] != null ? List<String>.from(json['alertsIds']) : null,
-      reservationsIds: json['reservationsIds'] != null ? List<String>.from(json['reservationsIds']) : null,
-      suscribersIds: json['suscribersIds'] != null ? List<String>.from(json['suscribersIds']) : null,
-      visitsIds: json['visitsIds'] != null ? List<String>.from(json['visitsIds']) : null,
-      commentsIds: json['commentsIds'] != null ? List<String>.from(json['commentsIds']) : null,
-      productsIds: json['productsIds'] != null ? List<String>.from(json['productsIds']) : null,
+      id: json['id'] as String? ?? 'Unknown ID',
+      name: json['name'] as String? ?? 'Unknown Name',
+      description: json['description'] as String? ?? 'No description',
+      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
+      routeIndications: json['routeIndications'] as String? ?? 'No route indications',
+      openingTime: json['openingTime'] != null
+          ? DateTime.parse(json['openingTime'])
+          : DateTime.now(),
+      closingTime: json['closingTime'] != null
+          ? DateTime.parse(json['closingTime'])
+          : DateTime.now(),
+      opensHolidays: json['opensHolidays'] as bool? ?? false,
+      opensWeekends: json['opensWeekends'] as bool? ?? false,
+      isActive: json['isActive'] as bool? ?? false,
+      rating: (json['rating'] as num?)?.toDouble(),
+      address: json['address'] as String?,
+      phone: json['phone'] as String?,
+      email: json['email'] as String?,
+      overviewPhoto: json['overviewPhoto'] as String?,
+      profilePhoto: json['profilePhoto'] as String?,
+      photos: (json['photos'] as List<dynamic>?)
+              ?.map((photo) => photo as String)
+              .toList() ??
+          [],
+      foodTagsIds: json['foodTagsIds'] != null
+          ? List<String>.from(json['foodTagsIds'])
+          : null,
+      dietaryTagsIds: json['dietaryTagsIds'] != null
+          ? List<String>.from(json['dietaryTagsIds'])
+          : null,
+      alertsIds: json['alertsIds'] != null
+          ? List<String>.from(json['alertsIds'])
+          : null,
+      reservationsIds: json['reservationsIds'] != null
+          ? List<String>.from(json['reservationsIds'])
+          : null,
+      suscribersIds: json['suscribersIds'] != null
+          ? List<String>.from(json['suscribersIds'])
+          : null,
+      visitsIds: json['visitsIds'] != null
+          ? List<String>.from(json['visitsIds'])
+          : null,
+      commentsIds: json['commentsIds'] != null
+          ? List<String>.from(json['commentsIds'])
+          : null,
+      productsIds: json['productsIds'] != null
+          ? List<String>.from(json['productsIds'])
+          : null,
+      tags: json['tags'] != null
+          ? List<String>.from(json['tags'])
+          : null,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'description': description,
-      'latitude': latitude,
-      'longitude': longitude,
-      'routeIndications': routeIndications,
-      'openingTime': openingTime.toIso8601String(),
-      'closingTime': closingTime.toIso8601String(),
-      'opensHolidays': opensHolidays,
-      'opensWeekends': opensWeekends,
-      'isActive': isActive,
-      'rating': rating,
-      'address': address,
-      'phone': phone,
-      'email': email,
-      'overviewPhoto': overviewPhoto,
-      'profilePhoto': profilePhoto,
-      'photos': photos,
-      'foodTagsIds': foodTagsIds,
-      'dietaryTagsIds': dietaryTagsIds,
-      'alertsIds': alertsIds,
-      'reservationsIds': reservationsIds,
-      'suscribersIds': suscribersIds,
-      'visitsIds': visitsIds,
-      'commentsIds': commentsIds,
-      'productsIds': productsIds,
-    };
   }
 }

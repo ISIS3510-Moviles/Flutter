@@ -86,13 +86,13 @@ class FoodSlider extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             itemCount: items.length,
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            physics: const BouncingScrollPhysics(), // Efecto de desplazamiento iOS/Android
-            itemExtent: 180, // Ancho fijo para cada tarjeta
+            physics: const BouncingScrollPhysics(),
+            itemExtent: 180,
             itemBuilder: (context, index) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: SizedBox(
-                  width: 180, // Ancho fijo para el FoodCard
+                  width: 180,
                   child: FoodCard(
                     imageUrl: items[index].imageUrl,
                     title: items[index].name,

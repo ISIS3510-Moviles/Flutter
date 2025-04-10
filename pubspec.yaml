@@ -25,6 +25,7 @@ dependencies:
   intl: ^0.18.0
   logger: ^2.5.0
   responsive_builder: ^0.7.1
+  url_launcher: ^6.1.7
 
 dev_dependencies:
   flutter_lints: ^5.0.0
@@ -36,3 +37,4 @@ flutter:
   assets:
     - .env
     - assets/logo.png
+    - assets/placeholder.png

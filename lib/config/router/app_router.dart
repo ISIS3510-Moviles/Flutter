@@ -1,20 +1,28 @@
+import 'package:campus_bites/data/datasources/user_backend_datasource.dart';
+import 'package:campus_bites/data/repositories/user_repository_impl.dart';
 import 'package:campus_bites/presentation/screens/login_screen.dart';
 import 'package:campus_bites/presentation/screens/profile_screen.dart';
 import 'package:campus_bites/presentation/screens/reservation_view.dart';
 import 'package:campus_bites/presentation/screens/screens.dart';
 import 'package:campus_bites/presentation/screens/tag_screen.dart';
 import 'package:campus_bites/presentation/views/views.dart';
+import 'package:campus_bites/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:campus_bites/presentation/screens/food_screen.dart';
 import 'package:flutter/widgets.dart';
-
+final userBackendDatasource = UserBackendDatasource();
+final userRepository = UserRepositoryImpl(datasource: userBackendDatasource);
+final authService = AuthService(userRepository: userRepository);
 final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
 
 final appRouter = GoRouter(
   initialLocation: '/login',
   observers: [routeObserver],
   routes: [
-    GoRoute(path: '/login', builder: (context, state) => const LoginScreen(),),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => LoginScreen(authService: authService),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, child) => HomeScreen(childView: child),
       branches: [
@@ -32,10 +40,10 @@ final appRouter = GoRouter(
                   path: 'restaurant',
                   builder: (context, state) => const RestaurantScreen()),
                 GoRoute(
-                  path: 'tags/:tagName',
+                  path: 'tags/:tagId',
                   builder: (context, state) {
-                    final tagName = state.pathParameters['tagName'];
-                    return TagScreen(tagName: tagName!);
+                    final tagId = state.pathParameters['tagId'];
+                    return TagScreen(tagId: tagId ?? "");
                   },
                 ),
                 GoRoute(

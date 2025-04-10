@@ -1,9 +1,15 @@
+import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:logger/logger.dart';
+import 'package:campus_bites/data/repositories/user_repository_impl.dart';
+import 'package:campus_bites/domain/entities/user_entity.dart';
 
 class AuthService {
   final logger = Logger();
+  final UserRepositoryImpl userRepository;
+
+  AuthService({required this.userRepository});
 
   Future<UserCredential> signInWithGoogle() async {
     try {
@@ -30,11 +36,30 @@ class AuthService {
           await FirebaseAuth.instance.signInWithCredential(credential);
       logger.i("Firebase authentication successful");
 
-
       logger.i(
         "User authenticated",
         error: "Email: ${userCredential.user!.email} | UID: ${userCredential.user!.uid}"
       );
+
+
+      final user = userCredential.user;
+      if (user != null) {
+        final userEntity = UserEntity(
+          id: user.uid,
+          name: user.displayName ?? "Unknown",
+          phone: user.phoneNumber ?? "",
+          email: user.email ?? "",
+          role: "user",
+          isPremium: false,
+          institutionId: "",
+          savedProductsIds: [], 
+        );
+     
+        var userRetrieved = await userRepository.createUser(userEntity);
+        GlobalUser().currentUser = userRetrieved;
+        logger.i("User retrieved successfully from the database: ${userRetrieved.toJson()}");
+      }
+      
 
       return userCredential;
 

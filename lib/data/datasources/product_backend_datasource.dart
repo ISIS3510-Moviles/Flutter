@@ -21,12 +21,24 @@ class ProductBackendDatasource extends ProductDatasource {
     return _jsonToProducts(response.data);
   }
 
+
+  List<Map<String, String>> _jsonToProductCards(List<dynamic> json) {
+    final products = _jsonToProducts(json);
+    return ProductMapper.mapEntitiesToProductCard(products);
+  }
+
+
   @override
-  Future<List<ProductEntity>> getProductsByTag(String tag) async {
-    var response = await getProducts();
-    response = response
-        .where((product) => product.tags?.contains(tag) ?? false)
-        .toList();
-    return response;
+  Future<Map<String, dynamic>> getProductsByTag(String tagId) async {
+    final response = await dio.get('/product/by-food-tag/$tagId');
+    final data = response.data;
+
+    final tagName = data['tagName'] as String;
+    final products = _jsonToProductCards(data['products'] as List<dynamic>);
+
+    return {
+      'tagName': tagName,
+      'products': products,
+    };
   }
 }

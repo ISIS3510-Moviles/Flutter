@@ -4,14 +4,22 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final AuthService authService;
+
+  const LoginScreen({super.key, required this.authService});
 
   @override
   LoginScreenState createState() => LoginScreenState();
 }
 
 class LoginScreenState extends State<LoginScreen> {
-  final authService = AuthService();
+  late final AuthService authService;
+
+  @override
+  void initState() {
+    super.initState();
+    authService = widget.authService;
+  }
 
   void _signInWithGoogle() async {
     try {

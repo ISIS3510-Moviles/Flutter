@@ -1,176 +1,87 @@
-import 'package:campus_bites/presentation/widgets/shared/tag_chip.dart';
+import 'package:campus_bites/data/datasources/user_backend_datasource.dart';
+import 'package:campus_bites/domain/entities/user_entity.dart';
+import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
 import 'package:campus_bites/presentation/widgets/shared/responsive_food_list.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   ProfileScreen({super.key});
 
-  final List<Map<String, String>> food = [
-    {
-      'id': '1',
-      'title': 'SeneTamale',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-    },
-    {
-      'id': '2',
-      'title': 'Seneca Burguer',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-    },
-    {
-      'id': '3',
-      'title': 'SeneTamale',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-    },
-    {
-      'id': '4',
-      'title': 'Seneca Burguer',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-    },
-    {
-      'id': '5',
-      'title': 'SeneTamale',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-    },
-    {
-      'id': '6',
-      'title': 'Seneca Burguer',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-    },
-    {
-      'id': '7',
-      'title': 'SeneTamale',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-    },
-    {
-      'id': '8',
-      'title': 'Seneca Burguer',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-    },
-    {
-      'id': '9',
-      'title': 'SeneTamale',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-    },
-    {
-      'id': '10',
-      'title': 'Seneca Burguer',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-    },
-    {
-      'id': '11',
-      'title': 'SeneTamale',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-    },
-    {
-      'id': '12',
-      'title': 'Seneca Burguer',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-    },
-    {
-      'id': '13',
-      'title': 'SeneTamale',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-    },
-    {
-      'id': '14',
-      'title': 'Seneca Burguer',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-    },
-    {
-      'id': '15',
-      'title': 'SeneTamale',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-    },
-    {
-      'id': '16',
-      'title': 'Seneca Burguer',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-    },
-    {
-      'id': '17',
-      'title': 'SeneTamale',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-    },
-    {
-      'id': '18',
-      'title': 'Seneca Burguer',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-    },
-    {
-      'id': '19',
-      'title': 'SeneTamale',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg'
-    },
-    {
-      'id': '20',
-      'title': 'Seneca Burguer',
-      'price': '\$40.000',
-      'subtitle': 'Seneca Food',
-      'imageUrl':
-          'https://as1.ftcdn.net/v2/jpg/02/17/34/30/1000_F_217343007_9Gpk6FQLW4VKtQ971OwAeMxds6v7lTZk.jpg'
-    },
-  ];
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  UserEntity? _user;
+  bool _isLoading = true;
+  final UserBackendDatasource _backendDatasource = UserBackendDatasource();
+  @override
+  void initState() {
+    super.initState();
+    _fetchUser();
+  }
+
+  Future<void> _fetchUser() async {
+    try {
+      final userId = GlobalUser().currentUser?.id;
+      if (userId == null) {
+        throw Exception("No user ID found in GlobalUser.");
+      }
+
+      final user = await _backendDatasource.getUser(userId);
+
+      setState(() {
+        _user = user;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print("Error fetching user: $e");
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<UserEntity> _getUserFromBackend(String userId) async {
+    await Future.delayed(const Duration(seconds: 2));
+    return UserEntity(
+      id: userId,
+      name: "Daniel Diaz",
+      phone: "3028389900",
+      email: "danielf4415@gmail.com",
+      role: "analyst",
+      isPremium: true,
+      institutionId: "Los Andes",
+      savedProductsIds: [],
+    );
+  }
+
+  Future<void> _launchReport() async {
+    final Uri reportUri = Uri.parse(
+        "https://lookerstudio.google.com/reporting/4ed6b728-d031-424c-b123-63044acdb870");
+    if (!await launchUrl(reportUri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $reportUri';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_user == null) {
+      return const Scaffold(
+        body: Center(child: Text("Error loading user data")),
+      );
+    }
+
+    final bool isAnalyst = _user!.role == "analyst";
+
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
@@ -180,18 +91,27 @@ class ProfileScreen extends StatelessWidget {
               delegate: SliverChildListDelegate(
                 [
                   Padding(
-                    padding: EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _profileHeader(),
                         _buildSectionTitle("Contact information"),
-                        _buildContactInfo(Icons.email, "danielf4415@gmail.com"),
-                        _buildContactInfo(Icons.phone, "3028389900"),
-                        _buildContactInfo(Icons.location_on, "Los Andes"),
-                        _buildSectionTitle("Dietary preferences"),
-                        _buildTagWrap(
-                            ["Vegetarian", "Vegan", "Vegan", "Vegan", "Vegan"]),
+                        _buildContactInfo(Icons.email, _user!.email),
+                        _buildContactInfo(Icons.phone, _user!.phone),
+                        _buildContactInfo(
+                          Icons.location_on,
+                          _user!.institution?.name ??
+                              'No institution available',
+                        ),
+                        if (isAnalyst)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: ElevatedButton(
+                              onPressed: _launchReport,
+                              child: const Text("Go to report"),
+                            ),
+                          ),
                         _buildSectionTitle("Saved products"),
                         _buildProducts(),
                       ],
@@ -209,44 +129,52 @@ class ProfileScreen extends StatelessWidget {
   Widget _profileHeader() {
     return Container(
       width: double.infinity,
-      color: Color(0xFF11203A),
-      padding: EdgeInsets.all(16),
+      color: const Color(0xFF11203A),
+      padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           Text(
-            "Daniel Diaz",
-            style: TextStyle(
+            _user!.name,
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Color(0xFFF9A825),
             ),
           ),
-          SizedBox(height: 10),
-          _buildTagWrap(["Admin", "Premium"]),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              if (_user!.role.isNotEmpty) _buildNonClickableTag(_user!.role),
+              if (_user!.isPremium) _buildNonClickableTag("premium"),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTagWrap(List<String> tags) {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: tags.map((tag) => TagChip(tagName: tag)).toList(),
+  Widget _buildNonClickableTag(String tagName) {
+    return Chip(
+      label: Text(
+        tagName,
+        style: const TextStyle(color: Colors.black),
+      ),
+      backgroundColor: const Color(0xFFF9A825),
     );
   }
 
-
-
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: EdgeInsets.only(top: 20, bottom: 10),
+      padding: const EdgeInsets.only(top: 20, bottom: 10),
       child: Text(
         title,
-        style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF277A46)),
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF277A46),
+        ),
       ),
     );
   }
@@ -254,14 +182,14 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildContactInfo(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, color: Color(0xFF277A46)),
-        SizedBox(width: 10),
-        Text(text, style: TextStyle(fontSize: 16)),
+        Icon(icon, color: const Color(0xFF277A46)),
+        const SizedBox(width: 10),
+        Text(text, style: const TextStyle(fontSize: 16)),
       ],
     );
   }
 
   Widget _buildProducts() {
-    return ResponsiveFoodList(food: food);
+    return ResponsiveFoodList(food: []);
   }
 }

@@ -18,6 +18,7 @@ class RestaurantEntity {
   final String? profilePhoto;
   final List<String>? photos;
   final List<String>? foodTagsIds;
+  final List<String>? tags;
   final List<String>? dietaryTagsIds;
   final List<String>? alertsIds;
   final List<String>? reservationsIds;
@@ -47,6 +48,7 @@ class RestaurantEntity {
     this.photos,
     this.foodTagsIds,
     this.dietaryTagsIds,
+    this.tags,
     this.alertsIds,
     this.reservationsIds,
     this.suscribersIds,

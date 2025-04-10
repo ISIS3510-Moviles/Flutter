@@ -13,8 +13,10 @@ class ReservationBackendDatasource extends ReservationDatasource {
   }
 
   @override
-  Future<List<ReservationEntity>> getReservations() async {
-    final response = await dio.get('/reservation');
+  Future<List<ReservationEntity>> getReservationsByUserId(String userId) async {
+    final response = await dio.get('/reservation/by-user/$userId');
+    print(response);
+    print(response.data);
     return _jsonToReservations(response.data);
   }
 }
