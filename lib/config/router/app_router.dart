@@ -70,6 +70,14 @@ final appRouter = GoRouter(
             )
           ]
         ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/recommendations',
+              builder: (context, state) => RecommendationView(),
+            )
+          ]
+        ),
       ]
     ),
   ]

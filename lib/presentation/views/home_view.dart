@@ -157,14 +157,14 @@ class HomeViewState extends ConsumerState<HomeView>
     return Scaffold(
       appBar: null,
       key: _scaffoldKey,
-      drawer: CustomDrawer(
+      /* drawer: CustomDrawer(
         closeDrawer: () => _scaffoldKey.currentState!.openEndDrawer(),
-      ),
+      ), */
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             CustomSliverAppbar(),
-            SliverToBoxAdapter(
+            /* SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: Align(
@@ -190,7 +190,7 @@ class HomeViewState extends ConsumerState<HomeView>
                       )),
                 ),
               ),
-            ),
+            ), */
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(top: 16),

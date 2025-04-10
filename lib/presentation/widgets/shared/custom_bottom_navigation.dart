@@ -21,8 +21,12 @@ class CustomBottomNavigation extends StatelessWidget {
           label: 'Home'
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.favorite_outline),
+          icon: Icon(Icons.table_bar_outlined),
           label: 'Reservations'
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.favorite_outline),
+          label: 'Recommendations'
         ),
       ],
     );
