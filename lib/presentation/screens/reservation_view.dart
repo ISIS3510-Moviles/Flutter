@@ -10,7 +10,7 @@ class ReservationScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userId = GlobalUser.currentUser?.id;
+    final userId = GlobalUser().currentUser?.id;
 
     if (userId == null) {
       print("No user ID found in GlobalUser.");

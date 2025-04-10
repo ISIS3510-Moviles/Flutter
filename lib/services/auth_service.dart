@@ -56,7 +56,7 @@ class AuthService {
         );
      
         var userRetrieved = await userRepository.createUser(userEntity);
-        GlobalUser.currentUser = userRetrieved;
+        GlobalUser().currentUser = userRetrieved;
         logger.i("User retrieved successfully from the database: ${userRetrieved.toJson()}");
       }
       

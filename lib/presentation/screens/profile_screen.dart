@@ -25,7 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _fetchUser() async {
     try {
-      final userId = GlobalUser.currentUser?.id;
+      final userId = GlobalUser().currentUser?.id;
       if (userId == null) {
         throw Exception("No user ID found in GlobalUser.");
       }
