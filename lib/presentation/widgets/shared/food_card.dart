@@ -5,7 +5,7 @@ class FoodCard extends StatelessWidget {
   final String id;
   final String imageUrl;
   final String title;
-  final String price;
+  final double price;
   final String subtitle;
 
   const FoodCard({
@@ -63,7 +63,7 @@ class FoodCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      price,
+                      price.toString(),
                       maxLines: 1,
                       style: const TextStyle(
                         fontSize: 14,

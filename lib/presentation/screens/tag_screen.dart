@@ -1,30 +1,39 @@
+import 'dart:async';
 import 'package:campus_bites/data/datasources/product_backend_datasource.dart';
 import 'package:campus_bites/data/datasources/restaurant_backend_datasource.dart';
-import 'package:campus_bites/data/mappers/product_mapper.dart';
-import 'package:campus_bites/data/mappers/restaurant_mapper.dart';
+import 'package:campus_bites/domain/entities/entities.dart';
 import 'package:campus_bites/domain/entities/product_entity.dart';
-import 'package:campus_bites/domain/entities/restaurant_entity.dart';
+import 'package:campus_bites/presentation/providers/food-tags/food_tag_provider.dart';
+import 'package:campus_bites/presentation/providers/products/product_provider.dart';
+import 'package:campus_bites/presentation/providers/restaurants/restaurants_provider.dart';
 import 'package:campus_bites/presentation/widgets/shared/sliver_list_food_restaurant.dart';
 import 'package:campus_bites/presentation/widgets/shared/sliver_tab_food_restaurant.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
 
-class TagScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class TagScreen extends ConsumerStatefulWidget {
   final String tagId;
   const TagScreen({super.key, required this.tagId});
 
   @override
-  TagScreenState createState() => TagScreenState();
+  ConsumerState<TagScreen> createState() => TagScreenState();
 }
 
-class TagScreenState extends State<TagScreen>
+
+
+class TagScreenState extends ConsumerState<TagScreen>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
   int currentTabIndex = 0;
 
   String tagName = '';
-  List<Map<String, dynamic>> restaurants = [];
-  List<Map<String, String>> products = [];
+  String tagIcon = ''; 
+  List<RestaurantEntity> restaurants = [];
+  List<ProductEntity> products = [];
+  bool hasError = false;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -41,29 +50,62 @@ class TagScreenState extends State<TagScreen>
     _fetchData();
   }
 
-  Future<void> _fetchData() async {
-    try {
-      final restaurantDatasource = RestaurantBackendDatasource();
-      final productDatasource = ProductBackendDatasource();
+Future<void> _fetchData() async {
+  setState(() {
+    hasError = false;
+    isLoading = true;
+    tagName = '';
+    tagIcon = '';
+    restaurants = [];
+    products = [];
+  });
 
-      final restaurantData =
-          await restaurantDatasource.getRestaurantsByTag(widget.tagId);
-      final productData =
-          await productDatasource.getProductsByTag(widget.tagId);
+  try {
+    final restaurantProvider =  ref.read(getRestaurantsProvider.notifier);
+    final productNotifier = ref.read(getProductsProvider.notifier);
+    final tagNotifier = ref.read(getFoodTagsProvider.notifier);
 
-      if (mounted) {
-        setState(() {
-          tagName = (restaurantData['tagName'] as String?) ?? 'Unknown Tag';
-          restaurants =
-              restaurantData['restaurants'] as List<Map<String, dynamic>>;
-          products = productData['products'] as List<Map<String, String>>;
-        });
-      }
-    } catch (e, stackTrace) {
-      print('Error fetching data: $e');
-      print('Stack trace: $stackTrace');
+    final restaurantFuture = restaurantProvider.fetchByTag(widget.tagId);
+    final productFuture = productNotifier.fetchByTag(widget.tagId);
+    final tagFuture = tagNotifier.fetchById(widget.tagId);
+
+    final restaurantData = await restaurantFuture;
+    final productData = await productFuture;
+    final tagData = await tagFuture;
+
+    if (mounted && tagData != null) {
+      setState(() {
+        tagName = tagData.name;
+        tagIcon = tagData.icon ?? '';
+        restaurants = restaurantData;
+        products = productData;
+        hasError = false;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        hasError = true;
+        isLoading = false;
+      });
+    }
+  } on TimeoutException {
+    if (mounted) {
+      setState(() {
+        tagName = 'Error: request timed out';
+        hasError = true;
+        isLoading = false;
+      });
+    }
+  } catch (e) {
+    if (mounted) {
+      setState(() {
+        tagName = 'Error loading data';
+        hasError = true;
+        isLoading = false;
+      });
     }
   }
+}
 
   @override
   void dispose() {
@@ -81,16 +123,58 @@ class TagScreenState extends State<TagScreen>
             SliverToBoxAdapter(
               child: _ImageBox(
                 title: tagName.isNotEmpty ? tagName : 'Loading...',
-                imageUrl:
-                    'https://as2.ftcdn.net/v2/jpg/01/16/61/93/1000_F_116619399_YA611bKNOW35ffK0OiyuaOcjAgXgKBui.jpg',
+                imageUrl: tagIcon,
               ),
             ),
-            SilverTabFoodRestaurant(tabController: tabController),
-            SilverListFoodRestaurant(
-              currentTabIndex: currentTabIndex,
-              restaurants: restaurants,
-              foods: products,
-            ),
+            if (isLoading)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              )
+            else if (!hasError) ...[
+              SilverTabFoodRestaurant(tabController: tabController),
+              SilverListFoodRestaurant(
+                currentTabIndex: currentTabIndex,
+                restaurants: restaurants,
+                foods: products,
+              ),
+            ] else
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'There was an error loading the data.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.red,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton.icon(
+                        onPressed: _fetchData,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Retry'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF277A46),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -101,12 +185,53 @@ class TagScreenState extends State<TagScreen>
 class _ImageBox extends StatelessWidget {
   final String title;
   final String imageUrl;
-
+  final String placeholder = 'assets/placeholder.png';  
   const _ImageBox({required this.imageUrl, required this.title});
 
   @override
   Widget build(BuildContext context) {
     final isNetworkImage = Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false;
+
+    Widget imageWidget;
+
+    if (imageUrl.isEmpty) {
+      imageWidget = Image.asset(
+        placeholder,
+        width: 50,
+        height: 50,
+        fit: BoxFit.cover,
+      );
+    } else if (isNetworkImage) {
+      imageWidget = Image.network(
+        imageUrl,
+        width: 50,
+        height: 50,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Image.asset(
+            placeholder,
+            width: 50,
+            height: 50,
+            fit: BoxFit.cover,
+          );
+        },
+      );
+    } else {
+      imageWidget = Image.asset(
+        imageUrl,
+        width: 50,
+        height: 50,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Image.asset(
+            placeholder,
+            width: 50,
+            height: 50,
+            fit: BoxFit.cover,
+          );
+        },
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -121,19 +246,7 @@ class _ImageBox extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: isNetworkImage
-                  ? Image.network(
-                      imageUrl,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.asset(
-                      imageUrl,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    ),
+              child: imageWidget,
             ),
             const SizedBox(width: 12),
             Expanded(

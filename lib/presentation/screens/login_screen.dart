@@ -24,7 +24,9 @@ class LoginScreenState extends State<LoginScreen> {
   void _signInWithGoogle() async {
     try {
       final userCredential = await authService.signInWithGoogle();
+      print(userCredential);
       if (userCredential.user != null) {
+        print(mounted);
         if (mounted) {
           context.go('/');
         }

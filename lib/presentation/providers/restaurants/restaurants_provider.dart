@@ -3,23 +3,40 @@ import 'package:campus_bites/presentation/providers/restaurants/restaurant_repos
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final getRestaurantsProvider = StateNotifierProvider<RestaurantNotifier, List<RestaurantEntity>>((ref) {
-  final getRestaurants = ref.watch(restaurantRepositoryProvider).getRestaurants;
+  final repository = ref.watch(restaurantRepositoryProvider);
 
-  return RestaurantNotifier(fetchRestaurants: getRestaurants);
+  return RestaurantNotifier(
+    fetchRestaurants: repository.getRestaurants,
+    fetchRestaurantsByTag: repository.getRestaurantsByTag,
+  );
 });
 
-typedef RestaurantCallback = Future<List<RestaurantEntity>> Function();
+typedef RestaurantCallback = Future<List<RestaurantEntity>> Function(String? nameMatch, List<String>? tagsInclude);
+typedef RestaurantByTagCallback = Future<List<RestaurantEntity>> Function(String tagId);
 
 class RestaurantNotifier extends StateNotifier<List<RestaurantEntity>> {
-  RestaurantCallback fetchRestaurants;
+  final RestaurantCallback fetchRestaurants;
+  final RestaurantByTagCallback fetchRestaurantsByTag;
 
   RestaurantNotifier({
-    required this.fetchRestaurants
+    required this.fetchRestaurants,
+    required this.fetchRestaurantsByTag,
   }) : super([]);
 
+  Future<void> fetch({String? nameMatch, List<String>? tagsInclude}) async {
+    try {
+      final restaurants = await fetchRestaurants(nameMatch, tagsInclude);
+      state = restaurants;
+    } catch (e) {
+    }
+  }
 
-Future<void> fetch() async {
-  final List<RestaurantEntity> restaurants = await fetchRestaurants();
-  state = restaurants;
-}
+  Future<List<RestaurantEntity>> fetchByTag(String tagId) async {
+    try {
+      final restaurants = await fetchRestaurantsByTag(tagId);
+      return restaurants;
+    } catch (e) {
+      return [];
+    }
+  }
 }

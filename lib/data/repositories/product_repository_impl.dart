@@ -11,4 +11,9 @@ class ProductRepositoryImpl extends ProductRepository {
   Future<List<ProductEntity>> getProducts() {
     return productBackendDatasource.getProducts();
   }
+
+  @override
+  Future<List<ProductEntity>> getProductsByTag(String tagId) {
+    return productBackendDatasource.getProductsByTag(tagId);
+  }
 }

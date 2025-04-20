@@ -12,28 +12,33 @@ class RestaurantBackendDatasource extends RestaurantDatasource {
     return json.map((e) => RestaurantMapper.restaurantBackendToEntity(RestaurantBackend.fromJson(e))).toList();
   }
 
-  List<Map<String, dynamic>> _jsonToRestaurantCards(List<dynamic> json) {
-    final restaurants = _jsonToRestaurants(json);
-    return RestaurantMapper.mapEntitiesToRestaurantCards(restaurants);
+
+@override
+Future<List<RestaurantEntity>> getRestaurants(String? searchMatch, List<String>? tagsInclude) async {
+  final queryParams = <String, dynamic>{};
+
+  if (searchMatch != null) {
+    queryParams['nameMatch'] = searchMatch;
   }
 
-  @override
-  Future<List<RestaurantEntity>> getRestaurants() async {
-    final response = await dio.get('/restaurant/tags');
-    return _jsonToRestaurants(response.data);
+  if (tagsInclude != null && tagsInclude.isNotEmpty) {
+    queryParams['tagsInclude'] = tagsInclude;
   }
 
+  final response = await dio.get(
+    '/restaurant/tags',
+    queryParameters: queryParams,
+  );
+
+  return _jsonToRestaurants(response.data);
+}
+
+
   @override
-  Future<Map<String, dynamic>> getRestaurantsByTag(String tagId) async {
+  Future<List<RestaurantEntity>> getRestaurantsByTag(String tagId) async {
     final response = await dio.get('/restaurant/by-food-tag/$tagId');
     final data = response.data;
-
-    final tagName = data['tagName'] as String;
-    final restaurants = _jsonToRestaurantCards(data['restaurants'] as List<dynamic>);
-
-    return {
-      'tagName': tagName,
-      'restaurants': restaurants,
-    };
+    final restaurants = _jsonToRestaurants(data['restaurants']);
+    return restaurants;
   }
 }

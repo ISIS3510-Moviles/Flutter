@@ -1,6 +1,7 @@
 import 'package:campus_bites/domain/entities/entities.dart';
 import 'package:campus_bites/domain/entities/food_tag_entity.dart';
-import 'package:campus_bites/presentation/providers/food_tags/food_tag_provider.dart';
+import 'package:campus_bites/presentation/providers/dietary-tags/dietary_tag_provider.dart';
+import 'package:campus_bites/presentation/providers/food-tags/food_tag_provider.dart';
 import 'package:campus_bites/presentation/providers/restaurants/initial_loading_provider.dart';
 import 'package:campus_bites/presentation/providers/restaurants/restaurants_provider.dart';
 import 'package:campus_bites/presentation/widgets/shared/restaurant_card.dart';
@@ -11,6 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:campus_bites/config/router/app_router.dart';
 import 'dart:async';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -33,6 +36,7 @@ class HomeViewState extends ConsumerState<HomeView>
   late String _currentLocation;
   bool _routerInitialized = false;
   bool _insideNestedRoute = false;
+  bool _isSearching = false;
 
   List<FoodTagEntity> _tags = [];
 
@@ -42,15 +46,20 @@ class HomeViewState extends ConsumerState<HomeView>
     _fetchStartTime = DateTime.now();
 
     WidgetsBinding.instance.addObserver(this);
-    ref.read(getRestaurantsProvider.notifier).fetch();
-    ref.read(getFoodTagsProvider.notifier).fetch();
+    _loadUserPreferredTags().then((preferredTags) {
+      ref
+          .read(getRestaurantsProvider.notifier)
+          .fetch(nameMatch: _searchText, tagsInclude: preferredTags);
+    });
+    ref.read(getFoodTagsProvider.notifier).fetchFood();
+    ref.read(getDietaryTagsProvider.notifier).fetchDietary();
     _fetchTags();
     _viewEntryTime = DateTime.now();
   }
 
   Future<void> _fetchTags() async {
     try {
-      await ref.read(getFoodTagsProvider.notifier).fetch();
+      await ref.read(getFoodTagsProvider.notifier).fetchFood();
       final tags = ref.read(getFoodTagsProvider);
       setState(() {
         _tags = tags;
@@ -152,86 +161,103 @@ class HomeViewState extends ConsumerState<HomeView>
       _hasLoggedLoadTime = true;
     }
 
-    if (initialLoading) return const FullScreenLoader();
-
     return Scaffold(
       appBar: null,
       key: _scaffoldKey,
-      /* drawer: CustomDrawer(
+      drawer: CustomDrawer(
         closeDrawer: () => _scaffoldKey.currentState!.openEndDrawer(),
-      ), */
+      ),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             CustomSliverAppbar(),
-            /* SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: Align(
                   alignment: Alignment.center,
                   child: SizedBox(
-                      width: 314,
-                      child: CustomTextFormField(
-                        label: 'Search food',
-                        controller:
-                            _searchController,
-                        onChanged: (value) {
-                          _searchDebounce?.cancel();
-                          _searchDebounce =
-                              Timer(const Duration(seconds: 1), () {
-                            setState(() {
-                              _searchText = value;
-                            });
+                    width: 314,
+                    child: CustomTextFormField(
+                      label: 'Search food',
+                      controller: _searchController,
+                      onChanged: (value) {
+                        _searchDebounce?.cancel();
+                        setState(() {
+                          _isSearching = true;
+                          _searchText = value;
+                        });
+
+                        _searchDebounce =
+                            Timer(const Duration(seconds: 1), () async {
+                          final preferredTags = await _loadUserPreferredTags();
+                          await ref.read(getRestaurantsProvider.notifier).fetch(
+                              nameMatch: value, tagsInclude: preferredTags);
+                          setState(() {
+                            _isSearching = false;
                           });
-                        },
-                        filterTap: () =>
-                            _scaffoldKey.currentState!.openDrawer(),
-                        onSubmitted: (query) {},
-                      )),
+                        });
+                      },
+                      filterTap: () => _scaffoldKey.currentState!.openDrawer(),
+                      onSubmitted: (query) {},
+                    ),
+                  ),
                 ),
               ),
-            ), */
+            ),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: Align(
                   alignment: Alignment.topCenter,
-                  child: _TagBox(
-                    tags: _tags,
+                  child: _TagBox(tags: _tags),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: SizedBox(
+                  width: 314,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _Title(
+                          title: 'Restaurants', subTitle: 'Near to you'),
+                      if (_isSearching) ...[
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 40),
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      ] else if (restaurants.isEmpty) ...[
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 40),
+                          child: Center(
+                            child: Text(
+                              'No restaurants found.',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        )
+                      ] else ...[
+                        ...restaurants.map((restaurant) {
+                          return RestaurantCard(
+                            title: restaurant.name,
+                            rating: restaurant.rating ?? 5,
+                            distance: 200,
+                            imageUrl: restaurant.profilePhoto!,
+                            tags: restaurant.tags ?? [],
+                          );
+                        }),
+                        const SizedBox(height: 20),
+                      ]
+                    ],
                   ),
                 ),
               ),
             ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        width: 314,
-                        child: Column(
-                          children: [
-                            _Title(
-                                title: 'Restaurants', subTitle: 'Near to you'),
-                            ...restaurants.map((restaurant) {
-                              return RestaurantCard(
-                                title: restaurant.name,
-                                rating: restaurant.rating.toString(),
-                                distance: '200 meters',
-                                imageUrl: restaurant.profilePhoto!,
-                                tags: restaurant.tags ?? [],
-                              );
-                            })
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                );
-              }, childCount: 1),
-            )
           ],
         ),
       ),
@@ -239,7 +265,7 @@ class HomeViewState extends ConsumerState<HomeView>
   }
 }
 
-class CustomDrawer extends StatelessWidget {
+class CustomDrawer extends ConsumerStatefulWidget {
   final Function() closeDrawer;
 
   const CustomDrawer({
@@ -248,157 +274,169 @@ class CustomDrawer extends StatelessWidget {
   });
 
   @override
+  _CustomDrawerState createState() => _CustomDrawerState();
+}
+
+class _CustomDrawerState extends ConsumerState<CustomDrawer> {
+  Map<String, bool> tagSelections = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final foodTags = ref.read(getFoodTagsProvider);
+    final dietaryTags = ref.read(getDietaryTagsProvider);
+
+    Map<String, bool> initialSelections = {
+      for (var tag in foodTags) tag.name: prefs.getBool(tag.name) ?? true,
+      for (var tag in dietaryTags) tag.name: prefs.getBool(tag.name) ?? true,
+    };
+
+    setState(() {
+      tagSelections = initialSelections;
+    });
+  }
+
+  Future<void> _savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (var entry in tagSelections.entries) {
+      prefs.setBool(entry.key, entry.value);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+    final foodTags = ref.watch(getFoodTagsProvider);
+    final dietaryTags = ref.watch(getDietaryTagsProvider);
+
     return Drawer(
-        child: SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Food',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
+      child: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+            child: foodTags.isEmpty
+                ? Center(child: CircularProgressIndicator())
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('All')
-                      ]),
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('Meat')
-                      ]),
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('Fish')
-                      ]),
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('Chicken')
-                      ]),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('Sample')
-                      ]),
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('Sample')
-                      ]),
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('Sample')
-                      ]),
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('Sample')
-                      ]),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 48),
-            Text(
-              'Preferences',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('All')
-                      ]),
-                      Row(children: [
-                        Checkbox(
-                            value: false,
-                            onChanged: (value) {
-                              analytics.logEvent(
-                                  name: 'dietary_filter',
-                                  parameters: {'dietary_filter': 'vegan'});
-                            }),
-                        Text('Vegan')
-                      ]),
-                      Row(children: [
-                        Checkbox(
-                            value: false,
-                            onChanged: (value) {
-                              analytics.logEvent(
-                                  name: 'dietary_filter',
-                                  parameters: {'dietary_filter': 'vegetarian'});
-                            }),
-                        Text('Vegetarian')
-                      ]),
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('Sample')
-                      ]),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('Sample')
-                      ]),
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('Sample')
-                      ]),
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('Sample')
-                      ]),
-                      Row(children: [
-                        Checkbox(value: false, onChanged: (value) {}),
-                        Text('Sample')
-                      ]),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 48),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FilledButton(
-                  style: ButtonStyle(
-                    visualDensity: VisualDensity.compact,
-                    backgroundColor: WidgetStateProperty.all(Color(0xFFF46417)),
-                    foregroundColor: WidgetStateProperty.all(Colors.white),
-                    fixedSize: WidgetStateProperty.all(Size(180, 50)),
-                    shape: WidgetStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                      Text(
+                        'Food tags',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w700),
                       ),
-                    ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              children: foodTags
+                                  .sublist(0, (foodTags.length / 2).ceil())
+                                  .map((tag) => _buildCheckbox(tag.name))
+                                  .toList(),
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              children: foodTags
+                                  .sublist((foodTags.length / 2).ceil())
+                                  .map((tag) => _buildCheckbox(tag.name))
+                                  .toList(),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 48),
+                      Text(
+                        'Dietary tags',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w700),
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              children: dietaryTags
+                                  .sublist(0, (dietaryTags.length / 2).ceil())
+                                  .map((tag) => _buildCheckbox(tag.name))
+                                  .toList(),
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              children: dietaryTags
+                                  .sublist((dietaryTags.length / 2).ceil())
+                                  .map((tag) => _buildCheckbox(tag.name))
+                                  .toList(),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 48),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FilledButton(
+                            style: ButtonStyle(
+                              visualDensity: VisualDensity.compact,
+                              backgroundColor:
+                                  WidgetStateProperty.all(Color(0xFFF46417)),
+                              foregroundColor:
+                                  WidgetStateProperty.all(Colors.white),
+                              fixedSize: WidgetStateProperty.all(Size(180, 50)),
+                              shape: WidgetStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                            onPressed: () async {
+                              await _savePreferences();
+                              final preferredTags =
+                                  await _loadUserPreferredTags();
+                              await ref
+                                  .read(getRestaurantsProvider.notifier)
+                                  .fetch(
+                                      nameMatch: '',
+                                      tagsInclude: preferredTags);
+                              widget.closeDrawer();
+                            },
+                            child: Text('Done'),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
-                  onPressed: closeDrawer,
-                  child: Text('Done'),
-                ),
-              ],
-            )
-          ],
+          ),
         ),
       ),
-    ));
+    );
+  }
+
+  Widget _buildCheckbox(String tagName) {
+    return Row(
+      children: [
+        Checkbox(
+          value: tagSelections[tagName] ?? true,
+          onChanged: (value) {
+            setState(() {
+              tagSelections[tagName] = value!;
+            });
+            _savePreferences();
+          },
+        ),
+        Expanded(
+          child: Text(
+            tagName,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -412,7 +450,7 @@ class _TagBox extends StatelessWidget {
     return SizedBox(
       height: 160,
       child: PageView.builder(
-        controller: PageController(viewportFraction: 0.9),
+        controller: PageController(viewportFraction: 1.0),
         itemCount: (tags.length / 8).ceil(),
         itemBuilder: (context, pageIndex) {
           final startIndex = pageIndex * 8;
@@ -420,19 +458,19 @@ class _TagBox extends StatelessWidget {
           final pageTags = tags.sublist(startIndex, endIndex);
 
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Column(
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: pageTags
                       .take(4)
                       .map((tag) => _TagItem(tag: tag))
                       .toList(),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: pageTags
                       .skip(4)
                       .map((tag) => _TagItem(tag: tag))
@@ -454,31 +492,78 @@ class _TagItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasIcon = tag.icon != null && tag.icon!.isNotEmpty;
+
     return GestureDetector(
       onTap: () {
         context.push('/tags/${tag.id}');
       },
-      child: SizedBox(
-        width: 70,
-        height: 70,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Color(0xFFF9A825),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Center(
-              child: Text(
-                tag.name,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
+      child: Container(
+        width: 72,
+        height: 72,
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFA726),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: const EdgeInsets.all(6),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 2,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: hasIcon
+                    ? Image.network(
+                        tag.icon!,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            'assets/placeholder.png',
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        'assets/placeholder.png',
+                        fit: BoxFit.cover,
+                      ),
               ),
             ),
-          ),
+            const SizedBox(height: 4),
+            Expanded(
+              flex: 1,
+              child: Text(
+                tag.name,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -496,26 +581,40 @@ class _Title extends StatelessWidget {
     final titleStyle = Theme.of(context).textTheme.titleLarge;
 
     return Container(
-        padding: const EdgeInsets.only(top: 10),
-        margin: const EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          children: [
-            if (title != null) Text(title!, style: titleStyle),
-            const Spacer(),
-            if (subTitle != null)
-              FilledButton.tonal(
-                style: ButtonStyle(
-                  visualDensity: VisualDensity.compact,
-                  backgroundColor: WidgetStatePropertyAll(Color(0xFFF46417)),
-                  foregroundColor: WidgetStatePropertyAll(Colors.white),
-                ),
-                onPressed: () {},
-                child: Text(
-                  subTitle!,
-                  style: TextStyle(color: Colors.white),
-                ),
-              )
-          ],
-        ));
+      padding: const EdgeInsets.only(top: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        children: [
+          if (title != null) Text(title!, style: titleStyle),
+          const Spacer(),
+          if (subTitle != null)
+            FilledButton.tonal(
+              style: ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                backgroundColor: WidgetStatePropertyAll(Color(0xFFF46417)),
+                foregroundColor: WidgetStatePropertyAll(Colors.white),
+              ),
+              onPressed: () {},
+              child: Text(
+                subTitle!,
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+        ],
+      ),
+    );
   }
+}
+
+Future<List<String>> _loadUserPreferredTags() async {
+  final prefs = await SharedPreferences.getInstance();
+  final keys = prefs.getKeys();
+  final preferredTags = <String>[];
+
+  for (var key in keys) {
+    if (prefs.getBool(key) == true) {
+      preferredTags.add(key);
+    }
+  }
+  return preferredTags;
 }

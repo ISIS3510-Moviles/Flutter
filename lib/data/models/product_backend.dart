@@ -2,8 +2,8 @@ class ProductBackend {
   final String id;
   final String name;
   final String description;
-  final int rating;
-  final int price;
+  final double rating;
+  final double price;
   final bool isAvailable;
   final String? photo;
   final List<String>? tags;
@@ -24,8 +24,8 @@ class ProductBackend {
       id: json['id'] as String? ?? 'Unknown ID',
       name: json['name'] as String? ?? 'Unknown Name', 
       description: json['description'] as String? ?? 'No description',
-      rating: (json['rating'] as num?)?.toInt() ?? 0,
-      price: (json['price'] as num?)?.toInt() ?? 0,
+      rating: json['rating'],
+      price: json['price'],
       isAvailable: json['isAvailable'] as bool? ?? false,
       photo: json['photo'] as String?,
       tags: json['tags'] != null
