@@ -1,3 +1,4 @@
+import 'package:campus_bites/domain/entities/product_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:campus_bites/presentation/widgets/shared/food_card.dart';
@@ -8,7 +9,7 @@ class ResponsiveFoodList extends StatelessWidget {
     required this.food,
   });
 
-  final List<Map<String, String>> food;
+  final List<ProductEntity> food;
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +28,11 @@ class ResponsiveFoodList extends StatelessWidget {
             itemBuilder: (context, index) {
               final item = food[index];
               return FoodCard(
-                id: item['id'] ?? '0',
-                imageUrl: item['imageUrl']!,
-                title: item['title']!,
-                price: item['price']!,
-                subtitle: item['subtitle']!,
+                id: item.id,
+                imageUrl: item.photo ?? '',
+                title: item.name,
+                price: item.price,
+                subtitle: item.description,
               );
             },
           ),

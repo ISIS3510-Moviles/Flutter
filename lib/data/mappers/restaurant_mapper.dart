@@ -33,16 +33,4 @@ class RestaurantMapper {
       productsIds: restaurantBackend.productsIds,
     );
   }
-
-    static List<Map<String, dynamic>> mapEntitiesToRestaurantCards(List<RestaurantEntity> restaurants) {
-    return restaurants.map((restaurant) {
-      return {
-        'title': restaurant.name ?? 'Unknown Restaurant',
-        'rating': restaurant.rating?.toString() ?? '0.0',
-        'distance': "200 meters",
-        'imageUrl':restaurant.profilePhoto,
-        'tags': restaurant.tags ?? [],
-      };
-    }).toList();
-  }
 }

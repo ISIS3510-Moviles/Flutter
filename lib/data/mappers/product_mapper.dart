@@ -13,16 +13,5 @@ class ProductMapper {
       isAvailable: productBackend.isAvailable,
     );
   }
-  static List<Map<String, String>> mapEntitiesToProductCard(
-      List<ProductEntity> products) {
-    return products.map((product) {
-      return {
-        'id': product.id ?? '',
-        'title': product.name ?? 'Unknown Product',
-        'price': product.price.toString(),
-        'subtitle': product.description ?? '',
-        'imageUrl': product.photo ?? 'http://assets/placeholder.png',
-      };
-    }).toList();
-  }
+
 }

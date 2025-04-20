@@ -31,14 +31,11 @@ class RecommendationViewState extends ConsumerState<RecommendationView>
       );
       if (response.statusCode == 200) {
         setState(() {
-          restaurants = response.data; // Asignar los datos de la respuesta a la lista
+          restaurants = response.data;
         });
       } else {
-        // Manejo de error en la respuesta
-        print('Error al obtener restaurantes: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error en la petición: $e');
     }
   }
   @override
@@ -67,8 +64,8 @@ class RecommendationViewState extends ConsumerState<RecommendationView>
                             ...restaurants.map((restaurant) {
                               return RestaurantCard(
                                 title: restaurant['name'],
-                                rating: restaurant['rating'].toString(),
-                                distance: '200 meters',
+                                rating: restaurant['rating'],
+                                distance: 200,
                                 imageUrl: restaurant['profilePhoto'] ?? '',
                                 tags: List<String>.from(restaurant['tags'] ?? []),
                               );

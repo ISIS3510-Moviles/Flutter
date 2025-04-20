@@ -1,10 +1,12 @@
+import 'package:campus_bites/domain/entities/entities.dart';
+import 'package:campus_bites/domain/entities/product_entity.dart';
 import 'package:campus_bites/presentation/widgets/shared/responsive_food_list.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/restaurant_card.dart';
 
 class SilverListFoodRestaurant extends StatelessWidget {
-  final List<Map<String, dynamic>> restaurants;
-  final List<Map<String, String>> foods;
+  final List<RestaurantEntity> restaurants;
+  final List<ProductEntity> foods;
   final int currentTabIndex;
 
   const SilverListFoodRestaurant({
@@ -31,12 +33,24 @@ class SilverListFoodRestaurant extends StatelessWidget {
 }
 
 class _RestaurantTab extends StatelessWidget {
-  final List<Map<String, dynamic>> restaurants;
+  final List<RestaurantEntity> restaurants;
 
   const _RestaurantTab({required this.restaurants});
 
   @override
   Widget build(BuildContext context) {
+    if (restaurants.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            'No restaurants found.',
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      );
+    }
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -44,11 +58,11 @@ class _RestaurantTab extends StatelessWidget {
       itemBuilder: (context, index) {
         final restaurant = restaurants[index];
         return RestaurantCard(
-          title: restaurant['title'] ?? '',
-          rating: restaurant['rating'] ?? '0.0',
-          distance: restaurant['distance'] ?? '',
-          imageUrl: restaurant['imageUrl'] ?? '',
-          tags: restaurant['tags'] ?? [],
+          title: restaurant.name,
+          rating: restaurant.rating ?? 5.0,
+          distance: 200,
+          imageUrl: restaurant.profilePhoto ?? '',
+          tags: restaurant.tags ?? [],
         );
       },
     );
@@ -56,12 +70,24 @@ class _RestaurantTab extends StatelessWidget {
 }
 
 class _FoodTab extends StatelessWidget {
-  final List<Map<String, String>> foods;
+  final List<ProductEntity> foods;
 
   const _FoodTab({required this.foods});
 
   @override
   Widget build(BuildContext context) {
+    if (foods.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            'No food items found.',
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      );
+    }
+
     return ResponsiveFoodList(food: foods);
   }
 }

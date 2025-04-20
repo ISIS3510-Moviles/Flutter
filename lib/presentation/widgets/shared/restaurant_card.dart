@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 
 class RestaurantCard extends StatelessWidget {
   final String title;
-  final String rating;
-  final String distance;
+  final double rating;
+  final double distance;
   final String imageUrl;
   final List<String> tags;
 
@@ -64,7 +64,7 @@ class RestaurantCard extends StatelessWidget {
                         Icon(Icons.star_border_outlined,
                             size: 18, color: Color(0xFFF9A825)),
                         SizedBox(width: 4),
-                        Text(rating),
+                        Text(rating.toString()),
                       ],
                     ),
                     SizedBox(height: 4),
@@ -72,7 +72,7 @@ class RestaurantCard extends StatelessWidget {
                       children: [
                         Icon(Icons.directions_walk, size: 18),
                         SizedBox(width: 4),
-                        Text(distance),
+                        Text(distance.toString()),
                       ],
                     ),
                     SizedBox(height: 8),

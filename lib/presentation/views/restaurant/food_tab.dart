@@ -96,7 +96,7 @@ class FoodSlider extends StatelessWidget {
                   child: FoodCard(
                     imageUrl: items[index].imageUrl,
                     title: items[index].name,
-                    price: '\$${items[index].price.toStringAsFixed(2)}',
+                    price: items[index].price,
                     id: index.toString(),
                   ),
                 ),
