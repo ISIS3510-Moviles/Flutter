@@ -1,10 +1,15 @@
 import 'package:campus_bites/domain/entities/pending_state.dart';
 import 'package:campus_bites/domain/entities/reservation_entity.dart';
+import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class BookTab extends StatefulWidget {
-  const BookTab({super.key});
+  final RestaurantEntity restaurant;
+  const BookTab(
+    this.restaurant, {
+    super.key,
+  });
 
   @override
   BookTabState createState() => BookTabState();

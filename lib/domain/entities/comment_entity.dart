@@ -2,10 +2,11 @@ class CommentEntity {
   final String id;
   final DateTime datetime;
   final String message;
-  final int rating;
+  final double rating;
   final int likes;
   final bool isVisible;
   final String authorId;
+  final String authorName;
 
   CommentEntity({
     required this.id,
@@ -15,5 +16,6 @@ class CommentEntity {
     required this.likes,
     required this.isVisible,
     required this.authorId,
+    required this.authorName,
   });
 }

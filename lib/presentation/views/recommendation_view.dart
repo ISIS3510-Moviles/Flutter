@@ -63,6 +63,7 @@ class RecommendationViewState extends ConsumerState<RecommendationView>
                                 title: 'Restaurants', subTitle: 'For you'),
                             ...restaurants.map((restaurant) {
                               return RestaurantCard(
+                                id: restaurant.id,
                                 title: restaurant['name'],
                                 rating: restaurant['rating'],
                                 distance: 200,

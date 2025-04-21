@@ -1,3 +1,5 @@
+import 'package:campus_bites/data/mappers/comment_mapper.dart';
+import 'package:campus_bites/data/mappers/product_mapper.dart';
 import 'package:campus_bites/data/models/restaurant_backend.dart';
 import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 
@@ -30,7 +32,9 @@ class RestaurantMapper {
       suscribersIds: restaurantBackend.suscribersIds,
       visitsIds: restaurantBackend.visitsIds,
       commentsIds: restaurantBackend.commentsIds,
+      comments: restaurantBackend.comments?.map((e) => CommentMapper.commentBackendToEntity(e)).toList() ?? [],
       productsIds: restaurantBackend.productsIds,
+      products: restaurantBackend.products?.map((e) => ProductMapper.productBackendToEntity(e)).toList() ?? [],
     );
   }
 }

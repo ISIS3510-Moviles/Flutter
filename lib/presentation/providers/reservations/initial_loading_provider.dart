@@ -2,6 +2,6 @@ import 'package:campus_bites/presentation/providers/reservations/reservation_pro
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final initialLoadingProvider = Provider.family<bool, String>((ref, id) {
-  final loading = ref.watch(getReservationsProvider(id)).isEmpty;
-  return loading;
+  final asyncReservations = ref.watch(getReservationsProvider(id));
+  return asyncReservations.isLoading;
 });

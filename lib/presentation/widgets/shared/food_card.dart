@@ -63,7 +63,7 @@ class FoodCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      price.toString(),
+                      '\$$price',
                       maxLines: 1,
                       style: const TextStyle(
                         fontSize: 14,

@@ -1,4 +1,4 @@
-import 'package:campus_bites/domain/entities/restaurant_entity.dart';
+import 'package:campus_bites/domain/entities/restaurant_entity.dart'; 
 import 'package:campus_bites/presentation/providers/restaurants/restaurant_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,19 +7,23 @@ final getRestaurantsProvider = StateNotifierProvider<RestaurantNotifier, List<Re
 
   return RestaurantNotifier(
     fetchRestaurants: repository.getRestaurants,
+    fetchRestaurantById: repository.getRestaurantById,
     fetchRestaurantsByTag: repository.getRestaurantsByTag,
   );
 });
 
 typedef RestaurantCallback = Future<List<RestaurantEntity>> Function(String? nameMatch, List<String>? tagsInclude);
+typedef RestaurantByIdCallback = Future<RestaurantEntity> Function(String id);
 typedef RestaurantByTagCallback = Future<List<RestaurantEntity>> Function(String tagId);
 
 class RestaurantNotifier extends StateNotifier<List<RestaurantEntity>> {
   final RestaurantCallback fetchRestaurants;
+  final RestaurantByIdCallback fetchRestaurantById;
   final RestaurantByTagCallback fetchRestaurantsByTag;
 
   RestaurantNotifier({
     required this.fetchRestaurants,
+    required this.fetchRestaurantById,
     required this.fetchRestaurantsByTag,
   }) : super([]);
 
@@ -28,6 +32,16 @@ class RestaurantNotifier extends StateNotifier<List<RestaurantEntity>> {
       final restaurants = await fetchRestaurants(nameMatch, tagsInclude);
       state = restaurants;
     } catch (e) {
+      print('Error fetching restaurants: $e');
+    }
+  }
+
+  Future<void> fetchOne(String id) async {
+    try {
+      final restaurant = await fetchRestaurantById(id);
+      state = [restaurant];
+    } catch (e) {
+      print('Error fetching restaurant by id: $e');
     }
   }
 
@@ -36,6 +50,7 @@ class RestaurantNotifier extends StateNotifier<List<RestaurantEntity>> {
       final restaurants = await fetchRestaurantsByTag(tagId);
       return restaurants;
     } catch (e) {
+      print('Error fetching restaurants by tag: $e');
       return [];
     }
   }

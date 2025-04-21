@@ -1,18 +1,23 @@
+import 'package:campus_bites/presentation/providers/restaurants/restaurants_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
 import 'package:campus_bites/presentation/views/views.dart';
 import 'package:campus_bites/presentation/views/restaurant/reviews_tab.dart';
 import 'package:campus_bites/presentation/views/restaurant/book_tab.dart';
 import 'package:campus_bites/presentation/views/restaurant/food_tab.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RestaurantScreen extends StatefulWidget {
-  const RestaurantScreen({super.key});
+class RestaurantScreen extends ConsumerStatefulWidget {
+  final String restaurantId;
+
+  const RestaurantScreen({super.key, required this.restaurantId});
 
   @override
   RestaurantScreenState createState() => RestaurantScreenState();
 }
 
-class RestaurantScreenState extends State<RestaurantScreen> with SingleTickerProviderStateMixin {
+class RestaurantScreenState extends ConsumerState<RestaurantScreen>
+    with SingleTickerProviderStateMixin {
   late TabController tabController;
   int currentTabIndex = 0;
 
@@ -25,6 +30,10 @@ class RestaurantScreenState extends State<RestaurantScreen> with SingleTickerPro
         currentTabIndex = tabController.index;
       });
     });
+
+    Future.microtask(() {
+      ref.read(getRestaurantsProvider.notifier).fetchOne(widget.restaurantId);
+    });
   }
 
   @override
@@ -35,29 +44,52 @@ class RestaurantScreenState extends State<RestaurantScreen> with SingleTickerPro
 
   @override
   Widget build(BuildContext context) {
-    final tabs = [
-      DescriptionTab(),
-      FoodTab(),
-      BookTab(),
-      ArriveTab(),
-      ReviewsTab(),
-    ];
+    final restaurants = ref.watch(getRestaurantsProvider);
+    final restaurant = restaurants.isNotEmpty ? restaurants.first : null;
+    List<Widget> tabs = [];
+    if (restaurant == null) {
+      for (var i = 0; i < 5; i++) {
+        tabs.add(
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: const Text(
+              'Could not access restaurant information.',
+              style: TextStyle(color: Colors.red, fontSize: 16),
+            ),
+          ),
+        );
+      }
+    } else {
+      tabs = [
+        DescriptionTab(restaurant),
+        FoodTab(restaurant),
+        BookTab(restaurant),
+        ArriveTab(restaurant),
+        ReviewsTab(restaurant),
+      ];
+    }
+
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             CustomSliverAppbar(),
-
             SliverToBoxAdapter(
               child: SizedBox(
                 height: 200,
+                width: double.infinity,
                 child: Image.network(
-                  'https://media.licdn.com/dms/image/v2/D4E12AQH2ohujLI8ZMw/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1726075580936?e=1747267200&v=beta&t=ybNo0EL4o7OlyDjPAsIpj6QRv4XOhgaDuPbcXJKoSGw',
+                  restaurant?.profilePhoto ?? '',
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      'assets/placeholder.png',
+                      fit: BoxFit.cover,
+                    );
+                  },
                 ),
               ),
             ),
-
             SliverAppBar(
               automaticallyImplyLeading: false,
               expandedHeight: 130,
@@ -76,15 +108,22 @@ class RestaurantScreenState extends State<RestaurantScreen> with SingleTickerPro
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Starbucks (Andes)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                              Text('200 meters', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                              Text(restaurant?.name ?? 'Restaurant',
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold)),
+                              Text('200 meters',
+                                  style: TextStyle(
+                                      fontSize: 18, color: Colors.grey)),
                             ],
                           ),
                           FilledButton(
                             style: ButtonStyle(
                               visualDensity: VisualDensity.compact,
-                              backgroundColor: WidgetStateProperty.all(Color(0xFFF46417)),
-                              foregroundColor: WidgetStateProperty.all(Colors.white),
+                              backgroundColor:
+                                  WidgetStateProperty.all(Color(0xFFF46417)),
+                              foregroundColor:
+                                  WidgetStateProperty.all(Colors.white),
                               fixedSize: WidgetStateProperty.all(Size(120, 50)),
                               shape: WidgetStateProperty.all(
                                 RoundedRectangleBorder(
@@ -97,7 +136,6 @@ class RestaurantScreenState extends State<RestaurantScreen> with SingleTickerPro
                           ),
                         ],
                       ),
-
                       SizedBox(
                         height: 50,
                         child: TabBar(
@@ -116,7 +154,6 @@ class RestaurantScreenState extends State<RestaurantScreen> with SingleTickerPro
                 ),
               ),
             ),
-
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) => tabs[currentTabIndex],

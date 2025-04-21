@@ -244,6 +244,7 @@ class HomeViewState extends ConsumerState<HomeView>
                       ] else ...[
                         ...restaurants.map((restaurant) {
                           return RestaurantCard(
+                              id: restaurant.id,
                             title: restaurant.name,
                             rating: restaurant.rating ?? 5,
                             distance: 200,

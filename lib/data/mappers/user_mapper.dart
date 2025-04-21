@@ -1,3 +1,4 @@
+import 'package:campus_bites/data/mappers/product_mapper.dart';
 import 'package:campus_bites/data/models/user_backend.dart';
 import 'package:campus_bites/domain/entities/user_entity.dart';
 
@@ -12,6 +13,10 @@ class UserMapper {
       isPremium: backend.isPremium,
       institution: backend.institution,
       savedProductsIds: backend.savedProductsIds,
+      savedProducts: backend.savedProducts
+              ?.map(ProductMapper.productBackendToEntity)
+              .toList() ??
+          [],
     );
   }
 
@@ -25,6 +30,9 @@ class UserMapper {
       isPremium: entity.isPremium,
       institution: entity.institution,
       savedProductsIds: entity.savedProductsIds,
+     savedProducts: entity.savedProducts
+          ?.map(ProductMapper.productEntityToBackend)
+          .toList(),
     );
   }
 }

@@ -2,10 +2,11 @@ class CommentBackend {
   final String id;
   final DateTime datetime;
   final String message;
-  final int rating;
+  final double rating;
   final int likes;
   final bool isVisible;
-  final String authorId; 
+  final String authorId;
+  final String authorName;
 
   CommentBackend({
     required this.id,
@@ -15,6 +16,7 @@ class CommentBackend {
     required this.likes,
     required this.isVisible,
     this.authorId = '0',
+    this.authorName = 'anonymous',
   });
 
   factory CommentBackend.fromJson(Map<String, dynamic> json) {
@@ -22,10 +24,13 @@ class CommentBackend {
       id: json['id'],
       datetime: DateTime.parse(json['datetime']),
       message: json['message'],
-      rating: json['rating'],
+      rating: json['rating'] is double
+          ? json['rating'] as double
+          : (json['rating'] as num?)?.toDouble() ?? 0.0,
       likes: json['likes'],
       isVisible: json['isVisible'],
       authorId: json['authorId'] ?? '0',
+      authorName: json['authorName'],
     );
   }
 
@@ -38,6 +43,7 @@ class CommentBackend {
       'likes': likes,
       'isVisible': isVisible,
       'authorId': authorId,
+      'authorName': authorName
     };
   }
 }

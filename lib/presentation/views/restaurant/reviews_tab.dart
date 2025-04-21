@@ -1,158 +1,50 @@
+import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:flutter/material.dart';
 
 class ReviewsTab extends StatelessWidget {
+  final RestaurantEntity restaurant;
 
-  const ReviewsTab({super.key});
+  const ReviewsTab(
+    this.restaurant, {
+    super.key,
+  });
+
   @override
   Widget build(BuildContext context) {
+    final comments = restaurant.comments;
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-                    SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-                    SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-                    SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-                    SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-                    SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          SizedBox(height: 16),
-          ReviewCard(
-            name: "Wilmer",
-            date: "31/01/2025",
-            review: "Lorem ipsum dolor sit amet consectetur adipiscing elit...",
-            rating: 3,
-          ),
-          
+          const SizedBox(height: 16),
+          if (comments == null || comments.isEmpty)
+            const Text(
+              'No reviews yet.',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            )
+          else
+            ...comments.map((comment) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: ReviewCard(
+                  name: comment.authorName,
+                  date: comment.datetime,
+                  review: comment.message,
+                  rating: comment.rating,
+                ),
+              );
+            }).toList(),
         ],
       ),
     );
   }
 }
+
 class ReviewCard extends StatelessWidget {
   final String name;
-  final String date;
+  final DateTime date;
   final String review;
-  final int rating;
+  final double rating;
 
   const ReviewCard({
     super.key,
@@ -177,15 +69,20 @@ class ReviewCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
+                const SizedBox(width: 8),
                 Text(
-                  date,
+                  date.toIso8601String().split('T').first,
                   style: const TextStyle(
                     fontSize: 12.0,
                     color: Colors.grey,
@@ -199,6 +96,7 @@ class ReviewCard extends StatelessWidget {
                 return Icon(
                   index < rating ? Icons.star : Icons.star_border,
                   color: Colors.amber,
+                  size: 20,
                 );
               }),
             ),
@@ -206,6 +104,8 @@ class ReviewCard extends StatelessWidget {
             Text(
               review,
               style: const TextStyle(fontSize: 14.0, color: Colors.black87),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 3,
             ),
           ],
         ),

@@ -1,22 +1,25 @@
-import 'package:campus_bites/data/datasources/user_backend_datasource.dart';
+import 'package:campus_bites/domain/entities/product_entity.dart';
 import 'package:campus_bites/domain/entities/user_entity.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
+import 'package:campus_bites/presentation/providers/users/user_provider.dart';
+import 'package:campus_bites/presentation/providers/users/user_repository_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
 import 'package:campus_bites/presentation/widgets/shared/responsive_food_list.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ProfileScreen extends StatefulWidget {
-  ProfileScreen({super.key});
+class ProfileScreen extends ConsumerStatefulWidget {
+  const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   UserEntity? _user;
   bool _isLoading = true;
-  final UserBackendDatasource _backendDatasource = UserBackendDatasource();
+
   @override
   void initState() {
     super.initState();
@@ -30,7 +33,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         throw Exception("No user ID found in GlobalUser.");
       }
 
-      final user = await _backendDatasource.getUser("mhb5GrYjKYb52x7Cub5yT7LlPIo1");
+      final userNotifier = ref.read(getUsersProvider.notifier);
+      final user = await userNotifier.fetchById(userId);
+
+      if (user == null) {
+        throw Exception("User not found");
+      }
 
       setState(() {
         _user = user;
@@ -42,20 +50,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _isLoading = false;
       });
     }
-  }
-
-  Future<UserEntity> _getUserFromBackend(String userId) async {
-    await Future.delayed(const Duration(seconds: 2));
-    return UserEntity(
-      id: userId,
-      name: "Daniel Diaz",
-      phone: "3028389900",
-      email: "danielf4415@gmail.com",
-      role: "analyst",
-      isPremium: true,
-      institutionId: "Los Andes",
-      savedProductsIds: [],
-    );
   }
 
   Future<void> _launchReport() async {
@@ -101,8 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _buildContactInfo(Icons.phone, _user!.phone),
                         _buildContactInfo(
                           Icons.location_on,
-                          _user!.institution?.name ??
-                              'No institution available',
+                          _user!.institution?.name ?? 'No institution available',
                         ),
                         if (isAnalyst)
                           Padding(
@@ -113,7 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         _buildSectionTitle("Saved products"),
-                        _buildProducts(),
+                        _buildProducts(_user?.savedProducts),
                       ],
                     ),
                   ),
@@ -189,7 +182,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildProducts() {
-    return ResponsiveFoodList(food: []);
+  Widget _buildProducts(List<ProductEntity>? savedProducts) {
+    if (savedProducts == null || savedProducts.isEmpty) {
+      return const Text('No saved products to show');
+    }
+
+    return ResponsiveFoodList(food: savedProducts);
   }
 }

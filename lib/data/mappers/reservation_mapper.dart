@@ -6,8 +6,8 @@ class ReservationMapper {
   static ReservationEntity reservationBackendToEntity(ReservationBackend reservationBackend) {
     return ReservationEntity(
       id: reservationBackend.id,
-      date: reservationBackend.date.toString(),
-      time: reservationBackend.time.toString(),
+      date: reservationBackend.date.toIso8601String(),
+      time: reservationBackend.time,
       numberComensals: reservationBackend.numberComensals,
       state: reservationBackend.isCompleted ? CompletedState() : PendingState(),
     );

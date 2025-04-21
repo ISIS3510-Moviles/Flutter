@@ -7,20 +7,24 @@ final getProductsProvider = StateNotifierProvider<ProductNotifier, List<ProductE
   final repository = ref.watch(productRepositoryProvider);
   return ProductNotifier(
     fetchProducts: repository.getProducts,
+    fetchProductById: repository.getProductById,
     fetchProductsByTag: repository.getProductsByTag,
   );
 });
 
 typedef ProductCallback = Future<List<ProductEntity>> Function();
 typedef ProductByTagCallback = Future<List<ProductEntity>> Function(String tagId);
+typedef ProductByIdgCallback = Future<ProductEntity> Function(String productId);
 
 class ProductNotifier extends StateNotifier<List<ProductEntity>> {
   final ProductCallback fetchProducts;
   final ProductByTagCallback fetchProductsByTag;
+  final ProductByIdgCallback fetchProductById;
 
   ProductNotifier({
     required this.fetchProducts,
     required this.fetchProductsByTag,
+    required this.fetchProductById,
   }) : super([]);
 
   Future<void> fetch() async {
@@ -32,10 +36,20 @@ class ProductNotifier extends StateNotifier<List<ProductEntity>> {
     }
   }
 
+  Future<ProductEntity> fetchById(String productId) async {
+    try {
+      final product = await fetchProductById(productId);
+      return product;
+    } catch (e) {
+      print('Error fetching single product: $e');
+      rethrow;
+    }
+  }
+
+  
   Future<List<ProductEntity>> fetchByTag(String tagId) async {
     try {
       final products = await fetchProductsByTag(tagId);
-      print(products);
       return products;
     } catch (e) {
       return [];

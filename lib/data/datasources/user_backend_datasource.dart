@@ -18,19 +18,22 @@ class UserBackendDatasource extends UserDatasource {
     return _jsonToUsers(response.data);
   }
 
-  @override
-  Future<UserEntity?> getUser(String id) async {
-    final response = await dio.get('/user/full/$id');
-    print('/user/full/$id');
-    print(response);
-    print(response.data);
-    print(UserBackend.fromJson(response.data));
-    print(UserMapper.userBackendToEntity(UserBackend.fromJson(response.data)));
-    if (response.statusCode == 200 && response.data != null) {
-      return UserMapper.userBackendToEntity(UserBackend.fromJson(response.data));
+@override
+Future<UserEntity?> getUser(String id) async {
+  final response = await dio.get('/user/full/$id');
+  if (response.statusCode == 200 && response.data != null) {
+    try {
+      final jsonData = response.data is Map<String, dynamic>
+          ? response.data as Map<String, dynamic>
+          : <String, dynamic>{};
+      return UserMapper.userBackendToEntity(UserBackend.fromJson(jsonData));
+    } catch (e) {
+      print('Error parsing user JSON: $e');
+      rethrow;
     }
-    return null;
   }
+  return null;
+}
 
   @override
   Future<UserEntity> createUser(UserEntity user) async {

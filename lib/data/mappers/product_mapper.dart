@@ -14,4 +14,15 @@ class ProductMapper {
     );
   }
 
+  static ProductBackend productEntityToBackend(ProductEntity entity) {
+    return ProductBackend(
+      id: entity.id,
+      name: entity.name,
+      description: entity.description,
+      rating: entity.rating,
+      price: entity.price,
+      photo: entity.photo,
+      isAvailable: entity.isAvailable,
+    );
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class RestaurantCard extends StatelessWidget {
+  final String id;
   final String title;
   final double rating;
   final double distance;
@@ -10,6 +11,7 @@ class RestaurantCard extends StatelessWidget {
 
   const RestaurantCard({
     super.key,
+    required this.id,
     required this.title,
     required this.rating,
     required this.distance,
@@ -19,7 +21,7 @@ class RestaurantCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/restaurant'),
+      onTap: () => context.push('/restaurant/$id'),
       child: Card(
         color: Colors.white,
         shape: RoundedRectangleBorder(

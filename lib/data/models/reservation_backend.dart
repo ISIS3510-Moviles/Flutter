@@ -1,7 +1,7 @@
 class ReservationBackend {
   final String id;
   final DateTime date;
-  final DateTime time;
+  final String time;
   final int numberComensals;
   final bool isCompleted;
 
@@ -17,7 +17,7 @@ class ReservationBackend {
     return ReservationBackend(
       id: json['id'],
       date: DateTime.parse(json['date']),
-      time: DateTime.parse(json['time']),
+      time: json['time'],
       numberComensals: json['numberComensals'],
       isCompleted: json['isCompleted'],
     );
@@ -27,7 +27,7 @@ class ReservationBackend {
     return {
       'id': id,
       'date': date.toIso8601String(),
-      'time': time.toIso8601String(),
+      'time': time,
       'numberComensals': numberComensals,
       'isCompleted': isCompleted,
     };
