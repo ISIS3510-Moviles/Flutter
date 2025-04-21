@@ -58,6 +58,7 @@ class _RestaurantTab extends StatelessWidget {
       itemBuilder: (context, index) {
         final restaurant = restaurants[index];
         return RestaurantCard(
+          id: restaurant.id,
           title: restaurant.name,
           rating: restaurant.rating ?? 5.0,
           distance: 200,

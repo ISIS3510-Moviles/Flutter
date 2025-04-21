@@ -1,3 +1,6 @@
+import 'package:campus_bites/domain/entities/comment_entity.dart';
+import 'package:campus_bites/domain/entities/product_entity.dart';
+
 class RestaurantEntity {
   final String id;
   final String name;
@@ -19,6 +22,7 @@ class RestaurantEntity {
   final List<String>? photos;
   final List<String>? foodTagsIds;
   final List<String>? tags;
+  final List<CommentEntity>? comments;
   final List<String>? dietaryTagsIds;
   final List<String>? alertsIds;
   final List<String>? reservationsIds;
@@ -26,6 +30,7 @@ class RestaurantEntity {
   final List<String>? visitsIds;
   final List<String>? commentsIds;
   final List<String>? productsIds;
+  final List<ProductEntity>? products;
 
   RestaurantEntity({
     required this.id,
@@ -44,6 +49,7 @@ class RestaurantEntity {
     this.phone,
     this.email,
     this.overviewPhoto,
+    this.comments, 
     this.profilePhoto,
     this.photos,
     this.foodTagsIds,
@@ -55,5 +61,6 @@ class RestaurantEntity {
     this.visitsIds,
     this.commentsIds,
     this.productsIds,
+    this.products,
   });
 }

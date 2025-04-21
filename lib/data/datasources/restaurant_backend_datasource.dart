@@ -41,4 +41,13 @@ Future<List<RestaurantEntity>> getRestaurants(String? searchMatch, List<String>?
     final restaurants = _jsonToRestaurants(data['restaurants']);
     return restaurants;
   }
+
+@override
+Future<RestaurantEntity> getRestaurantById(String id) async {
+  final response = await dio.get('/restaurant/full/$id');
+  final data = response.data;
+  final restaurantBackend = RestaurantBackend.fromJson(data);
+  final restaurant = RestaurantMapper.restaurantBackendToEntity(restaurantBackend);
+  return restaurant;
+}
 }

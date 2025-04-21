@@ -22,15 +22,17 @@ class ProductBackend {
   factory ProductBackend.fromJson(Map<String, dynamic> json) {
     return ProductBackend(
       id: json['id'] as String? ?? 'Unknown ID',
-      name: json['name'] as String? ?? 'Unknown Name', 
+      name: json['name'] as String? ?? 'Unknown Name',
       description: json['description'] as String? ?? 'No description',
-      rating: json['rating'],
-      price: json['price'],
+      rating: json['rating'] is double
+          ? json['rating'] as double
+          : (json['rating'] as num?)?.toDouble() ?? 0.0,
+      price: json['price'] is double
+          ? json['price'] as double
+          : (json['price'] as num?)?.toDouble() ?? 0.0,
       isAvailable: json['isAvailable'] as bool? ?? false,
       photo: json['photo'] as String?,
-      tags: json['tags'] != null
-          ? List<String>.from(json['tags'])
-          : null, 
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
     );
   }
 

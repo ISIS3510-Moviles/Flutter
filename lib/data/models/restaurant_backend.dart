@@ -1,3 +1,6 @@
+import 'package:campus_bites/data/models/comment_backend.dart';
+import 'package:campus_bites/data/models/product_backend.dart';
+
 class RestaurantBackend {
   final String id;
   final String name;
@@ -23,6 +26,8 @@ class RestaurantBackend {
   final List<String>? reservationsIds;
   final List<String>? suscribersIds;
   final List<String>? visitsIds;
+  final List<CommentBackend>? comments;
+  final List<ProductBackend>? products;
   final List<String>? commentsIds;
   final List<String>? productsIds;
   final List<String>? tags;
@@ -53,7 +58,9 @@ class RestaurantBackend {
     this.suscribersIds,
     this.visitsIds,
     this.commentsIds,
+    this.comments,
     this.productsIds,
+    this.products,
     this.tags,
   });
 
@@ -64,7 +71,8 @@ class RestaurantBackend {
       description: json['description'] as String? ?? 'No description',
       latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
       longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
-      routeIndications: json['routeIndications'] as String? ?? 'No route indications',
+      routeIndications:
+          json['routeIndications'] as String? ?? 'No route indications',
       openingTime: json['openingTime'] != null
           ? DateTime.parse(json['openingTime'])
           : DateTime.now(),
@@ -108,9 +116,17 @@ class RestaurantBackend {
       productsIds: json['productsIds'] != null
           ? List<String>.from(json['productsIds'])
           : null,
-      tags: json['tags'] != null
-          ? List<String>.from(json['tags'])
-          : null,
+      comments: (json['comments'] as List<dynamic>?)
+              ?.map((comment) =>
+                  CommentBackend.fromJson(comment as Map<String, dynamic>))
+              .toList() ??
+          [],
+      products: (json['products'] as List<dynamic>?)
+              ?.map((product) =>
+                  ProductBackend.fromJson(product as Map<String, dynamic>))
+              .toList() ??
+          [],
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
     );
   }
 }

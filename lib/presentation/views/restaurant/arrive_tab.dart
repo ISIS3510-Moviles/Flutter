@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -7,14 +8,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 
 class ArriveTab extends StatefulWidget {
-  const ArriveTab({super.key});
+  final RestaurantEntity restaurant;
+  const ArriveTab(
+    this.restaurant, {
+    super.key,
+  });
 
   @override
   State<ArriveTab> createState() => _ArriveTabState();
 }
 
 class _ArriveTabState extends State<ArriveTab> {
-  final Completer<GoogleMapController> _controller = Completer<GoogleMapController>();
+  final Completer<GoogleMapController> _controller =
+      Completer<GoogleMapController>();
 
   @override
   void initState() {
@@ -25,10 +31,11 @@ class _ArriveTabState extends State<ArriveTab> {
   Future<bool> _requestLocationPermission() async {
     var status = await Permission.location.status;
 
-    if (status.isDenied) {
+    if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
       status = await Permission.location.request();
     }
-    return false;
+
+    return status.isGranted;
   }
 
   static const CameraPosition _kUniversityLosAndes = CameraPosition(
@@ -64,12 +71,12 @@ class _ArriveTabState extends State<ArriveTab> {
               },
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: Text(
-              'Exit the ML building, head down the Environmental Axis, one block before City U, turn right.',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+              widget.restaurant.routeIndications,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
             ),
           ),
         ],

@@ -2,7 +2,7 @@ import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:logger/logger.dart';
-import 'package:dio/dio.dart'; // Necesario para capturar DioException
+import 'package:dio/dio.dart';
 import 'package:campus_bites/data/repositories/user_repository_impl.dart';
 import 'package:campus_bites/domain/entities/user_entity.dart';
 
@@ -74,7 +74,7 @@ class AuthService {
       try {
         var userRetrieved = await userRepository.createUser(userEntity);
         GlobalUser().currentUser = userRetrieved;
-        logger.i("User retrieved successfully from the database: ${userRetrieved.toJson()}");
+        logger.i("User retrieved successfully from the database: ${GlobalUser().currentUser?.toJson()}");
       } on DioException catch (dioError) {
         logger.e("Network error while creating user", error: dioError.message);
         throw AuthException("Network error while creating your account. Please check your connection and try again.");

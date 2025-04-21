@@ -14,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 
 class LoginScreenState extends State<LoginScreen> {
   late final AuthService authService;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -22,11 +23,15 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   void _signInWithGoogle() async {
+    if (isLoading) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       final userCredential = await authService.signInWithGoogle();
-      print(userCredential);
       if (userCredential.user != null) {
-        print(mounted);
         if (mounted) {
           context.go('/');
         }
@@ -38,6 +43,12 @@ class LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         _showErrorSnackbar('Error: ${e.toString()}');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }
@@ -83,15 +94,29 @@ class LoginScreenState extends State<LoginScreen> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 ),
-                onPressed: _signInWithGoogle,
+                onPressed: isLoading ? null : _signInWithGoogle,
                 icon:
                     const Icon(Icons.verified_user_sharp, color: Colors.white),
-                label: Text(
-                  'Log in with Google',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                label: SizedBox(
+                  width: 180,
+                  child: Center(
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            'Log in with Google',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ),

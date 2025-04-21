@@ -28,4 +28,18 @@ class ProductBackendDatasource extends ProductDatasource {
     final products = _jsonToProducts(data['products'] as List<dynamic>);
     return products;
   }
+
+  @override
+  Future<ProductEntity> getProductById(String productId) async {
+    try {
+      final response = await dio.get('/product/full/$productId');
+      final data = response.data;
+      final product =
+          ProductMapper.productBackendToEntity(ProductBackend.fromJson(data));
+      return product;
+    } catch (e) {
+      print('Error fetching product by id: $e');
+      throw Exception('Error fetching product by id: $e');
+    }
+  }
 }

@@ -5,7 +5,7 @@ import 'package:campus_bites/domain/repositories/user_repository.dart';
 class UserRepositoryImpl extends UserRepository {
   final UserBackendDatasource datasource;
 
-  UserRepositoryImpl({required this.datasource});
+  UserRepositoryImpl(this.datasource);
 
   @override
   Future<UserEntity?> getUser(String document) async {

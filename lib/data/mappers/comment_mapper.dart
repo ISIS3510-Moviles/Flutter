@@ -11,6 +11,7 @@ class CommentMapper {
       likes: commentBackend.likes,
       isVisible: commentBackend.isVisible,
       authorId: commentBackend.authorId,
+      authorName: commentBackend.authorName
     );
   }
 }

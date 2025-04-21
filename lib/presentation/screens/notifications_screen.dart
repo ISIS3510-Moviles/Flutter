@@ -1,43 +1,51 @@
+import 'package:campus_bites/globals/GlobalUser.dart';
+import 'package:campus_bites/presentation/providers/alerts/alert_provider.dart';
 import 'package:campus_bites/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    String userId = GlobalUser().currentUser?.id ?? '0';
+    final alertsAsync = ref.watch(getAlertsProvider(userId));
+
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             CustomSliverAppbar(),
-
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        NotificationCard(
-                          imageUrl: 'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
-                          title: 'Starbucks (Andes)',
-                          description: 'We have changed our oppening time. We are now open from 8:00 to 20:00',
-                          date: '10 minutes ago',
+            alertsAsync.when(
+              data: (alerts) {
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final alert = alerts[index];
+                      return Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: NotificationCard(
+                          imageUrl: alert.restaurant.profilePhoto ?? 'assets/placeholder.png',
+                          title: alert.restaurant.name,
+                          description: alert.message,
+                          date:
+                              DateFormat('dd/MM/yyyy HH:mm').format(alert.date),
                         ),
-                        NotificationCard(
-                          imageUrl: 'https://cdn-icons-png.flaticon.com/512/16183/16183661.png',
-                          title: 'Starbucks (Andes)',
-                          description: 'Thank you for reserving table 1 on Thursday at 11:00',
-                          date: '15 minutes ago',
-                        ),
-                      ],
-                    )
-                  );
-                },
-                childCount: 1,
+                      );
+                    },
+                    childCount: alerts.length,
+                  ),
+                );
+              },
+              loading: () => const SliverToBoxAdapter(
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              error: (e, st) => SliverToBoxAdapter(
+                child: Center(
+                    child: Text(
+                        'Error loading notifications. Please try again later.')),
               ),
             )
           ],
@@ -52,9 +60,13 @@ class NotificationCard extends StatelessWidget {
   final String title;
   final String description;
   final String date;
-  
+
   const NotificationCard({
-    super.key, required this.imageUrl, required this.title, required this.description, required this.date,
+    super.key,
+    required this.imageUrl,
+    required this.title,
+    required this.description,
+    required this.date,
   });
 
   @override
@@ -82,15 +94,19 @@ class NotificationCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(title,
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   SizedBox(height: 4),
-                  Text(description, style: TextStyle(fontSize: 16, color: Colors.grey)),
+                  Text(description,
+                      style: TextStyle(fontSize: 16, color: Colors.grey)),
                   SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Spacer(),
-                      Text(date, style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text(date,
+                          style: TextStyle(fontSize: 12, color: Colors.grey)),
                     ],
                   )
                 ],

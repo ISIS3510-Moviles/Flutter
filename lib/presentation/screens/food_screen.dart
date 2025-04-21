@@ -1,112 +1,121 @@
+import 'package:campus_bites/domain/entities/product_entity.dart';
+import 'package:campus_bites/presentation/providers/products/product_provider.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
 import 'package:campus_bites/presentation/widgets/shared/tag_chip.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FoodScreen extends StatelessWidget {
+class FoodScreen extends ConsumerWidget {
   final String foodId;
-  const FoodScreen({super.key, required this.foodId});
-
+  final productProvider = FutureProvider.autoDispose
+      .family<ProductEntity, String>((ref, foodId) async {
+    final notifier = ref.read(getProductsProvider.notifier);
+    return notifier.fetchById(foodId);
+  });
+  FoodScreen({super.key, required this.foodId});
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          const CustomSliverAppbar(),
-          SliverToBoxAdapter(
-            child: Align(
-              alignment: Alignment.center,
-              child: Image.network(
-                'https://as1.ftcdn.net/v2/jpg/12/06/12/78/1000_F_1206127856_P7vsv48IxKa5cX8BRfBeUQHMh1phso5d.jpg',
-                height: 250,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      TagChip(tagName: "Under \$20.000"),
-                      TagChip(tagName: "Breakfast"),
-                      TagChip(tagName: "Lunch"),
-                      TagChip(tagName: "Dinner"),
-                      TagChip(tagName: "Vegan"),
-                      TagChip(tagName: "Gluten-Free")
-                    ],
-                  ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final productAsync = ref.watch(productProvider(foodId));
 
-                  const SizedBox(height: 10),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Tamale",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF277A46),
-                        ),
+    return Scaffold(
+      body: productAsync.when(
+        data: (product) => CustomScrollView(
+          slivers: [
+            const CustomSliverAppbar(),
+            SliverToBoxAdapter(
+              child: Align(
+                alignment: Alignment.center,
+                child: product.photo != null
+                    ? Image.network(
+                        product.photo!,
+                        height: 250,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            'assets/placeholder.png',
+                            height: 250,
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        'assets/placeholder.png',
+                        height: 250,
+                        fit: BoxFit.cover,
                       ),
-                      Text(
-                        "\$40.000",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight.",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Ingredients",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF277A46),
-                    ),
-                  ),
-                  const BulletPointList(items: [
-                    "Shredded chicken Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight",
-                    "Salsa verde (green tomatillo sauce) Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight ",
-                    "Corn masa dough Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight",
-                    "Corn husks Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight",
-                    "Spices (cumin, garlic, chili powder, and more) Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight",
-                  ]),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Available Hours",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF277A46),
-                    ),
-                  ),
-                  const Text(
-                    "Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Our tamales are freshly made daily and available from 7:00 AM to 2:00 PM Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight Indulge in our mouthwatering Chicken Tamale, a traditional Colombian delight",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
               ),
             ),
-          ),
-        ],
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: (product.tags ?? [])
+                          .map((tag) => TagChip(tagName: tag))
+                          .toList(),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          product.name,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF277A46),
+                          ),
+                        ),
+                        Text(
+                          "\$${product.price.toStringAsFixed(0)}",
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      product.description,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Ingredients",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF277A46),
+                      ),
+                    ),
+                    (product.ingredients == null ||
+                            product.ingredients!.isEmpty)
+                        ? const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              "No ingredients available",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          )
+                        : BulletPointList(items: product.ingredients!),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text('Error: $error')),
       ),
     );
   }
 }
-
 
 class BulletPointList extends StatelessWidget {
   final List<String> items;
