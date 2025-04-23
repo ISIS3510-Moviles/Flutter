@@ -1,3 +1,16 @@
+import 'package:campus_bites/data/mappers/dietary_tag_mapper.dart';
+import 'package:campus_bites/data/mappers/food_tag_mapper.dart';
+import 'package:campus_bites/data/mappers/ingredient_mapper.dart';
+import 'package:campus_bites/data/mappers/restaurant_mapper.dart';
+import 'package:campus_bites/data/models/dietary_tag_backend.dart';
+import 'package:campus_bites/data/models/food_tag_backend.dart';
+import 'package:campus_bites/data/models/ingredient_backend.dart';
+import 'package:campus_bites/data/models/restaurant_backend.dart';
+import 'package:campus_bites/domain/entities/dietary_tag_entity.dart';
+import 'package:campus_bites/domain/entities/entities.dart';
+import 'package:campus_bites/domain/entities/food_tag_entity.dart';
+import 'package:campus_bites/domain/entities/ingredient_entity.dart';
+
 class ProductEntity {
   final String id;
   final String name;
@@ -7,9 +20,10 @@ class ProductEntity {
   final bool isAvailable;
   final String? photo;
   final List<String>? tags;
-  final List<String>? dietaryTags;
-  final List<String>? foodTags;
-  final List<String>? ingredients;
+  final List<DietaryTagEntity>? dietaryTags;
+  final List<FoodTagEntity>? foodTags;
+  final List<IngredientEntity>? ingredients;
+  final RestaurantEntity? restaurant;
 
   ProductEntity({
     required this.id,
@@ -22,7 +36,8 @@ class ProductEntity {
     this.tags,
     this.dietaryTags,
     this.foodTags,
-    this.ingredients
+    this.ingredients,
+    this.restaurant
   });
 
   factory ProductEntity.fromJson(Map<String, dynamic> json) {
@@ -34,9 +49,20 @@ class ProductEntity {
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
       isAvailable: json['isAvailable'] as bool? ?? false,
       photo: json['photo'] as String?,
+      restaurant: RestaurantMapper.restaurantBackendToEntity(RestaurantBackend.fromJson(json['restaurant'])), 
+      ingredients: json['ingredients'] != null
+        ? (json['ingredients'] as List<dynamic>)
+            .map((ingredientJson) =>
+                IngredientMapper.ingredientBackendToEntity(
+                    IngredientBackend.fromJson(ingredientJson)))
+            .toList()
+        : null,
+      foodTags: FoodTagMapper.foodTagBackendToEntity(json['foodTags']), 
+      dietaryTags: DietaryTagMapper.dietaryTagBackendToEntity(json['dietaryTags']), 
       tags: (json['tags'] as List<dynamic>?)
           ?.map((tag) => tag as String)
           .toList(),
     );
+    
   }
 }

@@ -4,6 +4,7 @@ import 'package:campus_bites/data/models/reservation_backend.dart';
 import 'package:campus_bites/domain/datasources/reservation_datasource.dart';
 import 'package:campus_bites/domain/entities/reservation_entity.dart';
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 
 class ReservationBackendDatasource extends ReservationDatasource {
   final dio = Dio(BaseOptions(baseUrl: Environment.backendApi));
@@ -24,4 +25,41 @@ class ReservationBackendDatasource extends ReservationDatasource {
     .toList();
     return _jsonToReservations(reservationsBackend);
   }
+
+@override
+Future<String> createReservation({
+  required String userId,
+  required String date,
+  required String time,
+  required int numberComensals,
+  required bool isCompleted,
+  required String restaurantId,
+}) async {
+  try {
+    final DateFormat inputFormat = DateFormat('MM/dd/yyyy');
+    final DateTime parsedDate = inputFormat.parse(date);
+    final String formattedDate = DateFormat("yyyy-MM-dd'T'00:00:00'Z'").format(parsedDate.toUtc());
+    final requestBody = {
+      "date": formattedDate,
+      "time": time,
+      "numberComensals": numberComensals,
+      "isCompleted": isCompleted,
+      "restaurant_id": restaurantId,
+      "user_id": userId,
+    };
+
+    final response = await dio.post(
+      '/reservation',
+      data: requestBody,
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return response.data['id'];
+    } else {
+      throw Exception('Failed to create reservation: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Error creating reservation: $e');
+  }
+}
 }

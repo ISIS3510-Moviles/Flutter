@@ -1,3 +1,4 @@
+import 'package:campus_bites/domain/entities/ingredient_entity.dart';
 import 'package:campus_bites/domain/entities/product_entity.dart';
 import 'package:campus_bites/presentation/providers/products/product_provider.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
@@ -118,7 +119,7 @@ class FoodScreen extends ConsumerWidget {
 }
 
 class BulletPointList extends StatelessWidget {
-  final List<String> items;
+  final List<IngredientEntity> items;
   const BulletPointList({required this.items, super.key});
 
   @override
@@ -134,7 +135,7 @@ class BulletPointList extends StatelessWidget {
                     const Text("• ", style: TextStyle(fontSize: 16)),
                     Expanded(
                         child:
-                            Text(item, style: const TextStyle(fontSize: 16))),
+                            Text(item.name, style: const TextStyle(fontSize: 16))),
                   ],
                 ),
               ))

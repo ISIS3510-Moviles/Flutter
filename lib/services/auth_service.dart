@@ -61,7 +61,7 @@ class AuthService {
       );
 
       final userEntity = UserEntity(
-        id: user.uid,
+        id: "",
         name: user.displayName ?? "Unknown",
         phone: user.phoneNumber ?? "",
         email: user.email ?? "",

@@ -1,6 +1,8 @@
 import 'package:campus_bites/domain/entities/pending_state.dart';
 import 'package:campus_bites/domain/entities/reservation_entity.dart';
 import 'package:campus_bites/domain/entities/restaurant_entity.dart';
+import 'package:campus_bites/data/datasources/reservation_backend_datasource.dart';
+import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -22,6 +24,9 @@ class BookTabState extends State<BookTab> {
   late TextEditingController _dateController;
   late TextEditingController _comensalsController;
 
+  final ReservationBackendDatasource _datasource =
+      ReservationBackendDatasource();
+
   @override
   void initState() {
     super.initState();
@@ -33,11 +38,14 @@ class BookTabState extends State<BookTab> {
       state: PendingState(),
     );
     _dateController = TextEditingController(text: reservation.date);
-    _comensalsController = TextEditingController(text: reservation.numberComensals.toString());
+    _comensalsController =
+        TextEditingController(text: reservation.numberComensals.toString());
 
     _comensalsFocusNode.addListener(() {
       setState(() {
-        _borderColor = _comensalsFocusNode.hasFocus ? Colors.black : const Color(0xFF817570);
+        _borderColor = _comensalsFocusNode.hasFocus
+            ? Colors.black
+            : const Color(0xFF817570);
       });
     });
   }
@@ -65,6 +73,44 @@ class BookTabState extends State<BookTab> {
     }
   }
 
+  Future<void> _bookReservation() async {
+    try {
+      final userId = GlobalUser().currentUser?.id;
+
+      if (userId == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'User not logged in. Please log in to make a reservation.')),
+          );
+        }
+        return;
+      }
+
+      await _datasource.createReservation(
+        userId: userId,
+        date: reservation.date,
+        time: reservation.time,
+        numberComensals: reservation.numberComensals,
+        isCompleted: false,
+        restaurantId: widget.restaurant.id,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Reservation created successfully!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create reservation: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -76,7 +122,11 @@ class BookTabState extends State<BookTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Date:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF277A46))),
+            const Text("Date:",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color(0xFF277A46))),
             TextField(
               controller: _dateController,
               readOnly: true,
@@ -89,7 +139,8 @@ class BookTabState extends State<BookTab> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text("Hour", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text("Hour",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             DropdownButtonFormField<String>(
               value: reservation.time,
               items: ["12:00", "13:00", "14:00", "15:00", "16:00"].map((hour) {
@@ -108,14 +159,23 @@ class BookTabState extends State<BookTab> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text("Comensals", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF277A46))),
+            const Text("Comensals",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color(0xFF277A46))),
             GestureDetector(
               onTap: () {
                 FocusScope.of(context).requestFocus(_comensalsFocusNode);
               },
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: _borderColor, width: 1),
+                  border: Border.all(
+                    color: _comensalsFocusNode.hasFocus
+                        ? Color(0xFF9e5b36)
+                        : _borderColor,
+                    width: 1,
+                  ),
                   borderRadius: BorderRadius.circular(5),
                 ),
                 child: Row(
@@ -126,7 +186,8 @@ class BookTabState extends State<BookTab> {
                         setState(() {
                           if (reservation.numberComensals > 1) {
                             reservation.numberComensals--;
-                            _comensalsController.text = reservation.numberComensals.toString();
+                            _comensalsController.text =
+                                reservation.numberComensals.toString();
                           }
                         });
                       },
@@ -137,8 +198,10 @@ class BookTabState extends State<BookTab> {
                         controller: _comensalsController,
                         readOnly: true,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                        decoration: const InputDecoration(border: InputBorder.none),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
+                        decoration:
+                            const InputDecoration(border: InputBorder.none),
                       ),
                     ),
                     IconButton(
@@ -146,7 +209,8 @@ class BookTabState extends State<BookTab> {
                       onPressed: () {
                         setState(() {
                           reservation.numberComensals++;
-                          _comensalsController.text = reservation.numberComensals.toString();
+                          _comensalsController.text =
+                              reservation.numberComensals.toString();
                         });
                       },
                     ),
@@ -157,7 +221,7 @@ class BookTabState extends State<BookTab> {
             const SizedBox(height: 16),
             Center(
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: _bookReservation,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF277A46),
                   foregroundColor: Colors.white,

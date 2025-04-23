@@ -4,7 +4,8 @@ import 'package:campus_bites/data/models/restaurant_backend.dart';
 import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 
 class RestaurantMapper {
-  static RestaurantEntity restaurantBackendToEntity(RestaurantBackend restaurantBackend) {
+  static RestaurantEntity restaurantBackendToEntity(
+      RestaurantBackend restaurantBackend) {
     return RestaurantEntity(
       id: restaurantBackend.id,
       name: restaurantBackend.name,
@@ -32,9 +33,47 @@ class RestaurantMapper {
       suscribersIds: restaurantBackend.suscribersIds,
       visitsIds: restaurantBackend.visitsIds,
       commentsIds: restaurantBackend.commentsIds,
-      comments: restaurantBackend.comments?.map((e) => CommentMapper.commentBackendToEntity(e)).toList() ?? [],
+      comments: restaurantBackend.comments
+              ?.map((e) => CommentMapper.commentBackendToEntity(e))
+              .toList() ??
+          [],
       productsIds: restaurantBackend.productsIds,
-      products: restaurantBackend.products?.map((e) => ProductMapper.productBackendToEntity(e)).toList() ?? [],
+      products: restaurantBackend.products
+              ?.map((e) => ProductMapper.productBackendToEntity(e))
+              .toList() ??
+          [],
+    );
+  }
+
+  static RestaurantBackend restaurantEntityToBackend(RestaurantEntity entity) {
+    return RestaurantBackend(
+      id: entity.id,
+      name: entity.name,
+      description: entity.description,
+      latitude: entity.latitude,
+      longitude: entity.longitude,
+      routeIndications: entity.routeIndications,
+      openingTime: entity.openingTime,
+      closingTime: entity.closingTime,
+      opensHolidays: entity.opensHolidays,
+      opensWeekends: entity.opensWeekends,
+      isActive: entity.isActive,
+      rating: entity.rating,
+      address: entity.address,
+      phone: entity.phone,
+      email: entity.email,
+      overviewPhoto: entity.overviewPhoto,
+      profilePhoto: entity.profilePhoto,
+      photos: entity.photos,
+      foodTagsIds: entity.foodTagsIds,
+      dietaryTagsIds: entity.dietaryTagsIds,
+      tags: entity.tags,
+      alertsIds: entity.alertsIds,
+      reservationsIds: entity.reservationsIds,
+      suscribersIds: entity.suscribersIds,
+      visitsIds: entity.visitsIds,
+      commentsIds: entity.commentsIds,
+      productsIds: entity.productsIds,
     );
   }
 }
