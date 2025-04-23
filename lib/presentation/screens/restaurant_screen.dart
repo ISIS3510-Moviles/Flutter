@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_bites/presentation/providers/restaurants/restaurants_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
@@ -78,15 +79,19 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
               child: SizedBox(
                 height: 200,
                 width: double.infinity,
-                child: Image.network(
-                  restaurant?.profilePhoto ?? '',
+                child: CachedNetworkImage(
+                  imageUrl: restaurant?.profilePhoto ?? '',
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/placeholder.png',
-                      fit: BoxFit.cover,
-                    );
-                  },
+                  placeholder: (context, url) => Container(
+                    width: 80,
+                    height: 80,
+                    alignment: Alignment.center,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/placeholder.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),

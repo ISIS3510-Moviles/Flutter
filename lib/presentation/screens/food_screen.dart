@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_bites/domain/entities/product_entity.dart';
 import 'package:campus_bites/presentation/providers/products/product_provider.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
@@ -26,17 +27,20 @@ class FoodScreen extends ConsumerWidget {
               child: Align(
                 alignment: Alignment.center,
                 child: product.photo != null
-                    ? Image.network(
-                        product.photo!,
+                    ? CachedNetworkImage(
+                        imageUrl: product.photo!,
                         height: 250,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            'assets/placeholder.png',
-                            height: 250,
-                            fit: BoxFit.cover,
-                          );
-                        },
+                        placeholder: (context, url) => Container(
+                          height: 250,
+                          alignment: Alignment.center,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        errorWidget: (context, url, error) => Image.asset(
+                          'assets/placeholder.png',
+                          height: 250,
+                          fit: BoxFit.cover,
+                        ),
                       )
                     : Image.asset(
                         'assets/placeholder.png',

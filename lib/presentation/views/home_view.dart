@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_bites/domain/entities/entities.dart';
 import 'package:campus_bites/domain/entities/food_tag_entity.dart';
 import 'package:campus_bites/presentation/providers/dietary-tags/dietary_tag_provider.dart';
@@ -311,6 +312,7 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
     final foodTags = ref.watch(getFoodTagsProvider);
     final dietaryTags = ref.watch(getDietaryTagsProvider);
 
@@ -361,7 +363,7 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                             child: Column(
                               children: dietaryTags
                                   .sublist(0, (dietaryTags.length / 2).ceil())
-                                  .map((tag) => _buildCheckbox(tag.name))
+                                  .map((tag) => _buildCheckbox(tag.name, analytics, true))
                                   .toList(),
                             ),
                           ),
@@ -369,7 +371,7 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                             child: Column(
                               children: dietaryTags
                                   .sublist((dietaryTags.length / 2).ceil())
-                                  .map((tag) => _buildCheckbox(tag.name))
+                                  .map((tag) => _buildCheckbox(tag.name, analytics, true))
                                   .toList(),
                             ),
                           ),
@@ -416,12 +418,20 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
     );
   }
 
-  Widget _buildCheckbox(String tagName) {
+  Widget _buildCheckbox(String tagName, [analytics, dietary]) {
     return Row(
       children: [
         Checkbox(
-          value: tagSelections[tagName] ?? true,
+          value: tagSelections[tagName] ?? false,
           onChanged: (value) {
+            if (dietary == true) {
+              analytics.logEvent(
+                name: 'dietary_filter',
+                parameters: {
+                  'dietary_filter': tagName
+                }
+              ); 
+            }
             setState(() {
               tagSelections[tagName] = value!;
             });
@@ -515,34 +525,21 @@ class _TagItem extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: hasIcon
-                    ? Image.network(
-                        tag.icon!,
+                    ? CachedNetworkImage(
+                        imageUrl: tag.icon!,
                         fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                    : null,
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            'assets/placeholder.png',
-                            fit: BoxFit.cover,
-                          );
-                        },
+                        placeholder: (context, url) => Container(
+                          width: 80,
+                          height: 80,
+                          alignment: Alignment.center,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white,),
+                        ),
+                        errorWidget: (context, url, error) => Image.asset(
+                          'assets/placeholder.png',
+                          fit: BoxFit.cover,
+                        ),
                       )
+                      
                     : Image.asset(
                         'assets/placeholder.png',
                         fit: BoxFit.cover,
