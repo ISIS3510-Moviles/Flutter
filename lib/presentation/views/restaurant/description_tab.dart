@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_bites/domain/entities/entities.dart';
 import 'package:flutter/material.dart';
 
@@ -19,16 +20,20 @@ class DescriptionTab extends StatelessWidget {
           SizedBox(
             height: 200,
             width: double.infinity,
-            child: Image.network(
-              restaurant.overviewPhoto ?? '',
+            child: CachedNetworkImage(
+              imageUrl: restaurant.overviewPhoto ?? '',
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Image.asset(
-                  'assets/placeholder.png',
-                  fit: BoxFit.cover,
-                );
-              },
-            ),
+              placeholder: (context, url) => Container(
+                width: 80,
+                height: 80,
+                alignment: Alignment.center,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              errorWidget: (context, url, error) => Image.asset(
+                'assets/placeholder.png',
+                fit: BoxFit.cover,
+              ),
+            )
           ),
           const SizedBox(height: 16),
           const Align(

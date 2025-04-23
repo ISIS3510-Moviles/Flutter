@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/presentation/providers/alerts/alert_provider.dart';
 import 'package:campus_bites/presentation/widgets/widgets.dart';
@@ -27,7 +28,8 @@ class NotificationsScreen extends ConsumerWidget {
                       return Padding(
                         padding: const EdgeInsets.all(16),
                         child: NotificationCard(
-                          imageUrl: alert.restaurant.profilePhoto ?? 'assets/placeholder.png',
+                          imageUrl: alert.restaurant.profilePhoto ??
+                              'assets/placeholder.png',
                           title: alert.restaurant.name,
                           description: alert.message,
                           date:
@@ -82,11 +84,23 @@ class NotificationCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  width: 80,
+                  height: 80,
+                  alignment: Alignment.center,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                errorWidget: (context, url, error) => Image.asset(
+                  'assets/placeholder.png',
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             SizedBox(width: 16),
