@@ -22,10 +22,16 @@ class _ArriveTabState extends State<ArriveTab> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
+  late CameraPosition _restaurantLocation;
+
   @override
   void initState() {
     super.initState();
     _requestLocationPermission();
+     _restaurantLocation = CameraPosition(
+      target: LatLng(widget.restaurant.latitude, widget.restaurant.longitude),
+      zoom: 17,
+    );
   }
 
   Future<bool> _requestLocationPermission() async {
@@ -37,11 +43,6 @@ class _ArriveTabState extends State<ArriveTab> {
 
     return status.isGranted;
   }
-
-  static const CameraPosition _kUniversityLosAndes = CameraPosition(
-    target: LatLng(4.60142035, -74.0649170096208),
-    zoom: 17,
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +56,19 @@ class _ArriveTabState extends State<ArriveTab> {
             width: double.infinity,
             child: GoogleMap(
               mapType: MapType.normal,
-              initialCameraPosition: _kUniversityLosAndes,
+              initialCameraPosition: _restaurantLocation,
+              markers: {
+                Marker(
+                  markerId: MarkerId('restaurantLocation'),
+                  position: _restaurantLocation.target,
+                  infoWindow: InfoWindow(
+                  title: widget.restaurant.name,
+                  snippet: 'Restaurant Location',
+                  ),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueRed),
+                ),
+              },
               myLocationEnabled: true,
               myLocationButtonEnabled: true,
               zoomGesturesEnabled: true,
