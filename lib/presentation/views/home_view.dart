@@ -12,9 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:campus_bites/config/router/app_router.dart';
+
 import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:campus_bites/presentation/providers/restaurants/distance_cache_provider.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -244,11 +246,13 @@ class HomeViewState extends ConsumerState<HomeView>
                         )
                       ] else ...[
                         ...restaurants.map((restaurant) {
+                          final distanceMeters =
+                            ref.watch(distanceCacheProvider)[restaurant.id] ?? 200;
                           return RestaurantCard(
                               id: restaurant.id,
                             title: restaurant.name,
                             rating: restaurant.rating ?? 5,
-                            distance: 200,
+                            distance: distanceMeters,
                             imageUrl: restaurant.profilePhoto!,
                             tags: restaurant.tags ?? [],
                           );

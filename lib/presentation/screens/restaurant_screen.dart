@@ -9,6 +9,7 @@ import 'package:campus_bites/presentation/views/restaurant/food_tab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:campus_bites/presentation/providers/restaurants/distance_cache_provider.dart';
 import 'dart:async';
 
 class RestaurantScreen extends ConsumerStatefulWidget {
@@ -115,6 +116,9 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
         restaurant.latitude,
         restaurant.longitude,
       );
+
+      ref.read(distanceCacheProvider.notifier)
+        .setDistance(widget.restaurantId, distanceInMeters);
 
       if (!_mounted) return;
 
