@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_bites/presentation/providers/restaurants/restaurants_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
@@ -6,6 +7,10 @@ import 'package:campus_bites/presentation/views/restaurant/reviews_tab.dart';
 import 'package:campus_bites/presentation/views/restaurant/book_tab.dart';
 import 'package:campus_bites/presentation/views/restaurant/food_tab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:campus_bites/presentation/providers/restaurants/distance_cache_provider.dart';
+import 'dart:async';
 
 class RestaurantScreen extends ConsumerStatefulWidget {
   final String restaurantId;
@@ -20,10 +25,17 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
   int currentTabIndex = 0;
+  String distanceText = 'Calculating...';
+  bool isCalculatingDistance = true;
+  String? lastCalculatedRestaurantId;
+  StreamSubscription<Position>? _positionStreamSubscription;
+  bool _mounted = true;
 
   @override
   void initState() {
     super.initState();
+    _mounted = true;
+
     tabController = TabController(length: 5, vsync: this);
     tabController.addListener(() {
       setState(() {
@@ -31,13 +43,126 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
       });
     });
 
-    Future.microtask(() {
-      ref.read(getRestaurantsProvider.notifier).fetchOne(widget.restaurantId);
+    Future.microtask(() async {
+      await ref.read(getRestaurantsProvider.notifier).fetchOne(widget.restaurantId);
+      _initLocationAndDistanceIfNeeded();
     });
+  }
+
+  void _initLocationAndDistanceIfNeeded() {
+    if (lastCalculatedRestaurantId != widget.restaurantId) {
+      lastCalculatedRestaurantId = widget.restaurantId;
+      _initLocationAndDistance();
+    }
+  }
+
+  void _initLocationAndDistance() async {
+    _positionStreamSubscription?.cancel(); 
+
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    final permissionGranted = await _requestLocationPermission();
+
+    if (!serviceEnabled) {
+      setState(() {
+        distanceText = 'GPS is off';
+        isCalculatingDistance = false;
+      });
+      return;
+    }
+
+    if (!permissionGranted) {
+      setState(() {
+        distanceText = 'Location denied';
+        isCalculatingDistance = false;
+      });
+      return;
+    }
+
+    final locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.bestForNavigation,
+      distanceFilter: 5,
+    );
+
+    _positionStreamSubscription = Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).listen(_updateDistance);
+  }
+
+  void _updateDistance(Position position) async {
+    try {
+
+      await Future.doWhile(() async {
+        final restaurants = ref.read(getRestaurantsProvider);
+        await Future.delayed(const Duration(milliseconds: 200));
+        return restaurants.isEmpty;
+      });
+
+      final restaurants = ref.read(getRestaurantsProvider);
+      final restaurant = restaurants.isNotEmpty ? restaurants.first : null;
+
+      if (!_mounted) return;
+
+      if (restaurant == null) {
+        setState(() {
+          distanceText = 'Not found';
+          isCalculatingDistance = false;
+        });
+        return;
+      }
+
+      final distanceInMeters = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        restaurant.latitude,
+        restaurant.longitude,
+      );
+
+      ref.read(distanceCacheProvider.notifier)
+        .setDistance(widget.restaurantId, distanceInMeters);
+
+      if (!_mounted) return;
+
+      setState(() {
+        distanceText = distanceInMeters < 1000
+          ? '${distanceInMeters.round()} meters'
+          : '${(distanceInMeters / 1000).toStringAsFixed(1)} km';
+        isCalculatingDistance = false;
+      });
+
+    } catch (e) {
+      if (!_mounted) return;
+      setState(() {
+        distanceText = 'Not available';
+        isCalculatingDistance = false;
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant RestaurantScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.restaurantId != widget.restaurantId) {
+      ref.read(getRestaurantsProvider.notifier).fetchOne(widget.restaurantId);
+      _initLocationAndDistanceIfNeeded();
+    }
+  }
+
+  Future<bool> _requestLocationPermission() async {
+    var status = await Permission.location.status;
+    
+    if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
+      status = await Permission.location.request();
+    }
+    
+    return status.isGranted;
+
   }
 
   @override
   void dispose() {
+    _mounted = false;
+    _positionStreamSubscription?.cancel();
     tabController.dispose();
     super.dispose();
   }
@@ -78,15 +203,19 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
               child: SizedBox(
                 height: 200,
                 width: double.infinity,
-                child: Image.network(
-                  restaurant?.profilePhoto ?? '',
+                child: CachedNetworkImage(
+                  imageUrl: restaurant?.profilePhoto ?? '',
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/placeholder.png',
-                      fit: BoxFit.cover,
-                    );
-                  },
+                  placeholder: (context, url) => Container(
+                    width: 80,
+                    height: 80,
+                    alignment: Alignment.center,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/placeholder.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
@@ -112,9 +241,26 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                                   style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold)),
-                              Text('200 meters',
-                                  style: TextStyle(
-                                      fontSize: 18, color: Colors.grey)),
+
+                              Row(
+                                children: [
+                                  isCalculatingDistance 
+                                      ? SizedBox(
+                                          width: 12,
+                                          height: 12,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                                          ),
+                                        )
+                                      : Icon(Icons.location_on, size: 16, color: Colors.grey),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    distanceText,
+                                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                           FilledButton(

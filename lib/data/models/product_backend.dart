@@ -48,8 +48,8 @@ class ProductBackend {
         restaurant: json['restaurant'] != null 
             ? RestaurantBackend.fromJson(json['restaurant'] as Map<String, dynamic>) 
             : null,
-        foodTags: json['foodTags'], // Store as List<dynamic>
-        dietaryTags: json['dietaryTags'], // Store as List<dynamic>
+        foodTags: json['foodTags'],
+        dietaryTags: json['dietaryTags'],
         ingredients: json['ingredients'] != null
             ? (json['ingredients'] as List)
                 .map((ingredient) => IngredientBackend.fromJson(ingredient as Map<String, dynamic>))

@@ -1,3 +1,4 @@
+
 import 'package:campus_bites/data/datasources/comment_backend_datasource.dart';
 import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
@@ -14,68 +15,33 @@ class ReviewsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final comments = restaurant.comments;
-
-    return Stack(
-      children: [
-        SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (comments == null || comments.isEmpty)
-                const Text(
-                  'No reviews yet.',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                  textAlign: TextAlign.center,
-                )
-              else
-                ...comments.map((comment) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: ReviewCard(
-                      name: comment.authorName,
-                      date: comment.datetime,
-                      review: comment.message,
-                      rating: comment.rating,
-                    ),
-                  );
-                }),
-              const SizedBox(height: 80),
-            ],
-          ),
-        ),
-        Positioned(
-          bottom: 16,
-          right: 16,
-          child: FloatingActionButton.extended(
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                builder: (context) => Padding(
-                  padding: MediaQuery.of(context).viewInsets,
-                  child: ReviewForm(
-                    restaurantId: restaurant.id,
-                    productId: '',
-                    authorId: GlobalUser().currentUser!.id,
-                  ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          if (comments == null || comments.isEmpty)
+            const Text(
+              'No reviews yet.',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            )
+          else
+            ...comments.map((comment) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: ReviewCard(
+                  name: comment.authorName,
+                  date: comment.datetime,
+                  review: comment.message,
+                  rating: comment.rating,
                 ),
               );
-            },
-            icon: const Icon(Icons.rate_review),
-            label: const Text('Write a Review'),
-            backgroundColor: Theme.of(context).primaryColor,
-          ),
-        ),
-      ],
+            }).toList(),
+        ],
+      ),
     );
   }
 }
-
-
 class ReviewCard extends StatelessWidget {
   final String name;
   final DateTime date;

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,6 +19,13 @@ class RestaurantCard extends StatelessWidget {
     required this.imageUrl,
     required this.tags,
   });
+
+  String formatDistance(double meters) {
+    return meters < 1000
+      ? '${meters.round()} m'
+      : '${(meters / 1000).toStringAsFixed(1)} km';
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -33,19 +41,23 @@ class RestaurantCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  imageUrl,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
                   width: 80,
                   height: 80,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/placeholder.png',
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    );
-                  },
+                  placeholder: (context, url) => Container(
+                    width: 80,
+                    height: 80,
+                    alignment: Alignment.center,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/placeholder.png',
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               SizedBox(width: 16),
@@ -70,12 +82,13 @@ class RestaurantCard extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.directions_walk, size: 18),
-                        SizedBox(width: 4),
-                        Text(distance.toString()),
-                      ],
+                    if (distance >= 0)
+                      Row(
+                        children: [
+                          Icon(Icons.directions_walk, size: 18),
+                          SizedBox(width: 4),
+                          Text(formatDistance(distance)),
+                        ],
                     ),
                     SizedBox(height: 8),
                     Wrap(

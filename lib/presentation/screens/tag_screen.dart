@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_bites/data/datasources/product_backend_datasource.dart';
 import 'package:campus_bites/data/datasources/restaurant_backend_datasource.dart';
 import 'package:campus_bites/domain/entities/entities.dart';
@@ -190,49 +191,6 @@ class _ImageBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isNetworkImage = Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false;
-
-    Widget imageWidget;
-
-    if (imageUrl.isEmpty) {
-      imageWidget = Image.asset(
-        placeholder,
-        width: 50,
-        height: 50,
-        fit: BoxFit.cover,
-      );
-    } else if (isNetworkImage) {
-      imageWidget = Image.network(
-        imageUrl,
-        width: 50,
-        height: 50,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Image.asset(
-            placeholder,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-          );
-        },
-      );
-    } else {
-      imageWidget = Image.asset(
-        imageUrl,
-        width: 50,
-        height: 50,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Image.asset(
-            placeholder,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-          );
-        },
-      );
-    }
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Container(
@@ -246,7 +204,24 @@ class _ImageBox extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: imageWidget,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  width: 80,
+                  height: 80,
+                  alignment: Alignment.center,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                errorWidget: (context, url, error) => Image.asset(
+                  'assets/placeholder.png',
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -33,20 +34,23 @@ class FoodCard extends StatelessWidget {
             children: [
               Center(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    imageUrl,
-                    height: 130,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Image.asset(
+                    borderRadius: BorderRadius.circular(12),
+                    child: CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      height: 130,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        width: 80,
+                        height: 80,
+                        alignment: Alignment.center,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      errorWidget: (context, url, error) => Image.asset(
                         'assets/placeholder.png',
                         height: 130,
                         fit: BoxFit.cover,
-                      );
-                    },
-                  ),
-                ),
+                      ),
+                    )),
               ),
               Expanded(
                 child: Column(
