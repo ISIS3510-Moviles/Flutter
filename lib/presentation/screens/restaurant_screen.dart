@@ -58,21 +58,33 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
   void _initLocationAndDistance() async {
     _positionStreamSubscription?.cancel(); // Ensure we don't create duplicates
 
-    if (await _requestLocationPermission()) {
-      final locationSettings = LocationSettings(
-        accuracy: LocationAccuracy.bestForNavigation,
-        distanceFilter: 5,
-      );
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    final permissionGranted = await _requestLocationPermission();
 
-      _positionStreamSubscription = Geolocator.getPositionStream(
-        locationSettings: locationSettings,
-      ).listen(_updateDistance);
-    } else {
+    if (!serviceEnabled) {
+      setState(() {
+        distanceText = 'GPS is off';
+        isCalculatingDistance = false;
+      });
+      return;
+    }
+
+    if (!permissionGranted) {
       setState(() {
         distanceText = 'Location denied';
         isCalculatingDistance = false;
       });
+      return;
     }
+
+    final locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.bestForNavigation,
+      distanceFilter: 5,
+    );
+
+    _positionStreamSubscription = Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).listen(_updateDistance);
   }
 
   void _updateDistance(Position position) async {
