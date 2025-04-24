@@ -82,12 +82,13 @@ class RestaurantCard extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.directions_walk, size: 18),
-                        SizedBox(width: 4),
-                        Text(formatDistance(distance)),
-                      ],
+                    if (distance >= 0)
+                      Row(
+                        children: [
+                          Icon(Icons.directions_walk, size: 18),
+                          SizedBox(width: 4),
+                          Text(formatDistance(distance)),
+                        ],
                     ),
                     SizedBox(height: 8),
                     Wrap(

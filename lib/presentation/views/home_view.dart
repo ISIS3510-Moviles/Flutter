@@ -247,7 +247,7 @@ class HomeViewState extends ConsumerState<HomeView>
                       ] else ...[
                         ...restaurants.map((restaurant) {
                           final distanceMeters =
-                            ref.watch(distanceCacheProvider)[restaurant.id] ?? 200;
+                            ref.watch(distanceCacheProvider)[restaurant.id] ?? -1;
                           return RestaurantCard(
                               id: restaurant.id,
                             title: restaurant.name,
