@@ -7,6 +7,8 @@ import 'package:campus_bites/presentation/views/restaurant/reviews_tab.dart';
 import 'package:campus_bites/presentation/views/restaurant/book_tab.dart';
 import 'package:campus_bites/presentation/views/restaurant/food_tab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class RestaurantScreen extends ConsumerStatefulWidget {
   final String restaurantId;
@@ -21,6 +23,8 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
   int currentTabIndex = 0;
+  String distanceText = 'Calculating...';
+  bool isCalculatingDistance = true;
 
   @override
   void initState() {
@@ -35,6 +39,86 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
     Future.microtask(() {
       ref.read(getRestaurantsProvider.notifier).fetchOne(widget.restaurantId);
     });
+    
+    // Request location permission and calculate distance when the restaurant data loads
+    _initLocationAndDistance();
+  }
+
+  Future<void> _initLocationAndDistance() async {
+    if (await _requestLocationPermission()) {
+      _calculateDistanceToRestaurant();
+    } else {
+      setState(() {
+        distanceText = 'Location denied';
+        isCalculatingDistance = false;
+      });
+    }
+  }
+
+  Future<bool> _requestLocationPermission() async {
+    var status = await Permission.location.status;
+    
+    if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
+      status = await Permission.location.request();
+    }
+    
+    return status.isGranted;
+  }
+
+  Future<void> _calculateDistanceToRestaurant() async {
+    try {
+      // Wait for restaurant data to be available
+      await Future.doWhile(() async {
+        final restaurants = ref.read(getRestaurantsProvider);
+        await Future.delayed(const Duration(milliseconds: 200));
+        return restaurants.isEmpty;
+      });
+
+      final restaurants = ref.watch(getRestaurantsProvider);
+      final restaurant = restaurants.isNotEmpty ? restaurants.first : null;
+
+      if (restaurant == null) {
+        setState(() {
+          distanceText = 'Not found';
+          isCalculatingDistance = false;
+        });
+        return;
+      }
+
+      // Get current position
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.bestForNavigation,
+          timeLimit: Duration(seconds: 5),
+        ),
+      );
+
+      // Calculate distance in meters
+      final distanceInMeters = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        restaurant.latitude,
+        restaurant.longitude,
+      );
+
+      // Format distance text
+      setState(() {
+        if (distanceInMeters < 1000) {
+          // Display in meters if less than 1 km
+          distanceText = '${distanceInMeters.round()} meters';
+        } else {
+          // Display in kilometers if more than 1 km
+          final distanceInKm = distanceInMeters / 1000;
+          distanceText = '${distanceInKm.toStringAsFixed(1)} km';
+        }
+        isCalculatingDistance = false;
+      });
+    } catch (e) {
+      setState(() {
+        distanceText = 'Not available';
+        isCalculatingDistance = false;
+      });
+    }
   }
 
   @override
@@ -117,9 +201,25 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                                   style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold)),
-                              Text('200 meters',
-                                  style: TextStyle(
-                                      fontSize: 18, color: Colors.grey)),
+                              Row(
+                                children: [
+                                  isCalculatingDistance 
+                                      ? SizedBox(
+                                          width: 12,
+                                          height: 12,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                                          ),
+                                        )
+                                      : Icon(Icons.location_on, size: 16, color: Colors.grey),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    distanceText,
+                                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                           FilledButton(
