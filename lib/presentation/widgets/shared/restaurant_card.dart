@@ -19,6 +19,13 @@ class RestaurantCard extends StatelessWidget {
     required this.imageUrl,
     required this.tags,
   });
+
+  String formatDistance(double meters) {
+    return meters < 1000
+      ? '${meters.round()} m'
+      : '${(meters / 1000).toStringAsFixed(1)} km';
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -75,12 +82,13 @@ class RestaurantCard extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.directions_walk, size: 18),
-                        SizedBox(width: 4),
-                        Text(distance.toString()),
-                      ],
+                    if (distance >= 0)
+                      Row(
+                        children: [
+                          Icon(Icons.directions_walk, size: 18),
+                          SizedBox(width: 4),
+                          Text(formatDistance(distance)),
+                        ],
                     ),
                     SizedBox(height: 8),
                     Wrap(
