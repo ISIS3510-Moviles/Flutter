@@ -23,15 +23,12 @@ class ProductMapper {
               .map((ingredient) => IngredientMapper.ingredientBackendToEntity(ingredient))
               .toList()
           : [],
-      foodTags: productBackend.foodTags != null
-          ? FoodTagMapper.foodTagBackendToEntity(productBackend.foodTags!)
-          : [],
-      dietaryTags: productBackend.dietaryTags != null
-          ? DietaryTagMapper.dietaryTagBackendToEntity(productBackend.dietaryTags!)
-          : [],
+      foodTags: FoodTagMapper.foodTagBackendToEntity(productBackend.foodTags),
+      dietaryTags: DietaryTagMapper.dietaryTagBackendToEntity(productBackend.dietaryTags), 
       tags: productBackend.tags,
     );
   }
+
   static ProductBackend productEntityToBackend(ProductEntity entity) {
     return ProductBackend(
       id: entity.id,
