@@ -21,6 +21,7 @@ class ArriveTab extends StatefulWidget {
 class _ArriveTabState extends State<ArriveTab> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
+
   late CameraPosition _restaurantLocation;
 
   @override
@@ -39,10 +40,6 @@ class _ArriveTabState extends State<ArriveTab> {
     if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
       status = await Permission.location.request();
     }
-
-    return status.isGranted;
-  }
-
 
     return status.isGranted;
   }
