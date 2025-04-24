@@ -25,10 +25,12 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
   int currentTabIndex = 0;
   String distanceText = 'Calculating...';
   bool isCalculatingDistance = true;
+  String? lastCalculatedRestaurantId;
 
   @override
   void initState() {
     super.initState();
+
     tabController = TabController(length: 5, vsync: this);
     tabController.addListener(() {
       setState(() {
@@ -36,12 +38,17 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
       });
     });
 
-    Future.microtask(() {
-      ref.read(getRestaurantsProvider.notifier).fetchOne(widget.restaurantId);
+    Future.microtask(() async {
+      await ref.read(getRestaurantsProvider.notifier).fetchOne(widget.restaurantId);
+      _initLocationAndDistanceIfNeeded();
     });
-    
-    // Request location permission and calculate distance when the restaurant data loads
-    _initLocationAndDistance();
+  }
+
+  void _initLocationAndDistanceIfNeeded() {
+    if (lastCalculatedRestaurantId != widget.restaurantId) {
+      lastCalculatedRestaurantId = widget.restaurantId;
+      _initLocationAndDistance();
+    }
   }
 
   Future<void> _initLocationAndDistance() async {
@@ -52,6 +59,16 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
         distanceText = 'Location denied';
         isCalculatingDistance = false;
       });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant RestaurantScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.restaurantId != widget.restaurantId) {
+      ref.read(getRestaurantsProvider.notifier).fetchOne(widget.restaurantId);
+      _initLocationAndDistanceIfNeeded();
     }
   }
 
