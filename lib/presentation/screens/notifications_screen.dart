@@ -21,6 +21,22 @@ class NotificationsScreen extends ConsumerWidget {
             CustomSliverAppbar(),
             alertsAsync.when(
               data: (alerts) {
+
+                if (alerts.isEmpty) {
+                  return const SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24.0),
+                        child: Text(
+                          'You have no notifications.',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {

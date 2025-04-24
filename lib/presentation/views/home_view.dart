@@ -182,7 +182,7 @@ class HomeViewState extends ConsumerState<HomeView>
                   child: SizedBox(
                     width: 314,
                     child: CustomTextFormField(
-                      label: 'Search restaurants',
+                      label: 'Search restaurant',
                       controller: _searchController,
                       onChanged: (value) {
                         _searchDebounce?.cancel();
@@ -219,7 +219,7 @@ class HomeViewState extends ConsumerState<HomeView>
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(top: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SizedBox(
                   width: 314,
                   child: Column(
@@ -249,7 +249,7 @@ class HomeViewState extends ConsumerState<HomeView>
                           final distanceMeters =
                             ref.watch(distanceCacheProvider)[restaurant.id] ?? -1;
                           return RestaurantCard(
-                              id: restaurant.id,
+                            id: restaurant.id,
                             title: restaurant.name,
                             rating: restaurant.rating ?? 5,
                             distance: distanceMeters,
@@ -292,14 +292,22 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
     _loadPreferences();
   }
 
+  Future<void> _clearPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    setState(() {
+      tagSelections.updateAll((key, value) => false);
+    });
+  }
+
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     final foodTags = ref.read(getFoodTagsProvider);
     final dietaryTags = ref.read(getDietaryTagsProvider);
 
     Map<String, bool> initialSelections = {
-      for (var tag in foodTags) tag.name: prefs.getBool(tag.name) ?? true,
-      for (var tag in dietaryTags) tag.name: prefs.getBool(tag.name) ?? true,
+      for (var tag in foodTags) tag.name: prefs.getBool(tag.name) ?? false,
+      for (var tag in dietaryTags) tag.name: prefs.getBool(tag.name) ?? false,
     };
 
     setState(() {
@@ -392,7 +400,7 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                                   WidgetStateProperty.all(Color(0xFFF46417)),
                               foregroundColor:
                                   WidgetStateProperty.all(Colors.white),
-                              fixedSize: WidgetStateProperty.all(Size(180, 50)),
+                              fixedSize: WidgetStateProperty.all(Size(140, 50)),
                               shape: WidgetStateProperty.all(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -400,20 +408,45 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                               ),
                             ),
                             onPressed: () async {
+                              final searchText = context
+                                      .findAncestorStateOfType<HomeViewState>()
+                                      ?._searchText ??
+                                  '';
                               await _savePreferences();
                               final preferredTags =
                                   await _loadUserPreferredTags();
                               await ref
                                   .read(getRestaurantsProvider.notifier)
                                   .fetch(
-                                      nameMatch: '',
-                                      tagsInclude: preferredTags);
+                                    nameMatch: searchText,
+                                    tagsInclude: preferredTags,
+                                  );
                               widget.closeDrawer();
                             },
                             child: Text('Done'),
                           ),
+                          const SizedBox(width: 16),
+                          TextButton(
+                            onPressed: () async {
+                              final searchText = context
+                                      .findAncestorStateOfType<HomeViewState>()
+                                      ?._searchText ??
+                                  '';
+                              await _clearPreferences();
+                              final preferredTags =
+                                  await _loadUserPreferredTags();
+                              await ref
+                                  .read(getRestaurantsProvider.notifier)
+                                  .fetch(
+                                    nameMatch: searchText,
+                                    tagsInclude: preferredTags,
+                                  );
+                              widget.closeDrawer();
+                            },
+                            child: Text('Clear'),
+                          ),
                         ],
-                      )
+                      ),
                     ],
                   ),
           ),

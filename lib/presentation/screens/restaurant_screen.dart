@@ -57,7 +57,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
   }
 
   void _initLocationAndDistance() async {
-    _positionStreamSubscription?.cancel(); // Ensure we don't create duplicates
+    _positionStreamSubscription?.cancel(); 
 
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     final permissionGranted = await _requestLocationPermission();
@@ -90,7 +90,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
 
   void _updateDistance(Position position) async {
     try {
-      // Wait until the restaurant data is loaded
+
       await Future.doWhile(() async {
         final restaurants = ref.read(getRestaurantsProvider);
         await Future.delayed(const Duration(milliseconds: 200));
@@ -156,6 +156,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
     }
     
     return status.isGranted;
+
   }
 
   @override
@@ -240,6 +241,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                                   style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold)),
+
                               Row(
                                 children: [
                                   isCalculatingDistance 

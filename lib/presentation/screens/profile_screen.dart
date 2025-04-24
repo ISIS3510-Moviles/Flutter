@@ -92,7 +92,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         _profileHeader(),
                         _buildSectionTitle("Contact information"),
                         _buildContactInfo(Icons.email, _user!.email),
-                        _buildContactInfo(Icons.phone, _user!.phone),
                         _buildContactInfo(
                           Icons.location_on,
                           _user!.institution?.name ?? 'No institution available',

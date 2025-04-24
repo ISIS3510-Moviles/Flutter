@@ -30,16 +30,20 @@ class ProductBackendDatasource extends ProductDatasource {
   }
 
   @override
-  Future<ProductEntity> getProductById(String productId) async {
-    try {
-      final response = await dio.get('/product/full/$productId');
-      final data = response.data;
-      final product =
-          ProductMapper.productBackendToEntity(ProductBackend.fromJson(data));
-      return product;
-    } catch (e) {
-      print('Error fetching product by id: $e');
-      throw Exception('Error fetching product by id: $e');
-    }
+
+Future<ProductEntity> getProductById(String productId) async {
+  try {
+    final response = await dio.get('/product/full/$productId');
+    final data = response.data;
+    
+    final productBackend = ProductBackend.fromJson(data);
+    final product = ProductMapper.productBackendToEntity(productBackend);
+    
+    return product;
+  } catch (e, stackTrace) {
+    print('Error fetching product by id: $e');
+    print('Stack trace: $stackTrace');
+    throw Exception('Error fetching product by id: $e');
   }
 }
+
