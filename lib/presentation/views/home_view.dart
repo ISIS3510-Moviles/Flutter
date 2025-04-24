@@ -180,7 +180,7 @@ class HomeViewState extends ConsumerState<HomeView>
                   child: SizedBox(
                     width: 314,
                     child: CustomTextFormField(
-                      label: 'Search food',
+                      label: 'Search restaurants',
                       controller: _searchController,
                       onChanged: (value) {
                         _searchDebounce?.cancel();

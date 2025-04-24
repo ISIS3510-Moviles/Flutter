@@ -9,6 +9,7 @@ import 'package:campus_bites/presentation/views/restaurant/food_tab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:async';
 
 class RestaurantScreen extends ConsumerStatefulWidget {
   final String restaurantId;
@@ -26,10 +27,13 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
   String distanceText = 'Calculating...';
   bool isCalculatingDistance = true;
   String? lastCalculatedRestaurantId;
+  StreamSubscription<Position>? _positionStreamSubscription;
+  bool _mounted = true;
 
   @override
   void initState() {
     super.initState();
+    _mounted = true;
 
     tabController = TabController(length: 5, vsync: this);
     tabController.addListener(() {
@@ -51,12 +55,68 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
     }
   }
 
-  Future<void> _initLocationAndDistance() async {
+  void _initLocationAndDistance() async {
+    _positionStreamSubscription?.cancel(); // Ensure we don't create duplicates
+
     if (await _requestLocationPermission()) {
-      _calculateDistanceToRestaurant();
+      final locationSettings = LocationSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 5,
+      );
+
+      _positionStreamSubscription = Geolocator.getPositionStream(
+        locationSettings: locationSettings,
+      ).listen(_updateDistance);
     } else {
       setState(() {
         distanceText = 'Location denied';
+        isCalculatingDistance = false;
+      });
+    }
+  }
+
+  void _updateDistance(Position position) async {
+    try {
+      // Wait until the restaurant data is loaded
+      await Future.doWhile(() async {
+        final restaurants = ref.read(getRestaurantsProvider);
+        await Future.delayed(const Duration(milliseconds: 200));
+        return restaurants.isEmpty;
+      });
+
+      final restaurants = ref.read(getRestaurantsProvider);
+      final restaurant = restaurants.isNotEmpty ? restaurants.first : null;
+
+      if (!_mounted) return;
+
+      if (restaurant == null) {
+        setState(() {
+          distanceText = 'Not found';
+          isCalculatingDistance = false;
+        });
+        return;
+      }
+
+      final distanceInMeters = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        restaurant.latitude,
+        restaurant.longitude,
+      );
+
+      if (!_mounted) return;
+
+      setState(() {
+        distanceText = distanceInMeters < 1000
+          ? '${distanceInMeters.round()} meters'
+          : '${(distanceInMeters / 1000).toStringAsFixed(1)} km';
+        isCalculatingDistance = false;
+      });
+
+    } catch (e) {
+      if (!_mounted) return;
+      setState(() {
+        distanceText = 'Not available';
         isCalculatingDistance = false;
       });
     }
@@ -82,64 +142,10 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
     return status.isGranted;
   }
 
-  Future<void> _calculateDistanceToRestaurant() async {
-    try {
-      // Wait for restaurant data to be available
-      await Future.doWhile(() async {
-        final restaurants = ref.read(getRestaurantsProvider);
-        await Future.delayed(const Duration(milliseconds: 200));
-        return restaurants.isEmpty;
-      });
-
-      final restaurants = ref.watch(getRestaurantsProvider);
-      final restaurant = restaurants.isNotEmpty ? restaurants.first : null;
-
-      if (restaurant == null) {
-        setState(() {
-          distanceText = 'Not found';
-          isCalculatingDistance = false;
-        });
-        return;
-      }
-
-      // Get current position
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.bestForNavigation,
-          timeLimit: Duration(seconds: 5),
-        ),
-      );
-
-      // Calculate distance in meters
-      final distanceInMeters = Geolocator.distanceBetween(
-        position.latitude,
-        position.longitude,
-        restaurant.latitude,
-        restaurant.longitude,
-      );
-
-      // Format distance text
-      setState(() {
-        if (distanceInMeters < 1000) {
-          // Display in meters if less than 1 km
-          distanceText = '${distanceInMeters.round()} meters';
-        } else {
-          // Display in kilometers if more than 1 km
-          final distanceInKm = distanceInMeters / 1000;
-          distanceText = '${distanceInKm.toStringAsFixed(1)} km';
-        }
-        isCalculatingDistance = false;
-      });
-    } catch (e) {
-      setState(() {
-        distanceText = 'Not available';
-        isCalculatingDistance = false;
-      });
-    }
-  }
-
   @override
   void dispose() {
+    _mounted = false;
+    _positionStreamSubscription?.cancel();
     tabController.dispose();
     super.dispose();
   }
