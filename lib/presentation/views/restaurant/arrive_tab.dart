@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'dart:async';
-
 import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -35,13 +35,25 @@ class _ArriveTabState extends State<ArriveTab> {
   }
 
   Future<bool> _requestLocationPermission() async {
-    var status = await Permission.location.status;
-
-    if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
-      status = await Permission.location.request();
+    // For iOS, we need to check locationWhenInUse first
+    if (Platform.isIOS) {
+      var status = await Permission.locationWhenInUse.status;
+      if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
+        status = await Permission.locationWhenInUse.request();
+        // Only request always if needed and when in use is granted
+        if (status.isGranted) {
+          status = await Permission.locationAlways.request();
+        }
+      }
+      return status.isGranted;
+    } else {
+      // Android path remains the same
+      var status = await Permission.location.status;
+      if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
+        status = await Permission.location.request();
+      }
+      return status.isGranted;
     }
-
-    return status.isGranted;
   }
 
   @override

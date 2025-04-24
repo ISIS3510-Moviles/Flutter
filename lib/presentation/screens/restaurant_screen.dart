@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_bites/presentation/providers/restaurants/restaurants_provider.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,8 @@ import 'package:campus_bites/presentation/views/restaurant/book_tab.dart';
 import 'package:campus_bites/presentation/views/restaurant/food_tab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geolocator_android/geolocator_android.dart';
+import 'package:geolocator_apple/geolocator_apple.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:campus_bites/presentation/providers/restaurants/distance_cache_provider.dart';
 import 'dart:async';
@@ -78,10 +81,19 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
       return;
     }
 
-    final locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.bestForNavigation,
-      distanceFilter: 5,
-    );
+    final locationSettings = Platform.isIOS
+    ? AppleSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 5,
+        activityType: ActivityType.fitness,
+        pauseLocationUpdatesAutomatically: true,
+        allowBackgroundLocationUpdates: true,
+      )
+    : AndroidSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 5,
+        forceLocationManager: false,
+      );
 
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: locationSettings,
@@ -149,14 +161,25 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
   }
 
   Future<bool> _requestLocationPermission() async {
-    var status = await Permission.location.status;
-    
-    if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
-      status = await Permission.location.request();
+    // For iOS, we need to check locationWhenInUse first
+    if (Platform.isIOS) {
+      var status = await Permission.locationWhenInUse.status;
+      if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
+        status = await Permission.locationWhenInUse.request();
+        // Only request always if needed and when in use is granted
+        if (status.isGranted) {
+          status = await Permission.locationAlways.request();
+        }
+      }
+      return status.isGranted;
+    } else {
+      // Android path remains the same
+      var status = await Permission.location.status;
+      if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
+        status = await Permission.location.request();
+      }
+      return status.isGranted;
     }
-    
-    return status.isGranted;
-
   }
 
   @override

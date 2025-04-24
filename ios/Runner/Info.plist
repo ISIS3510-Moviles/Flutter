@@ -58,5 +58,11 @@
 	<array>
 	<string>google</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open to calculate distance to restaurants.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs access to location when in the background to update restaurant distances in real-time.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location to update restaurant distances.</string>
 </dict>
 </plist>
