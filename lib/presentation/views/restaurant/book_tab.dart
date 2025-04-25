@@ -3,10 +3,13 @@ import 'package:campus_bites/domain/entities/reservation_entity.dart';
 import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:campus_bites/data/datasources/reservation_backend_datasource.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
+import 'package:campus_bites/presentation/providers/alerts/alert_provider.dart';
+import 'package:campus_bites/presentation/providers/reservations/reservation_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-class BookTab extends StatefulWidget {
+class BookTab extends ConsumerStatefulWidget {
   final RestaurantEntity restaurant;
   const BookTab(
     this.restaurant, {
@@ -14,10 +17,10 @@ class BookTab extends StatefulWidget {
   });
 
   @override
-  BookTabState createState() => BookTabState();
+  ConsumerState<BookTab> createState() => BookTabState();
 }
 
-class BookTabState extends State<BookTab> {
+class BookTabState extends ConsumerState<BookTab> {
   late ReservationEntity reservation;
   final FocusNode _comensalsFocusNode = FocusNode();
   Color _borderColor = const Color(0xFF817570);
@@ -96,6 +99,9 @@ class BookTabState extends State<BookTab> {
         isCompleted: false,
         restaurantId: widget.restaurant.id,
       );
+
+       ref.invalidate(getReservationsProvider(userId));
+       ref.invalidate(getAlertsProvider(userId));
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
