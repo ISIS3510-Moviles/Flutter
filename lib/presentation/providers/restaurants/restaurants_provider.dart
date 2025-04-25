@@ -38,8 +38,14 @@ class RestaurantNotifier extends StateNotifier<List<RestaurantEntity>> {
 
   Future<void> fetchOne(String id) async {
     try {
+      final prevState = [...state];
+      state = [];
       final restaurant = await fetchRestaurantById(id);
-      state = [restaurant];
+      final updated = [
+        restaurant,
+        ...prevState.where((r) => r.id != restaurant.id),
+      ];
+      state = updated;
     } catch (e) {
       print('Error fetching restaurant by id: $e');
     }

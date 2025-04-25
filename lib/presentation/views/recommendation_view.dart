@@ -26,7 +26,7 @@ class RecommendationViewState extends ConsumerState<RecommendationView>
     try {
       Dio dio = Dio();
       final response = await dio.post(
-        'http://34.44.23.243:8000/recommend',
+        'http://35.208.18.145:8000/recommend',
         data: {'user_id': 'mhb5GrYjKYb52x7Cub5yT7LlPIo1'},
       );
       if (response.statusCode == 200) {

@@ -9,24 +9,53 @@ import 'package:intl/intl.dart';
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
+  DateTime? _extractDateTime(String message) {
+    final re = RegExp(r'on (\d{1,2}/\d{1,2}/\d{4}) at (\d{2}:\d{2})');
+    final m  = re.firstMatch(message);
+    if (m == null) return null;
+
+    final dateTimeStr = '${m.group(1)} ${m.group(2)}';
+    try {
+      return DateFormat('d/M/yyyy H:mm').parse(dateTimeStr);
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    String userId = GlobalUser().currentUser?.id ?? '0';
+    final userId      = GlobalUser().currentUser?.id ?? '0';
     final alertsAsync = ref.watch(getAlertsProvider(userId));
 
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
-          slivers: [
-            CustomSliverAppbar(),
-            alertsAsync.when(
-              data: (alerts) {
-
-                if (alerts.isEmpty) {
-                  return const SliverToBoxAdapter(
+          slivers: alertsAsync.when(
+            loading: () => [
+              const SliverToBoxAdapter(
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ],
+            error: (e, _) => [
+              const SliverToBoxAdapter(
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text(
+                      'Error loading notifications. Please try again later.',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            data: (alerts) {
+              if (alerts.isEmpty) {
+                return [
+                  const CustomSliverAppbar(),
+                  const SliverToBoxAdapter(
                     child: Center(
                       child: Padding(
-                        padding: EdgeInsets.all(24.0),
+                        padding: EdgeInsets.all(24),
                         child: Text(
                           'You have no notifications.',
                           style: TextStyle(fontSize: 16, color: Colors.grey),
@@ -34,39 +63,91 @@ class NotificationsScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                  );
-                }
+                  ),
+                ];
+              }
 
-                return SliverList(
+              final now = DateTime.now();
+              final futureAlerts = alerts
+                  .where((a) => _extractDateTime(a.message)?.isAfter(now) ?? false)
+                  .toList()
+                ..sort((a, b) => _extractDateTime(a.message)!
+                    .compareTo(_extractDateTime(b.message)!));
+
+              final nextReservation =
+                  futureAlerts.isNotEmpty ? futureAlerts.first : null;
+
+              // ── Construye la lista de Slivers ────────────────────────────
+              final slivers = <Widget>[const CustomSliverAppbar()];
+
+              if (nextReservation != null) {
+                final nextDate = _extractDateTime(nextReservation.message)!;
+
+                slivers.add(
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Tu próxima reservación',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF277A46),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          NotificationCard(
+                            imageUrl: nextReservation.restaurant.profilePhoto ??
+                                'assets/placeholder.png',
+                            title: nextReservation.restaurant.name,
+                            description: nextReservation.message,
+                            date: DateFormat('dd/MM/yyyy HH:mm')
+                                .format(nextDate),
+                          ),
+                          const SizedBox(height: 24),
+                          const Text(
+                            'Otras notificaciones',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF277A46),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              slivers.add(
+                SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final alert = alerts[index];
                       return Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.only(left: 16, right: 16,),
                         child: NotificationCard(
                           imageUrl: alert.restaurant.profilePhoto ??
                               'assets/placeholder.png',
                           title: alert.restaurant.name,
                           description: alert.message,
-                          date:
-                              DateFormat('dd/MM/yyyy HH:mm').format(alert.date),
+                          date: DateFormat('dd/MM/yyyy HH:mm')
+                              .format(alert.date),
                         ),
                       );
                     },
                     childCount: alerts.length,
                   ),
-                );
-              },
-              loading: () => const SliverToBoxAdapter(
-                child: Center(child: CircularProgressIndicator()),
-              ),
-              error: (e, st) => SliverToBoxAdapter(
-                child: Center(
-                    child: Text(
-                        'Error loading notifications. Please try again later.')),
-              ),
-            )
-          ],
+                ),
+              );
+
+              return slivers;
+            },
+          ),
         ),
       ),
     );
@@ -105,11 +186,10 @@ class NotificationCard extends StatelessWidget {
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
+                placeholder: (context, url) => const SizedBox(
                   width: 80,
                   height: 80,
-                  alignment: Alignment.center,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
                 ),
                 errorWidget: (context, url, error) => Image.asset(
                   'assets/placeholder.png',
@@ -119,26 +199,24 @@ class NotificationCard extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 4),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
                   Text(description,
-                      style: TextStyle(fontSize: 16, color: Colors.grey)),
-                  SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Spacer(),
-                      Text(date,
-                          style: TextStyle(fontSize: 12, color: Colors.grey)),
-                    ],
-                  )
+                      style: const TextStyle(fontSize: 16, color: Colors.grey)),
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(date,
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey)),
+                  ),
                 ],
               ),
             ),

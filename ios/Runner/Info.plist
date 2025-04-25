@@ -58,5 +58,9 @@
 	<array>
 	<string>google</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Necesitamos tu ubicación para calcular la distancia a los restaurantes y mostrar tu posición en el mapa.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Permítenos acceder a tu ubicación incluso en segundo plano para avisarte de ofertas cercanas.</string>
 </dict>
 </plist>
