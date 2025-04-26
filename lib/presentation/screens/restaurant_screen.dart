@@ -90,14 +90,13 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
 
   void _updateDistance(Position position) async {
     try {
-
       await Future.doWhile(() async {
-        final restaurants = ref.read(getRestaurantsProvider);
+        final restaurantsAsync = ref.read(getRestaurantsProvider);
         await Future.delayed(const Duration(milliseconds: 200));
-        return restaurants.isEmpty;
+        return restaurantsAsync.isLoading;
       });
 
-      final restaurants = ref.read(getRestaurantsProvider);
+      final restaurants = ref.read(getRestaurantsProvider).value ?? [];
       final restaurant = restaurants.isNotEmpty ? restaurants.first : null;
 
       if (!_mounted) return;
@@ -118,7 +117,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
       );
 
       ref.read(distanceCacheProvider.notifier)
-        .setDistance(widget.restaurantId, distanceInMeters);
+          .setDistance(widget.restaurantId, distanceInMeters);
 
       if (!_mounted) return;
 
@@ -169,8 +168,23 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
 
   @override
   Widget build(BuildContext context) {
-    final restaurants = ref.watch(getRestaurantsProvider);
+    final restaurantsAsync = ref.watch(getRestaurantsProvider);
+
+    if (restaurantsAsync.isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (restaurantsAsync.hasError) {
+      return Scaffold(
+        body: Center(child: Text('Error loading restaurant')),
+      );
+    }
+
+    final restaurants = restaurantsAsync.value ?? [];
     final restaurant = restaurants.isNotEmpty ? restaurants.first : null;
+
     List<Widget> tabs = [];
     if (restaurant == null) {
       for (var i = 0; i < 5; i++) {
