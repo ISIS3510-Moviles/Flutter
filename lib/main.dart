@@ -4,18 +4,29 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'config/router/app_router.dart';
-import 'config/theme/util.dart';
-import 'config/theme/theme.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:campus_bites/config/router/app_router.dart';
+import 'package:campus_bites/config/theme/util.dart';
+import 'package:campus_bites/config/theme/theme.dart';
+import 'package:campus_bites/data/offline/queued_comment.dart';
+import 'package:campus_bites/data/offline/comment_queue_manager.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
-  runApp(ProviderScope(child: MainApp()));
+
+  await Hive.initFlutter();
+  Hive.registerAdapter(QueuedCommentAdapter());
+  await Hive.openBox<QueuedComment>('queued_comments');
+
+  CommentQueueManager().startListener();
+
+  runApp(const ProviderScope(child: MainApp()));
 }
 
 class MainApp extends StatelessWidget {
@@ -29,7 +40,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp.router(
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
-      theme: theme.light()
+      theme: theme.light(),
     );
   }
 }

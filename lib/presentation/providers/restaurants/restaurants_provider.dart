@@ -12,17 +12,15 @@ typedef RestaurantByTagCallback = Future<List<RestaurantEntity>> Function(String
 class GetRestaurantsNotifier extends AsyncNotifier<List<RestaurantEntity>> {
   late final RestaurantCacheService _cache;
   late final RestaurantCallback _fetchRestaurants;
-  late final RestaurantByIdCallback _fetchRestaurantById;
   late final RestaurantByTagCallback _fetchRestaurantsByTag;
 
   @override
   Future<List<RestaurantEntity>> build() async {
     final repository = ref.read(restaurantRepositoryProvider);
-    final isar = await ref.watch(isarInstanceProvider.future); // ahora sí esperamos seguro
+    final isar = await ref.watch(isarInstanceProvider.future);
     _cache = RestaurantCacheService(isar);
 
     _fetchRestaurants = repository.getRestaurants;
-    _fetchRestaurantById = repository.getRestaurantById;
     _fetchRestaurantsByTag = repository.getRestaurantsByTag;
 
     // Inicialmente intenta traer del cache
@@ -31,7 +29,6 @@ class GetRestaurantsNotifier extends AsyncNotifier<List<RestaurantEntity>> {
       return cached;
     }
 
-    // Si no hay cache válido, carga desde red
     final remote = await _fetchRestaurants(null, null);
     await _cache.saveRestaurants(remote);
     return remote;
@@ -54,19 +51,6 @@ class GetRestaurantsNotifier extends AsyncNotifier<List<RestaurantEntity>> {
     }
   }
 
-  Future<void> fetchOne(String id) async {
-    try {
-      final previous = state.value ?? [];
-      final restaurant = await _fetchRestaurantById(id);
-      final updated = [
-        restaurant,
-        ...previous.where((r) => r.id != restaurant.id),
-      ];
-      state = AsyncData(updated);
-    } catch (_) {
-      // no cambia estado en error de 1
-    }
-  }
 
   Future<List<RestaurantEntity>> fetchByTag(String tagId) async {
     try {

@@ -117,13 +117,13 @@ Future.microtask(() async {
   void _updateDistance(Position position) async {
     try {
       await Future.doWhile(() async {
-        final restaurantsAsync = ref.read(getRestaurantsProvider);
+        final restaurants = ref.read(getSingleRestaurantProvider);
         await Future.delayed(const Duration(milliseconds: 200));
-        return restaurantsAsync.isLoading;
+        return restaurants.isEmpty;
       });
 
-      final restaurants = ref.read(getRestaurantsProvider).value ?? [];
-      final restaurant = restaurants.isNotEmpty ? restaurants.first : null;
+      final restaurants = ref.read(getSingleRestaurantProvider);
+      RestaurantEntity? restaurant = restaurants.isNotEmpty ? restaurants.first : null;
 
       if (!_mounted) return;
 
@@ -142,7 +142,8 @@ Future.microtask(() async {
         restaurant.longitude,
       );
 
-      ref.read(distanceCacheProvider.notifier)
+      ref
+          .read(distanceCacheProvider.notifier)
           .setDistance(widget.restaurantId, distanceInMeters);
 
       if (!_mounted) return;
@@ -194,22 +195,8 @@ Future.microtask(() async {
 
   @override
   Widget build(BuildContext context) {
-    final restaurantsAsync = ref.watch(getRestaurantsProvider);
-
-    if (restaurantsAsync.isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (restaurantsAsync.hasError) {
-      return Scaffold(
-        body: Center(child: Text('Error loading restaurant')),
-      );
-    }
-
-    final restaurants = restaurantsAsync.value ?? [];
-    final restaurant = restaurants.isNotEmpty ? restaurants.first : null;
+    final restaurants = ref.watch(getSingleRestaurantProvider);
+    RestaurantEntity? restaurant = restaurants.isNotEmpty ? restaurants.first : null;
 
     List<Widget> tabs = [];
     if (restaurant == null) {
