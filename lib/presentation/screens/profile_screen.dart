@@ -3,10 +3,12 @@ import 'package:campus_bites/domain/entities/user_entity.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/presentation/providers/users/user_provider.dart';
 import 'package:campus_bites/presentation/providers/users/user_repository_provider.dart';
+import 'package:campus_bites/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
 import 'package:campus_bites/presentation/widgets/shared/responsive_food_list.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -94,7 +96,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         _buildContactInfo(Icons.email, _user!.email),
                         _buildContactInfo(
                           Icons.location_on,
-                          _user!.institution?.name ?? 'No institution available',
+                          _user!.institution?.name ??
+                              'No institution available',
                         ),
                         if (isAnalyst)
                           Padding(
@@ -104,6 +107,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               child: const Text("Go to report"),
                             ),
                           ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await AuthService().clearSavedPreferences();
+                              if (context.mounted) {
+                                context.go('/login');
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFFF9A825),
+                            ),
+                            child: const Text("Logout"),
+                          ),
+                        ),
                         _buildSectionTitle("Saved products"),
                         _buildProducts(_user?.savedProducts),
                       ],

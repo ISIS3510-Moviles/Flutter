@@ -11,9 +11,8 @@ import 'package:go_router/go_router.dart';
 import 'package:campus_bites/presentation/screens/food_screen.dart';
 import 'package:flutter/widgets.dart';
 
-final userBackendDatasource = UserBackendDatasource();
-final userRepository = UserRepositoryImpl(userBackendDatasource);
-final authService = AuthService(userRepository: userRepository);
+
+final authService = AuthService();
 final RouteObserver<ModalRoute<dynamic>> routeObserver =
     RouteObserver<ModalRoute<dynamic>>();
 
@@ -22,7 +21,7 @@ final appRouter = GoRouter(initialLocation: '/login', observers: [
 ], routes: [
   GoRoute(
     path: '/login',
-    builder: (context, state) => LoginScreen(authService: authService),
+    builder: (context, state) => LoginScreen(),
   ),
   StatefulShellRoute.indexedStack(
       builder: (context, state, child) => HomeScreen(childView: child),
