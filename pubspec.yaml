@@ -29,6 +29,7 @@ dependencies:
   responsive_builder: ^0.7.1
   shared_preferences: ^2.0.10
   url_launcher: ^6.1.7
+  lru_cache: ^0.0.2
 
 dependency_overrides:
   geolocator_android: 4.3.3

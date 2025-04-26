@@ -26,44 +26,38 @@ class LoginScreenState extends State<LoginScreen> {
     _checkUserAndProceed();
   }
 
-  void _checkUserAndProceed() async {
-    //await authService.clearSavedPreferences();
-    final userEntity = await authService.getSavedUserData();
-    await Future.delayed(const Duration(seconds: 2));
+void _checkUserAndProceed() async {
+ // await authService.clearSavedPreferences();
+  await authService.setMockedUserData();
+  final userEntity = await authService.getSavedUserData();
 
-    setState(() {
-      isCheckingPreferences = false;
-    });
+  setState(() {
+    isCheckingPreferences = false;
+  });
 
-    final userId = userEntity.id;
+  final userId = userEntity.id;
 
-    if (userId.isEmpty) {
-      debugPrint('user_id is null. Please log in manually.');
-    } else {
-      debugPrint('User data found in saved preferences:');
-      debugPrint('user_id: ${userEntity.id}');
-      debugPrint('user_name: ${userEntity.name}');
-      debugPrint('user_email: ${userEntity.email}');
-      debugPrint('user_phone: ${userEntity.phone}');
-      debugPrint('user_role: ${userEntity.role}');
-      debugPrint('user_premium: ${userEntity.isPremium}');
-      debugPrint('institution_Id: ${userEntity.institutionId}');
-      debugPrint('user_savedProductsIds: ${userEntity.savedProductsIds}');
-      GlobalUser().currentUser = UserEntity(
-        id: userEntity.id,
-        name: userEntity.name,
-        phone: userEntity.phone,
-        email: userEntity.email,
-        role: userEntity.role,
-        isPremium: userEntity.isPremium,
-        institutionId: userEntity.institutionId,
-        savedProductsIds: userEntity.savedProductsIds,
-      );
-      if (mounted) {
-        context.go('/');
-      }
+  if (userId.isEmpty) {
+    debugPrint('User data not found locally. Please log in manually.');
+  } else {
+    debugPrint('User data found in saved preferences:');
+    debugPrint('user_id: ${userEntity.id}');
+    debugPrint('user_name: ${userEntity.name}');
+    debugPrint('user_email: ${userEntity.email}');
+    debugPrint('user_phone: ${userEntity.phone}');
+    debugPrint('user_role: ${userEntity.role}');
+    debugPrint('user_premium: ${userEntity.isPremium}');
+    debugPrint('institution_Id: ${userEntity.institutionId}');
+    debugPrint('user_savedProductsIds: ${userEntity.savedProductsIds}');
+
+    GlobalUser().currentUser = userEntity;
+
+    if (mounted) {
+      context.go('/');
     }
   }
+}
+
 
   void _signInWithGoogle() async {
     if (isLoading) return;
@@ -103,9 +97,10 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    if (isCheckingPreferences) {
-      return Scaffold(
+    if (isCheckingPreferences || GlobalUser().currentUser != null) {
+      return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),

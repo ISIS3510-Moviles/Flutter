@@ -7,23 +7,19 @@ final getRestaurantsProvider = StateNotifierProvider<RestaurantNotifier, List<Re
 
   return RestaurantNotifier(
     fetchRestaurants: repository.getRestaurants,
-    fetchRestaurantById: repository.getRestaurantById,
     fetchRestaurantsByTag: repository.getRestaurantsByTag,
   );
 });
 
 typedef RestaurantCallback = Future<List<RestaurantEntity>> Function(String? nameMatch, List<String>? tagsInclude);
-typedef RestaurantByIdCallback = Future<RestaurantEntity> Function(String id);
 typedef RestaurantByTagCallback = Future<List<RestaurantEntity>> Function(String tagId);
 
 class RestaurantNotifier extends StateNotifier<List<RestaurantEntity>> {
   final RestaurantCallback fetchRestaurants;
-  final RestaurantByIdCallback fetchRestaurantById;
   final RestaurantByTagCallback fetchRestaurantsByTag;
 
   RestaurantNotifier({
     required this.fetchRestaurants,
-    required this.fetchRestaurantById,
     required this.fetchRestaurantsByTag,
   }) : super([]);
 
@@ -33,21 +29,6 @@ class RestaurantNotifier extends StateNotifier<List<RestaurantEntity>> {
       state = restaurants;
     } catch (e) {
       print('Error fetching restaurants: $e');
-    }
-  }
-
-  Future<void> fetchOne(String id) async {
-    try {
-      final prevState = [...state];
-      state = [];
-      final restaurant = await fetchRestaurantById(id);
-      final updated = [
-        restaurant,
-        ...prevState.where((r) => r.id != restaurant.id),
-      ];
-      state = updated;
-    } catch (e) {
-      print('Error fetching restaurant by id: $e');
     }
   }
 
