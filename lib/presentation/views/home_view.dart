@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_bites/domain/entities/entities.dart';
 import 'package:campus_bites/domain/entities/food_tag_entity.dart';
+import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/presentation/providers/dietary-tags/dietary_tag_provider.dart';
 import 'package:campus_bites/presentation/providers/food-tags/food_tag_provider.dart';
 import 'package:campus_bites/presentation/providers/restaurants/initial_loading_provider.dart';
@@ -416,6 +417,12 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                               ),
                             ),
                             onPressed: () async {
+                              await FirebaseAnalytics.instance.logEvent(
+                                name: 'filters_applied',
+                                parameters: {
+                                  'user_id': GlobalUser().currentUser!.id,
+                                },
+                              );
                               final searchText = context
                                       .findAncestorStateOfType<HomeViewState>()
                                       ?._searchText ??
