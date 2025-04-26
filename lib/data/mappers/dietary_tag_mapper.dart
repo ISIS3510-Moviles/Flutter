@@ -20,7 +20,6 @@ class DietaryTagMapper {
     if (dietaryTags == null) return [];
     
     return dietaryTags.map((tag) {
-      // Make sure to handle the case where tag might not be a DietaryTagBackend
       if (tag is DietaryTagBackend) {
         return DietaryTagEntity(
           id: tag.name ?? 'Unknown',
@@ -28,14 +27,12 @@ class DietaryTagMapper {
           description: tag.description ?? '',
         );
       } else if (tag is Map<String, dynamic>) {
-        // Handle case where it's a Map instead of DietaryTagBackend object
         return DietaryTagEntity(
           id: tag['id']?.toString() ?? 'Unknown',
           name: tag['name']?.toString() ?? 'Unknown',
           description: tag['description']?.toString() ?? '',
         );
       } else {
-        // Return a default entity if the type is unexpected
         return DietaryTagEntity(
           id: 'Unknown',
           name: 'Unknown',

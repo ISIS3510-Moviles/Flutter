@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final getRestaurantsProvider = AsyncNotifierProvider<GetRestaurantsNotifier, List<RestaurantEntity>>(GetRestaurantsNotifier.new);
 
 typedef RestaurantCallback = Future<List<RestaurantEntity>> Function(String? nameMatch, List<String>? tagsInclude);
-typedef RestaurantByIdCallback = Future<RestaurantEntity> Function(String id);
 typedef RestaurantByTagCallback = Future<List<RestaurantEntity>> Function(String tagId);
 
 class GetRestaurantsNotifier extends AsyncNotifier<List<RestaurantEntity>> {

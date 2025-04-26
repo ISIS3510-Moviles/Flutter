@@ -1,4 +1,3 @@
-
 import 'package:campus_bites/data/datasources/comment_backend_datasource.dart';
 import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
@@ -15,33 +14,68 @@ class ReviewsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final comments = restaurant.comments;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          const SizedBox(height: 16),
-          if (comments == null || comments.isEmpty)
-            const Text(
-              'No reviews yet.',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            )
-          else
-            ...comments.map((comment) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: ReviewCard(
-                  name: comment.authorName,
-                  date: comment.datetime,
-                  review: comment.message,
-                  rating: comment.rating,
+
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (comments == null || comments.isEmpty)
+                const Text(
+                  'No reviews yet.',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                )
+              else
+                ...comments.map((comment) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: ReviewCard(
+                      name: comment.authorName,
+                      date: comment.datetime,
+                      review: comment.message,
+                      rating: comment.rating,
+                    ),
+                  );
+                }),
+              const SizedBox(height: 80),
+            ],
+          ),
+        ),
+        Positioned(
+          bottom: 16,
+          right: 16,
+          child: FloatingActionButton.extended(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (context) => Padding(
+                  padding: MediaQuery.of(context).viewInsets,
+                  child: ReviewForm(
+                    restaurantId: restaurant.id,
+                    productId: '',
+                    authorId: GlobalUser().currentUser!.id,
+                  ),
                 ),
               );
-            }).toList(),
-        ],
-      ),
+            },
+            icon: const Icon(Icons.rate_review),
+            label: const Text('Write a Review'),
+            backgroundColor: Theme.of(context).primaryColor,
+          ),
+        ),
+      ],
     );
   }
 }
+
+
 class ReviewCard extends StatelessWidget {
   final String name;
   final DateTime date;
@@ -136,7 +170,6 @@ class _ReviewFormState extends State<ReviewForm> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _messageController = TextEditingController();
   double _rating = 0.0;
-
   bool _isSubmitting = false;
 
   void _submitReview() async {
@@ -156,88 +189,92 @@ class _ReviewFormState extends State<ReviewForm> {
       );
 
       if (!mounted) return;
-
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Review submitted')),
       );
     } catch (e) {
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to submit review: $e')),
       );
     } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
       child: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Write your review',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              'Leave a Review',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             TextFormField(
               controller: _messageController,
-              decoration: const InputDecoration(
-                labelText: 'Comment',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: 'Your comment',
+                hintText: 'Write your experience...',
+                prefixIcon: const Icon(Icons.comment),
+                filled: true,
+                fillColor: Colors.grey.shade100,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              maxLines: 3,
+              maxLines: 4,
               validator: (value) => value == null || value.isEmpty
                   ? 'Please write something'
                   : null,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Column(
               children: [
+                const Text('Your Rating', style: TextStyle(fontWeight: FontWeight.w500)),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (index) {
-                    double starValue = index + 1;
-                    IconData icon;
-
-                    if (_rating >= starValue) {
-                      icon = Icons.star;
-                    } else if (_rating >= starValue - 0.75) {
-                      icon = Icons.star_half;
-                    } else {
-                      icon = Icons.star_border;
-                    }
-
-                    return Icon(icon, color: Colors.amber, size: 32);
+                    return IconButton(
+                      icon: Icon(
+                        index < _rating ? Icons.star : Icons.star_border,
+                        color: Colors.amber,
+                        size: 32,
+                      ),
+                      onPressed: () => setState(() => _rating = index + 1.0),
+                    );
                   }),
-                ),
-                Slider(
-                  value: _rating,
-                  min: 0,
-                  max: 5,
-                  divisions: 50,
-                  label: _rating.toStringAsFixed(1),
-                  onChanged: (value) => setState(() => _rating = value),
-                  activeColor: Colors.amber,
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _isSubmitting ? null : _submitReview,
-              child: _isSubmitting
-                  ? const CircularProgressIndicator()
-                  : const Text('Submit'),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _isSubmitting ? null : _submitReview,
+                icon: const Icon(Icons.send),
+                label: _isSubmitting
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Submit Review'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
           ],
         ),
       ),

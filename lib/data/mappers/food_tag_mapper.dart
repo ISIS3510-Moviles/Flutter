@@ -22,7 +22,6 @@ class FoodTagMapper {
     if (foodTags == null) return [];
     
     return foodTags.map((tag) {
-      // Make sure to handle the case where tag might not be a FoodTagBackend
       if (tag is FoodTagBackend) {
         return FoodTagEntity(
           id: tag.name ?? 'Unknown',
@@ -31,7 +30,6 @@ class FoodTagMapper {
           icon: tag.icon,
         );
       } else if (tag is Map<String, dynamic>) {
-        // Handle case where it's a Map instead of FoodTagBackend object
         return FoodTagEntity(
           id: tag['id']?.toString() ?? 'Unknown',
           name: tag['name']?.toString() ?? 'Unknown',
@@ -39,7 +37,6 @@ class FoodTagMapper {
           icon: tag['icon'] as String?,
         );
       } else {
-        // Return a default entity if the type is unexpected
         return FoodTagEntity(
           id: 'Unknown',
           name: 'Unknown',
