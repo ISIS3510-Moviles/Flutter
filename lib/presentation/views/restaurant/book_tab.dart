@@ -1,3 +1,5 @@
+import 'package:campus_bites/data/offline/reservation_queue_manager.dart';
+import 'package:campus_bites/data/offline/queued_reservation.dart';
 import 'package:campus_bites/domain/entities/pending_state.dart';
 import 'package:campus_bites/domain/entities/reservation_entity.dart';
 import 'package:campus_bites/domain/entities/restaurant_entity.dart';
@@ -76,46 +78,62 @@ class BookTabState extends ConsumerState<BookTab> {
     }
   }
 
-  Future<void> _bookReservation() async {
-    try {
-      final userId = GlobalUser().currentUser?.id;
+Future<void> _bookReservation() async {
+  final userId = GlobalUser().currentUser?.id;
 
-      if (userId == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text(
-                    'User not logged in. Please log in to make a reservation.')),
-          );
-        }
-        return;
-      }
+  if (userId == null) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User not logged in. Please log in to make a reservation.'),
+        ),
+      );
+    }
+    return;
+  }
 
-      await _datasource.createReservation(
-        userId: userId,
+  try {
+    await _datasource.createReservation(
+      userId: userId,
+      date: reservation.date,
+      time: reservation.time,
+      numberComensals: reservation.numberComensals,
+      isCompleted: false,
+      restaurantId: widget.restaurant.id,
+    );
+
+    ref.invalidate(getReservationsProvider(userId));
+    ref.invalidate(getAlertsProvider(userId));
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Reservation created successfully!')),
+      );
+    }
+  } catch (e) {
+    final manager = ReservationQueueManager();
+    await manager.addToQueue(
+      QueuedReservation(
+        id: reservation.id,
+        userId: GlobalUser().currentUser!.id,
         date: reservation.date,
         time: reservation.time,
         numberComensals: reservation.numberComensals,
         isCompleted: false,
         restaurantId: widget.restaurant.id,
+      ),
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No internet. Reservation saved and will be sent later.'),
+        ),
       );
-
-       ref.invalidate(getReservationsProvider(userId));
-       ref.invalidate(getAlertsProvider(userId));
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Reservation created successfully!')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create reservation: $e')),
-        );
-      }
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

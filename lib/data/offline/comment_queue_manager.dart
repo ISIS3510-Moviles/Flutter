@@ -6,12 +6,13 @@ import 'queued_comment.dart';
 class CommentQueueManager {
   final _box = Hive.box<QueuedComment>('queued_comments');
   final _connectivity = Connectivity();
+  CommentQueueManager();
 
   Future<void> addToQueue(QueuedComment comment) async {
     await _box.add(comment);
   }
 
-  Future<void> tryToSendQueuedComments() async {
+  Future<void> tryToSendQueuedComments({onCommentSent}) async {
     final connectivityResult = await _connectivity.checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) return;
 
@@ -27,16 +28,18 @@ class CommentQueueManager {
           authorId: comment.authorId,
         );
         await comment.delete();
-      } catch (_) {
+        onCommentSent?.call("Comment sent successfully!");
+      } catch (e) {
+        onCommentSent?.call("Failed to send comment");
         break;
       }
     }
   }
 
-  void startListener() {
+  void startListener({void Function(String)? onCommentSent}) {
     _connectivity.onConnectivityChanged.listen((event) {
       if (event != ConnectivityResult.none) {
-        tryToSendQueuedComments();
+        tryToSendQueuedComments(onCommentSent: onCommentSent);
       }
     });
   }
