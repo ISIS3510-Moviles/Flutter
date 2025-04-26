@@ -7,6 +7,9 @@ import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.da
 import 'package:campus_bites/presentation/widgets/shared/tag_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
+final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
 class FoodScreen extends ConsumerStatefulWidget {
   final String foodId;
@@ -79,11 +82,24 @@ class _FoodScreenState extends ConsumerState<FoodScreen> {
                               alignment: Alignment.center,
                               child: const CircularProgressIndicator(strokeWidth: 2),
                             ),
-                            errorWidget: (context, url, error) => Image.asset(
-                              'assets/placeholder.png',
-                              height: 250,
-                              fit: BoxFit.cover,
-                            ),
+                            errorWidget: (context, url, error) {
+                              // Log the error event to Firebase Analytics
+                              _analytics.logEvent(
+                                name: 'image_load_error',
+                                parameters: {
+                                  'image_url': url,
+                                  'error_message': error.toString(),
+                                  'timestamp': DateTime.now().toIso8601String(),
+                                },
+                              );
+                              
+                              // Return the placeholder image
+                              return Image.asset(
+                                'assets/placeholder.png',
+                                height: 250,
+                                fit: BoxFit.cover,
+                              );
+                        },
                           )
                         : Image.asset(
                             'assets/placeholder.png',

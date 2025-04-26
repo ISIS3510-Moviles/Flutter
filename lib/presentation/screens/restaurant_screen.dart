@@ -13,6 +13,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:campus_bites/presentation/providers/restaurants/distance_cache_provider.dart';
 import 'dart:async';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class RestaurantScreen extends ConsumerStatefulWidget {
   final String restaurantId;
@@ -32,7 +33,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
   String? lastCalculatedRestaurantId;
   StreamSubscription<Position>? _positionStreamSubscription;
   bool _mounted = true;
-
+  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
   @override
   void initState() {
@@ -239,10 +240,23 @@ Future.microtask(() async {
                     alignment: Alignment.center,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
-                  errorWidget: (context, url, error) => Image.asset(
-                    'assets/placeholder.png',
-                    fit: BoxFit.cover,
-                  ),
+                  errorWidget: (context, url, error) {
+                    // Log the error event to Firebase Analytics
+                    _analytics.logEvent(
+                      name: 'image_load_error',
+                      parameters: {
+                        'image_url': url,
+                        'error_message': error.toString(),
+                        'timestamp': DateTime.now().toIso8601String(),
+                      },
+                    );
+                    
+                    // Return the placeholder image
+                    return Image.asset(
+                      'assets/placeholder.png',
+                      fit: BoxFit.cover,
+                    );
+                  },
                 ),
               ),
             ),

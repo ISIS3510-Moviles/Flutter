@@ -18,6 +18,8 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:campus_bites/presentation/providers/restaurants/distance_cache_provider.dart';
 
+final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
 
@@ -34,7 +36,6 @@ class HomeViewState extends ConsumerState<HomeView>
   DateTime? _viewEntryTime;
   DateTime? _fetchStartTime;
   bool _hasLoggedLoadTime = false;
-  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
   late final GoRouter _router;
   late String _currentLocation;
   bool _routerInitialized = false;
@@ -578,10 +579,23 @@ class _TagItem extends StatelessWidget {
                           alignment: Alignment.center,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white,),
                         ),
-                        errorWidget: (context, url, error) => Image.asset(
-                          'assets/placeholder.png',
-                          fit: BoxFit.cover,
-                        ),
+                       errorWidget: (context, url, error) {
+                          // Log the error event to Firebase Analytics
+                          _analytics.logEvent(
+                            name: 'image_load_error',
+                            parameters: {
+                              'image_url': url,
+                              'error_message': error.toString(),
+                              'timestamp': DateTime.now().toIso8601String(),
+                            },
+                          );
+                          
+                          // Return the placeholder image
+                          return Image.asset(
+                            'assets/placeholder.png',
+                            fit: BoxFit.cover,
+                          );
+                        },
                       )
                       
                     : Image.asset(

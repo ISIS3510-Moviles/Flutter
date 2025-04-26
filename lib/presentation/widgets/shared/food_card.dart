@@ -1,6 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
+final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
 class FoodCard extends StatelessWidget {
   final String id;
@@ -8,7 +11,7 @@ class FoodCard extends StatelessWidget {
   final String title;
   final double price;
   final String subtitle;
-
+  
   const FoodCard({
     super.key,
     required this.id,
@@ -45,11 +48,24 @@ class FoodCard extends StatelessWidget {
                         alignment: Alignment.center,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
-                      errorWidget: (context, url, error) => Image.asset(
-                        'assets/placeholder.png',
-                        height: 130,
-                        fit: BoxFit.cover,
-                      ),
+                      errorWidget: (context, url, error) {
+                        // Log the error event to Firebase Analytics
+                        _analytics.logEvent(
+                          name: 'image_load_error',
+                          parameters: {
+                            'image_url': url,
+                            'error_message': error.toString(),
+                            'timestamp': DateTime.now().toIso8601String(),
+                          },
+                        );
+                        
+                        // Return the placeholder image
+                        return Image.asset(
+                          'assets/placeholder.png',
+                          height: 130,
+                          fit: BoxFit.cover,
+                        );
+                      },
                     )),
               ),
               Expanded(
