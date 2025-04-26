@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:campus_bites/presentation/providers/restaurants/restaurants_provider.dart';
+import 'package:campus_bites/domain/entities/restaurant_entity.dart';
+import 'package:campus_bites/presentation/providers/cache/restaurant_cache_provider.dart';
+import 'package:campus_bites/presentation/providers/restaurants/single_restaurant_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
 import 'package:campus_bites/presentation/views/views.dart';
@@ -31,22 +33,46 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
   StreamSubscription<Position>? _positionStreamSubscription;
   bool _mounted = true;
 
+
   @override
   void initState() {
     super.initState();
     _mounted = true;
-
     tabController = TabController(length: 5, vsync: this);
     tabController.addListener(() {
       setState(() {
         currentTabIndex = tabController.index;
       });
     });
+Future.microtask(() async {
+  final restaurantCache = ref.read(restaurantCacheProvider);
 
-    Future.microtask(() async {
-      await ref.read(getRestaurantsProvider.notifier).fetchOne(widget.restaurantId);
-      _initLocationAndDistanceIfNeeded();
-    });
+  final cachedRestaurant = await restaurantCache.get(widget.restaurantId);
+  if (cachedRestaurant != null) {
+    print("Restaurant found in cache: ${cachedRestaurant.name}");
+    ref.read(getSingleRestaurantProvider.notifier).setOne(cachedRestaurant);
+  } else {
+    print("Fetching restaurant from API...");
+    await ref
+        .read(getSingleRestaurantProvider.notifier)
+        .fetchOne(widget.restaurantId);
+    print("Fetching completed.");
+
+    final fetchedList = ref.read(getSingleRestaurantProvider);
+    print("Fetched list: $fetchedList");
+
+    if (fetchedList.isNotEmpty) {
+      final fetched = fetchedList.first;
+      print("Fetched restaurant: ${fetched.name}");
+      restaurantCache.put(widget.restaurantId, fetched);
+    } else {
+      print("No restaurant data found.");
+    }
+  }
+
+  _initLocationAndDistanceIfNeeded();
+});
+
   }
 
   void _initLocationAndDistanceIfNeeded() {
@@ -57,7 +83,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
   }
 
   void _initLocationAndDistance() async {
-    _positionStreamSubscription?.cancel(); 
+    _positionStreamSubscription?.cancel();
 
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     final permissionGranted = await _requestLocationPermission();
@@ -90,15 +116,14 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
 
   void _updateDistance(Position position) async {
     try {
-
       await Future.doWhile(() async {
-        final restaurants = ref.read(getRestaurantsProvider);
+        final restaurants = ref.read(getSingleRestaurantProvider);
         await Future.delayed(const Duration(milliseconds: 200));
         return restaurants.isEmpty;
       });
 
-      final restaurants = ref.read(getRestaurantsProvider);
-      final restaurant = restaurants.isNotEmpty ? restaurants.first : null;
+      final restaurants = ref.read(getSingleRestaurantProvider);
+      RestaurantEntity? restaurant = restaurants.isNotEmpty ? restaurants.first : null;
 
       if (!_mounted) return;
 
@@ -117,18 +142,18 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
         restaurant.longitude,
       );
 
-      ref.read(distanceCacheProvider.notifier)
-        .setDistance(widget.restaurantId, distanceInMeters);
+      ref
+          .read(distanceCacheProvider.notifier)
+          .setDistance(widget.restaurantId, distanceInMeters);
 
       if (!_mounted) return;
 
       setState(() {
         distanceText = distanceInMeters < 1000
-          ? '${distanceInMeters.round()} meters'
-          : '${(distanceInMeters / 1000).toStringAsFixed(1)} km';
+            ? '${distanceInMeters.round()} meters'
+            : '${(distanceInMeters / 1000).toStringAsFixed(1)} km';
         isCalculatingDistance = false;
       });
-
     } catch (e) {
       if (!_mounted) return;
       setState(() {
@@ -143,20 +168,21 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.restaurantId != widget.restaurantId) {
-      ref.read(getRestaurantsProvider.notifier).fetchOne(widget.restaurantId);
+      ref
+          .read(getSingleRestaurantProvider.notifier)
+          .fetchOne(widget.restaurantId);
       _initLocationAndDistanceIfNeeded();
     }
   }
 
   Future<bool> _requestLocationPermission() async {
     var status = await Permission.location.status;
-    
+
     if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
       status = await Permission.location.request();
     }
-    
-    return status.isGranted;
 
+    return status.isGranted;
   }
 
   @override
@@ -169,8 +195,9 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
 
   @override
   Widget build(BuildContext context) {
-    final restaurants = ref.watch(getRestaurantsProvider);
-    final restaurant = restaurants.isNotEmpty ? restaurants.first : null;
+    final restaurants = ref.watch(getSingleRestaurantProvider);
+    RestaurantEntity? restaurant = restaurants.isNotEmpty ? restaurants.first : null;
+
     List<Widget> tabs = [];
     if (restaurant == null) {
       for (var i = 0; i < 5; i++) {
@@ -237,27 +264,33 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(restaurant?.name ?? 'Restaurant',
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold)),
-
+                              Text(
+                                restaurant?.name ?? 'Restaurant',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               Row(
                                 children: [
-                                  isCalculatingDistance 
+                                  isCalculatingDistance
                                       ? SizedBox(
                                           width: 12,
                                           height: 12,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.grey),
                                           ),
                                         )
-                                      : Icon(Icons.location_on, size: 16, color: Colors.grey),
+                                      : Icon(Icons.location_on,
+                                          size: 16, color: Colors.grey),
                                   SizedBox(width: 4),
                                   Text(
                                     distanceText,
-                                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.grey),
                                   ),
                                 ],
                               ),
@@ -278,7 +311,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                               ),
                             ),
                             onPressed: () {},
-                            child: Text('Suscribe'),
+                            child: Text('Subscribe'),
                           ),
                         ],
                       ),

@@ -77,7 +77,6 @@ class NotificationsScreen extends ConsumerWidget {
               final nextReservation =
                   futureAlerts.isNotEmpty ? futureAlerts.first : null;
 
-              // ── Construye la lista de Slivers ────────────────────────────
               final slivers = <Widget>[const CustomSliverAppbar()];
 
               if (nextReservation != null) {

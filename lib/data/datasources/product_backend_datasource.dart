@@ -41,7 +41,7 @@ class ProductBackendDatasource extends ProductDatasource {
       return product;
     } catch (e, stackTrace) {
       print('Error fetching product by id: $e');
-      print('Stack trace: $stackTrace'); // This will show where the error occurs
+      print('Stack trace: $stackTrace');
       throw Exception('Error fetching product by id: $e');
     }
   }
