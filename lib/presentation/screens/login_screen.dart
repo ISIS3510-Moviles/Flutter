@@ -1,12 +1,14 @@
+import 'package:campus_bites/domain/entities/user_entity.dart';
+import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatefulWidget {
-  final AuthService authService;
+  final AuthService authService = AuthService();
 
-  const LoginScreen({super.key, required this.authService});
+  LoginScreen({super.key});
 
   @override
   LoginScreenState createState() => LoginScreenState();
@@ -15,11 +17,52 @@ class LoginScreen extends StatefulWidget {
 class LoginScreenState extends State<LoginScreen> {
   late final AuthService authService;
   bool isLoading = false;
+  bool isCheckingPreferences = true;
 
   @override
   void initState() {
     super.initState();
     authService = widget.authService;
+    _checkUserAndProceed();
+  }
+
+  void _checkUserAndProceed() async {
+    //await authService.clearSavedPreferences();
+    final userEntity = await authService.getSavedUserData();
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() {
+      isCheckingPreferences = false;
+    });
+
+    final userId = userEntity.id;
+
+    if (userId.isEmpty) {
+      debugPrint('user_id is null. Please log in manually.');
+    } else {
+      debugPrint('User data found in saved preferences:');
+      debugPrint('user_id: ${userEntity.id}');
+      debugPrint('user_name: ${userEntity.name}');
+      debugPrint('user_email: ${userEntity.email}');
+      debugPrint('user_phone: ${userEntity.phone}');
+      debugPrint('user_role: ${userEntity.role}');
+      debugPrint('user_premium: ${userEntity.isPremium}');
+      debugPrint('institution_Id: ${userEntity.institutionId}');
+      debugPrint('user_savedProductsIds: ${userEntity.savedProductsIds}');
+      GlobalUser().currentUser = UserEntity(
+        id: userEntity.id,
+        name: userEntity.name,
+        phone: userEntity.phone,
+        email: userEntity.email,
+        role: userEntity.role,
+        isPremium: userEntity.isPremium,
+        institutionId: userEntity.institutionId,
+        savedProductsIds: userEntity.savedProductsIds,
+      );
+      if (mounted) {
+        context.go('/');
+      }
+    }
   }
 
   void _signInWithGoogle() async {
@@ -61,6 +104,14 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (isCheckingPreferences) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       body: Center(
         child: Padding(
