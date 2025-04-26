@@ -2,6 +2,6 @@ import 'package:campus_bites/presentation/providers/restaurants/restaurants_prov
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final initialLoadingProvider = Provider<bool>((ref) {
-  final loading = ref.watch(getRestaurantsProvider).isEmpty;
-  return loading;
+  final restaurantsAsync = ref.watch(getRestaurantsProvider);
+  return restaurantsAsync.isLoading;
 });

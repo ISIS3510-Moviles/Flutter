@@ -148,8 +148,14 @@ class HomeViewState extends ConsumerState<HomeView>
   @override
   Widget build(BuildContext context) {
     final bool initialLoading = ref.watch(initialLoadingProvider);
-    final List<RestaurantEntity> restaurants =
-        ref.watch(getRestaurantsProvider);
+    final restaurantsAsync = ref.watch(getRestaurantsProvider);
+    if (restaurantsAsync.isLoading) {
+      return CircularProgressIndicator();
+    }
+    if (restaurantsAsync.hasError) {
+      return Text('Error');
+    }
+    final restaurants = restaurantsAsync.value ?? [];
 
     if (!initialLoading && restaurants.isNotEmpty && !_hasLoggedLoadTime) {
       final duration =

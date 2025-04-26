@@ -1,7 +1,13 @@
 import 'package:campus_bites/domain/entities/comment_entity.dart';
 import 'package:campus_bites/domain/entities/product_entity.dart';
+import 'package:isar/isar.dart';
 
+part 'restaurant_entity.g.dart';
+
+@collection
 class RestaurantEntity {
+  Id? isarId;
+
   final String id;
   final String name;
   final String description;
@@ -22,6 +28,7 @@ class RestaurantEntity {
   final List<String>? photos;
   final List<String>? foodTagsIds;
   final List<String>? tags;
+  @ignore
   final List<CommentEntity>? comments;
   final List<String>? dietaryTagsIds;
   final List<String>? alertsIds;
@@ -30,7 +37,10 @@ class RestaurantEntity {
   final List<String>? visitsIds;
   final List<String>? commentsIds;
   final List<String>? productsIds;
+  @ignore
   final List<ProductEntity>? products;
+
+  late final DateTime cachedAt;
 
   RestaurantEntity({
     required this.id,
