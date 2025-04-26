@@ -261,6 +261,7 @@ class HomeViewState extends ConsumerState<HomeView>
                             distance: distanceMeters,
                             imageUrl: restaurant.profilePhoto!,
                             tags: restaurant.tags ?? [],
+                            analytics: _analytics,
                           );
                         }),
                         const SizedBox(height: 20),
