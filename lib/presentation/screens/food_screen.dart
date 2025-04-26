@@ -53,7 +53,14 @@ class _FoodScreenState extends ConsumerState<FoodScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return CustomScrollView(
+              slivers: [
+                const CustomSliverAppbar(),
+                SliverFillRemaining(
+                  child: Center(child: Text('Error: ${snapshot.error}')),
+                ),
+              ],
+            );
           } else if (snapshot.hasData) {
             final product = snapshot.data!;
             return CustomScrollView(
@@ -70,7 +77,7 @@ class _FoodScreenState extends ConsumerState<FoodScreen> {
                             placeholder: (context, url) => Container(
                               height: 250,
                               alignment: Alignment.center,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: const CircularProgressIndicator(strokeWidth: 2),
                             ),
                             errorWidget: (context, url, error) => Image.asset(
                               'assets/placeholder.png',
@@ -150,11 +157,18 @@ class _FoodScreenState extends ConsumerState<FoodScreen> {
               ],
             );
           } else {
-            return const Center(
-              child: Text(
-                'Product not found. Please check your internet connection.',
-                style: TextStyle(fontSize: 16, color: Colors.red),
-              ),
+            return CustomScrollView(
+              slivers: [
+                const CustomSliverAppbar(),
+                SliverFillRemaining(
+                  child: Center(
+                    child: const Text(
+                      'Product not found. Please check your internet connection.',
+                      style: TextStyle(fontSize: 16, color: Colors.red),
+                    ),
+                  ),
+                ),
+              ],
             );
           }
         },

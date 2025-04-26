@@ -22,13 +22,15 @@ class QueuedCommentAdapter extends TypeAdapter<QueuedComment> {
       productId: fields[2] as String,
       restaurantId: fields[3] as String,
       authorId: fields[4] as String,
+      photos: (fields[5] as List).cast<String>(),
+      createdAt: fields[6] as DateTime,
     );
   }
 
   @override
   void write(BinaryWriter writer, QueuedComment obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.message)
       ..writeByte(1)
@@ -38,7 +40,11 @@ class QueuedCommentAdapter extends TypeAdapter<QueuedComment> {
       ..writeByte(3)
       ..write(obj.restaurantId)
       ..writeByte(4)
-      ..write(obj.authorId);
+      ..write(obj.authorId)
+      ..writeByte(5)
+      ..write(obj.photos)
+      ..writeByte(6)
+      ..write(obj.createdAt);
   }
 
   @override

@@ -19,11 +19,19 @@ class QueuedComment extends HiveObject {
   @HiveField(4)
   String authorId;
 
+  @HiveField(5)
+  List<String> photos;
+
+  @HiveField(6)
+  DateTime createdAt;
+
   QueuedComment({
     required this.message,
     required this.rating,
     required this.productId,
     required this.restaurantId,
     required this.authorId,
+    required this.photos,
+    required this.createdAt,
   });
 }

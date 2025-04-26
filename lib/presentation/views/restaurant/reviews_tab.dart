@@ -1,4 +1,6 @@
 import 'package:campus_bites/data/datasources/comment_backend_datasource.dart';
+import 'package:campus_bites/data/offline/comment_queue_manager.dart';
+import 'package:campus_bites/data/offline/queued_comment.dart';
 import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:flutter/material.dart';
@@ -74,7 +76,6 @@ class ReviewsTab extends StatelessWidget {
     );
   }
 }
-
 
 class ReviewCard extends StatelessWidget {
   final String name;
@@ -177,6 +178,9 @@ class _ReviewFormState extends State<ReviewForm> {
 
     setState(() => _isSubmitting = true);
 
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
     try {
       final commentDatasource = CommentBackendDatasource();
       await commentDatasource.createComment(
@@ -189,14 +193,31 @@ class _ReviewFormState extends State<ReviewForm> {
       );
 
       if (!mounted) return;
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
+
+      navigator.pop();
+      messenger.showSnackBar(
         const SnackBar(content: Text('Review submitted')),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to submit review: $e')),
+
+      final queuedComment = QueuedComment(
+        message: _messageController.text.trim(),
+        rating: _rating,
+        photos: [],
+        productId: widget.productId,
+        restaurantId: widget.restaurantId,
+        authorId: widget.authorId,
+        createdAt: DateTime.now(),
+      );
+
+      final queueManager = CommentQueueManager();
+      await queueManager.addToQueue(queuedComment);
+
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('No internet. Review saved and will be sent later.'),
+        ),
       );
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -237,7 +258,8 @@ class _ReviewFormState extends State<ReviewForm> {
             const SizedBox(height: 24),
             Column(
               children: [
-                const Text('Your Rating', style: TextStyle(fontWeight: FontWeight.w500)),
+                const Text('Your Rating',
+                    style: TextStyle(fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -10,6 +10,11 @@ import 'package:campus_bites/config/theme/util.dart';
 import 'package:campus_bites/config/theme/theme.dart';
 import 'package:campus_bites/data/offline/queued_comment.dart';
 import 'package:campus_bites/data/offline/comment_queue_manager.dart';
+import 'package:campus_bites/data/offline/queued_reservation.dart';
+import 'package:campus_bites/data/offline/reservation_queue_manager.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
@@ -21,10 +26,27 @@ Future<void> main() async {
   FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
 
   await Hive.initFlutter();
+  
   Hive.registerAdapter(QueuedCommentAdapter());
   await Hive.openBox<QueuedComment>('queued_comments');
 
-  CommentQueueManager().startListener();
+  Hive.registerAdapter(QueuedReservationAdapter());
+  await Hive.openBox<QueuedReservation>('queued_reservations');
+
+  CommentQueueManager().startListener(
+    onCommentSent: (message) {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    },
+  );
+  ReservationQueueManager().startListener(
+    onReservationSent: (message) {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    },
+  );
 
   runApp(const ProviderScope(child: MainApp()));
 }
@@ -39,6 +61,7 @@ class MainApp extends StatelessWidget {
 
     return MaterialApp.router(
       routerConfig: appRouter,
+      scaffoldMessengerKey: scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       theme: theme.light(),
     );

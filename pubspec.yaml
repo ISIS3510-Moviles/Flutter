@@ -30,7 +30,9 @@ dependencies:
   shared_preferences: ^2.0.10
   url_launcher: ^6.1.7
   isar: ^3.1.0+1
-  isar_flutter_libs: ^3.1.0+1
+  isar_flutter_libs:
+    git: 
+      url: https://github.com/MrLittleWhite/isar_flutter_libs.git
   path_provider: ^2.1.5
   lru_cache: ^0.0.2
   hive: ^2.2.3
