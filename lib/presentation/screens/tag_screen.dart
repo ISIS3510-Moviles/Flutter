@@ -11,8 +11,10 @@ import 'package:campus_bites/presentation/widgets/shared/sliver_list_food_restau
 import 'package:campus_bites/presentation/widgets/shared/sliver_tab_food_restaurant.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
-
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
 class TagScreen extends ConsumerStatefulWidget {
   final String tagId;
@@ -215,12 +217,25 @@ class _ImageBox extends StatelessWidget {
                   alignment: Alignment.center,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
-                errorWidget: (context, url, error) => Image.asset(
-                  'assets/placeholder.png',
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                ),
+                errorWidget: (context, url, error) {
+                    // Log the error event to Firebase Analytics
+                    _analytics.logEvent(
+                      name: 'image_load_error',
+                      parameters: {
+                        'image_url': url,
+                        'error_message': error.toString(),
+                        'timestamp': DateTime.now().toIso8601String(),
+                      },
+                    );
+                    
+                    // Return the placeholder image
+                    return Image.asset(
+                      'assets/placeholder.png',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    );
+                  },
               ),
             ),
             const SizedBox(width: 12),

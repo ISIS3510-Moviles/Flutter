@@ -5,6 +5,9 @@ import 'package:campus_bites/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
+final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
@@ -190,12 +193,25 @@ class NotificationCard extends StatelessWidget {
                   height: 80,
                   child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
                 ),
-                errorWidget: (context, url, error) => Image.asset(
-                  'assets/placeholder.png',
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                ),
+                errorWidget: (context, url, error) {
+                  // Log the error to Firebase Analytics
+                  _analytics.logEvent(
+                    name: 'image_load_error',
+                    parameters: {
+                      'image_url': url,
+                      'error_message': error.toString(),
+                      'timestamp': DateTime.now().toIso8601String(),
+                    },
+                  );
+                  
+                  // Return the placeholder image as before
+                  return Image.asset(
+                    'assets/placeholder.png',
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  );
+                },
               ),
             ),
             const SizedBox(width: 16),

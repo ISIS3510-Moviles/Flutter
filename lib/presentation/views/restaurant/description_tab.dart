@@ -1,6 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_bites/domain/entities/entities.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
+final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
 class DescriptionTab extends StatelessWidget {
   final RestaurantEntity restaurant;
@@ -29,10 +32,23 @@ class DescriptionTab extends StatelessWidget {
                 alignment: Alignment.center,
                 child: CircularProgressIndicator(strokeWidth: 2),
               ),
-              errorWidget: (context, url, error) => Image.asset(
-                'assets/placeholder.png',
-                fit: BoxFit.cover,
-              ),
+              errorWidget: (context, url, error) {
+                // Log the error event to Firebase Analytics
+                _analytics.logEvent(
+                  name: 'image_load_error',
+                  parameters: {
+                    'image_url': url,
+                    'error_message': error.toString(),
+                    'timestamp': DateTime.now().toIso8601String(),
+                  },
+                );
+                
+                // Return the placeholder image
+                return Image.asset(
+                  'assets/placeholder.png',
+                  fit: BoxFit.cover,
+                );
+              },
             )
           ),
           const SizedBox(height: 16),
