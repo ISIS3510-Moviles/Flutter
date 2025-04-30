@@ -9,8 +9,8 @@ class AlertEntity {
   final String restaurantId;
   final int votes;
   final String publisherId;
-  final UserEntity publisher;
-  final RestaurantEntity restaurant;
+  final UserEntity? publisher;
+  final RestaurantEntity? restaurant;
 
   AlertEntity({
     required this.id,
@@ -20,7 +20,7 @@ class AlertEntity {
     required this.restaurantId,
     required this.votes,
     required this.publisherId,
-    required this.publisher,
-    required this.restaurant,
+    this.publisher,
+    this.restaurant,
   });
 }
