@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:campus_bites/data/datasources/user_backend_datasource.dart';
+import 'package:campus_bites/domain/entities/product_entity.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -33,108 +36,119 @@ class AuthService {
     return _instance!;
   }
 
-Future<UserCredential> signInWithGoogle() async {
-  try {
-    logger.i("Starting Google sign-in process...");
-
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    logger.d("Google user obtained: ${googleUser?.email}");
-
-    if (googleUser == null) {
-      logger.e("The user canceled the sign-in process.");
-      throw AuthException("Sign-in was canceled by the user.");
-    }
-
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-
-    if (googleAuth.accessToken == null || googleAuth.idToken == null) {
-      throw AuthException("Missing authentication tokens from Google.");
-    }
-
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    final UserCredential userCredential =
-        await FirebaseAuth.instance.signInWithCredential(credential);
-    final user = userCredential.user;
-
-    if (user == null) {
-      throw AuthException(
-          "Failed to retrieve authenticated user information.");
-    }
-
-    final userEntity = UserEntity(
-      id: "",
-      name: user.displayName ?? "Unknown",
-      phone: user.phoneNumber ?? "",
-      email: user.email ?? "",
-      role: "user",
-      isPremium: false,
-      institutionId: "",
-      savedProductsIds: [],
-    );
-
+  Future<UserCredential> signInWithGoogle() async {
     try {
-      var userRetrieved = await userRepository.createUser(userEntity);
-      GlobalUser().currentUser = userRetrieved;
+      logger.i("Starting Google sign-in process...");
 
-      logger.i(
-          "User retrieved successfully from the database: ${userRetrieved.toJson()}");
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      logger.d("Google user obtained: ${googleUser?.email}");
 
+      if (googleUser == null) {
+        logger.e("The user canceled the sign-in process.");
+        throw AuthException("Sign-in was canceled by the user.");
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      if (googleAuth.accessToken == null || googleAuth.idToken == null) {
+        throw AuthException("Missing authentication tokens from Google.");
+      }
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      final user = userCredential.user;
+
+      if (user == null) {
+        throw AuthException(
+            "Failed to retrieve authenticated user information.");
+      }
+
+      final userEntity = UserEntity(
+        id: "",
+        name: user.displayName ?? "Unknown",
+        phone: user.phoneNumber ?? "",
+        email: user.email ?? "",
+        role: "user",
+        isPremium: false,
+        institutionId: "",
+        savedProductsIds: [],
+      );
+
+      try {
+        var userRetrieved = await userRepository.createUser(userEntity);
+        GlobalUser().currentUser = userRetrieved;
+
+        logger.i(
+            "User retrieved successfully from the database: ${userRetrieved.toJson()}");
+        await saveUser(userRetrieved);
+      } on DioException catch (dioError) {
+        logger.e("Network error while creating user", error: dioError.message);
+        throw AuthException("Network error while creating your account.");
+      } catch (dbError) {
+        logger.e("Error creating or retrieving user from DB", error: dbError);
+        throw AuthException("Error setting up your user account.");
+      }
+
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      logger.e("FirebaseAuthException", error: e.message);
+      throw AuthException("Authentication failed: ${e.message}");
+    } catch (e, stackTrace) {
+      logger.e("Unexpected authentication error",
+          error: e, stackTrace: stackTrace);
+      throw AuthException("Unexpected error during sign-in.");
+    }
+  }
+
+  Future<void> saveUser(UserEntity user) async {
+    try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_id', userRetrieved.id);
-      logger.i("Saved user_id: ${userRetrieved.id}");
-      
-      await prefs.setString('user_name', userRetrieved.name);
-      logger.i("Saved user_name: ${userRetrieved.name}");
-      
-      await prefs.setString('user_email', userRetrieved.email);
-      logger.i("Saved user_email: ${userRetrieved.email}");
-      
-      await prefs.setString('user_phone', userRetrieved.phone);
-      logger.i("Saved user_phone: ${userRetrieved.phone}");
-      
-      await prefs.setString('user_role', userRetrieved.role);
-      logger.i("Saved user_role: ${userRetrieved.role}");
-      
-      await prefs.setBool('user_premium', userRetrieved.isPremium);
-      logger.i("Saved user_premium: ${userRetrieved.isPremium}");
-      
-      await prefs.setString('institution_Id', userRetrieved.institutionId ?? '');
-      logger.i("Saved institution_Id: ${userRetrieved.institutionId ?? ''}");
-      
+      await prefs.setString('user_id', user.id);
+      logger.i("Saved user_id: ${user.id}");
+
+      await prefs.setString('user_name', user.name);
+      logger.i("Saved user_name: ${user.name}");
+
+      await prefs.setString('user_email', user.email);
+      logger.i("Saved user_email: ${user.email}");
+
+      await prefs.setString('user_phone', user.phone);
+      logger.i("Saved user_phone: ${user.phone}");
+
+      await prefs.setString('user_role', user.role);
+      logger.i("Saved user_role: ${user.role}");
+
+      await prefs.setBool('user_premium', user.isPremium);
+      logger.i("Saved user_premium: ${user.isPremium}");
+
+      await prefs.setString('institution_Id', user.institutionId ?? '');
+      logger.i("Saved institution_Id: ${user.institutionId ?? ''}");
+
       await prefs.setStringList(
         'user_savedProductsIds',
-        userRetrieved.savedProductsIds.map((e) => e.toString()).toList(),
+        user.savedProductsIds.map((e) => e.toString()).toList(),
       );
-      logger.i("Saved user_savedProductsIds: ${userRetrieved.savedProductsIds}");
+      logger.i("Saved user_savedProductsIds: ${user.savedProductsIds}");
 
-    } on DioException catch (dioError) {
-      logger.e("Network error while creating user", error: dioError.message);
-      throw AuthException("Network error while creating your account.");
-    } catch (dbError) {
-      logger.e("Error creating or retrieving user from DB", error: dbError);
-      throw AuthException("Error setting up your user account.");
+      await prefs.setStringList(
+        'user_savedProducts',
+        (user.savedProducts ?? []).map((e) => jsonEncode(e.toJson())).toList(),
+      );
+      logger.i("Saved user_savedProducts: []");
+    } catch (e) {
+      logger.e("Error saving user data", error: e);
+      throw AuthException("Failed to save user data.");
     }
-
-    return userCredential;
-  } on FirebaseAuthException catch (e) {
-    logger.e("FirebaseAuthException", error: e.message);
-    throw AuthException("Authentication failed: ${e.message}");
-  } catch (e, stackTrace) {
-    logger.e("Unexpected authentication error",
-        error: e, stackTrace: stackTrace);
-    throw AuthException("Unexpected error during sign-in.");
   }
-}
-
 
   Future<UserEntity> getSavedUserData() async {
     final prefs = await SharedPreferences.getInstance();
-
     final userData = UserEntity(
       id: prefs.getString('user_id') ?? '',
       name: prefs.getString('user_name') ?? 'Unknown',
@@ -144,9 +158,19 @@ Future<UserCredential> signInWithGoogle() async {
       isPremium: prefs.getBool('user_premium') ?? false,
       institutionId: prefs.getString('institution_Id'),
       savedProductsIds: prefs.getStringList('user_savedProductsIds') ?? [],
+      savedProducts: await getSavedProductsData(),
     );
-
     return userData;
+  }
+
+  Future<List<ProductEntity>> getSavedProductsData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final products = prefs.getStringList('user_savedProducts') ?? [];
+    final productData = products.map((e) {
+      final json = jsonDecode(e);
+      return ProductEntity.fromJson(json);
+    }).toList();
+    return productData;
   }
 
   Future<void> clearSavedPreferences() async {
@@ -161,6 +185,7 @@ Future<UserCredential> signInWithGoogle() async {
       await prefs.remove('user_premium');
       await prefs.remove('institution_Id');
       await prefs.remove('user_savedProductsIds');
+      await prefs.remove('user_savedProducts');
       GlobalUser().currentUser = null;
       logger.i("All saved preferences have been cleared.");
     } catch (e) {
@@ -169,31 +194,33 @@ Future<UserCredential> signInWithGoogle() async {
     }
   }
 
-Future<void> setMockedUserData() async {
-  final userData = UserEntity(
-    id: 'KLAt7tOTC7CFvuyXdkVC',
-    name: 'Daniel Diaz',
-    phone: '',
-    email: 'danielf4415@gmail.com',
-    role: 'user',
-    isPremium: false,
-    institutionId: null,
-    savedProductsIds: [],
-  );
-  logger.i("Saving mocked user data to SharedPreferences: ${userData.toJson()}");
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('user_id', userData.id);
-  await prefs.setString('user_name', userData.name);
-  await prefs.setString('user_email', userData.email);
-  await prefs.setString('user_phone', userData.phone);
-  await prefs.setString('user_role', userData.role);
-  await prefs.setBool('user_premium', userData.isPremium);
-  await prefs.setString('institution_Id', userData.institutionId ?? '');
-  await prefs.setStringList(
-    'user_savedProductsIds',
-    userData.savedProductsIds.map((e) => e.toString()).toList(),
-  );
-  logger.i("Mocked user data saved successfully in SharedPreferences.");
-}
-
+  Future<void> setMockedUserData() async {
+    final userData = UserEntity(
+      id: '6KALoOH1rJTPJLO9Oir1ooXeEwg2',
+      name: 'Daniel Diaz',
+      phone: '',
+      email: 'danielf4415@gmail.com',
+      role: 'user',
+      isPremium: false,
+      institutionId: null,
+      savedProductsIds: [],
+      savedProducts: [],
+    );
+    logger.i(
+        "Saving mocked user data to SharedPreferences: ${userData.toJson()}");
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_id', userData.id);
+    await prefs.setString('user_name', userData.name);
+    await prefs.setString('user_email', userData.email);
+    await prefs.setString('user_phone', userData.phone);
+    await prefs.setString('user_role', userData.role);
+    await prefs.setBool('user_premium', userData.isPremium);
+    await prefs.setString('institution_Id', userData.institutionId ?? '');
+    await prefs.setStringList(
+      'user_savedProductsIds',
+      userData.savedProductsIds.map((e) => e.toString()).toList(),
+    );
+    await prefs.setStringList('user_savedProducts', []);
+    logger.i("Mocked user data saved successfully in SharedPreferences.");
+  }
 }
