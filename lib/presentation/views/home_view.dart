@@ -1,11 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:campus_bites/domain/entities/entities.dart';
+import 'package:campus_bites/data/offline/dietary_tag.dart';
+import 'package:campus_bites/data/offline/food_tag.dart';
+import 'package:campus_bites/domain/entities/dietary_tag_entity.dart';
 import 'package:campus_bites/domain/entities/food_tag_entity.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/presentation/providers/dietary-tags/dietary_tag_provider.dart';
 import 'package:campus_bites/presentation/providers/food-tags/food_tag_provider.dart';
 import 'package:campus_bites/presentation/providers/restaurants/initial_loading_provider.dart';
 import 'package:campus_bites/presentation/providers/restaurants/restaurants_provider.dart';
+import 'package:campus_bites/presentation/views/custom_title.dart';
 import 'package:campus_bites/presentation/widgets/shared/restaurant_card.dart';
 import 'package:campus_bites/presentation/widgets/widgets.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -13,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:campus_bites/config/router/app_router.dart';
+import 'package:hive/hive.dart';
 
 import 'dart:async';
 
@@ -43,7 +47,8 @@ class HomeViewState extends ConsumerState<HomeView>
   bool _insideNestedRoute = false;
   bool _isSearching = false;
 
-  List<FoodTagEntity> _tags = [];
+  List<FoodTagEntity> _foodTags = [];
+  List<DietaryTagEntity> _dietaryTags = [];
 
   @override
   void initState() {
@@ -58,20 +63,16 @@ class HomeViewState extends ConsumerState<HomeView>
     });
     ref.read(getFoodTagsProvider.notifier).fetchFood();
     ref.read(getDietaryTagsProvider.notifier).fetchDietary();
-    _fetchTags();
+    fetchTags(
+      ref: ref,
+      onLoaded: (food, dietary) {
+        setState(() {
+          _foodTags = food;
+          _dietaryTags = dietary;
+        });
+      },
+    );
     _viewEntryTime = DateTime.now();
-  }
-
-  Future<void> _fetchTags() async {
-    try {
-      await ref.read(getFoodTagsProvider.notifier).fetchFood();
-      final tags = ref.read(getFoodTagsProvider);
-      setState(() {
-        _tags = tags;
-      });
-    } catch (e) {
-      print('Error fetching tags: $e');
-    }
   }
 
   @override
@@ -221,7 +222,7 @@ class HomeViewState extends ConsumerState<HomeView>
                 padding: const EdgeInsets.only(top: 16),
                 child: Align(
                   alignment: Alignment.topCenter,
-                  child: _TagBox(tags: _tags),
+                  child: _TagBox(tags: _foodTags),
                 ),
               ),
             ),
@@ -233,7 +234,7 @@ class HomeViewState extends ConsumerState<HomeView>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const _Title(
+                      const CustomTitle(
                           title: 'Restaurants', subTitle: 'Near to you'),
                       if (_isSearching) ...[
                         const Center(
@@ -255,7 +256,8 @@ class HomeViewState extends ConsumerState<HomeView>
                       ] else ...[
                         ...restaurants.map((restaurant) {
                           final distanceMeters =
-                            ref.watch(distanceCacheProvider)[restaurant.id] ?? -1;
+                              ref.watch(distanceCacheProvider)[restaurant.id] ??
+                                  -1;
                           return RestaurantCard(
                             id: restaurant.id,
                             title: restaurant.name,
@@ -293,40 +295,56 @@ class CustomDrawer extends ConsumerStatefulWidget {
 }
 
 class _CustomDrawerState extends ConsumerState<CustomDrawer> {
-  Map<String, bool> tagSelections = {};
+  Map<String, bool> foodTagSelections = {};
+  Map<String, bool> dietaryTagSelections = {};
+  List<FoodTagEntity> _foodTags = [];
+  List<DietaryTagEntity> _dietaryTags = [];
 
   @override
   void initState() {
     super.initState();
-    _loadPreferences();
+    fetchTags(
+      ref: ref,
+      onLoaded: (food, dietary) {
+        setState(() {
+            _foodTags = food;
+            _dietaryTags = dietary;
+        });
+        _loadPreferences(food, dietary);
+      },
+    );
+
   }
 
   Future<void> _clearPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     setState(() {
-      tagSelections.updateAll((key, value) => false);
+      foodTagSelections.updateAll((key, value) => false);
+      dietaryTagSelections.updateAll((key, value) => false);
     });
   }
 
-  Future<void> _loadPreferences() async {
+  Future<void> _loadPreferences(foodTags, dietaryTags) async {
     final prefs = await SharedPreferences.getInstance();
-    final foodTags = ref.read(getFoodTagsProvider);
-    final dietaryTags = ref.read(getDietaryTagsProvider);
 
-    Map<String, bool> initialSelections = {
-      for (var tag in foodTags) tag.name: prefs.getBool(tag.name) ?? false,
-      for (var tag in dietaryTags) tag.name: prefs.getBool(tag.name) ?? false,
-    };
 
     setState(() {
-      tagSelections = initialSelections;
+      foodTagSelections = {
+        for (var tag in foodTags) tag.name: prefs.getBool(tag.name) ?? false,
+      };
+      dietaryTagSelections = {
+        for (var tag in dietaryTags) tag.name: prefs.getBool(tag.name) ?? false,
+      };
     });
   }
 
   Future<void> _savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    for (var entry in tagSelections.entries) {
+    for (var entry in foodTagSelections.entries) {
+      prefs.setBool(entry.key, entry.value);
+    }
+    for (var entry in dietaryTagSelections.entries) {
       prefs.setBool(entry.key, entry.value);
     }
   }
@@ -334,15 +352,13 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
   @override
   Widget build(BuildContext context) {
     final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-    final foodTags = ref.watch(getFoodTagsProvider);
-    final dietaryTags = ref.watch(getDietaryTagsProvider);
 
     return Drawer(
       child: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-            child: foodTags.isEmpty
+            child: _foodTags.isEmpty && _dietaryTags.isEmpty
                 ? Center(child: CircularProgressIndicator())
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,17 +372,19 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                         children: [
                           Expanded(
                             child: Column(
-                              children: foodTags
-                                  .sublist(0, (foodTags.length / 2).ceil())
-                                  .map((tag) => _buildCheckbox(tag.name))
+                              children: _foodTags
+                                  .sublist(0, (_foodTags.length / 2).ceil())
+                                  .map((tag) => _buildCheckbox(
+                                      tag.name, false, analytics))
                                   .toList(),
                             ),
                           ),
                           Expanded(
                             child: Column(
-                              children: foodTags
-                                  .sublist((foodTags.length / 2).ceil())
-                                  .map((tag) => _buildCheckbox(tag.name))
+                              children: _foodTags
+                                  .sublist((_foodTags.length / 2).ceil())
+                                  .map((tag) => _buildCheckbox(
+                                      tag.name, false, analytics))
                                   .toList(),
                             ),
                           ),
@@ -382,17 +400,19 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                         children: [
                           Expanded(
                             child: Column(
-                              children: dietaryTags
-                                  .sublist(0, (dietaryTags.length / 2).ceil())
-                                  .map((tag) => _buildCheckbox(tag.name, analytics, true))
+                              children: _dietaryTags
+                                  .sublist(0, (_dietaryTags.length / 2).ceil())
+                                  .map((tag) => _buildCheckbox(
+                                      tag.name, false, analytics))
                                   .toList(),
                             ),
                           ),
                           Expanded(
                             child: Column(
-                              children: dietaryTags
-                                  .sublist((dietaryTags.length / 2).ceil())
-                                  .map((tag) => _buildCheckbox(tag.name, analytics, true))
+                              children: _dietaryTags
+                                  .sublist((_dietaryTags.length / 2).ceil())
+                                  .map((tag) =>
+                                      _buildCheckbox(tag.name, true, analytics))
                                   .toList(),
                             ),
                           ),
@@ -470,22 +490,22 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
     );
   }
 
-  Widget _buildCheckbox(String tagName, [analytics, dietary]) {
+  Widget _buildCheckbox(
+      String tagName, bool isDietary, FirebaseAnalytics analytics) {
+    final map = isDietary ? dietaryTagSelections : foodTagSelections;
     return Row(
       children: [
         Checkbox(
-          value: tagSelections[tagName] ?? false,
+          value: map[tagName] ?? false,
           onChanged: (value) {
-            if (dietary == true) {
+            if (isDietary) {
               analytics.logEvent(
                 name: 'dietary_filter',
-                parameters: {
-                  'dietary_filter': tagName
-                }
-              ); 
+                parameters: {'dietary_filter': tagName},
+              );
             }
             setState(() {
-              tagSelections[tagName] = value!;
+              map[tagName] = value!;
             });
             _savePreferences();
           },
@@ -584,9 +604,12 @@ class _TagItem extends StatelessWidget {
                           width: 80,
                           height: 80,
                           alignment: Alignment.center,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white,),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         ),
-                       errorWidget: (context, url, error) {
+                        errorWidget: (context, url, error) {
                           // Log the error event to Firebase Analytics
                           _analytics.logEvent(
                             name: 'image_load_error',
@@ -596,7 +619,7 @@ class _TagItem extends StatelessWidget {
                               'timestamp': DateTime.now().toIso8601String(),
                             },
                           );
-                          
+
                           // Return the placeholder image
                           return Image.asset(
                             'assets/placeholder.png',
@@ -604,7 +627,6 @@ class _TagItem extends StatelessWidget {
                           );
                         },
                       )
-                      
                     : Image.asset(
                         'assets/placeholder.png',
                         fit: BoxFit.cover,
@@ -633,41 +655,6 @@ class _TagItem extends StatelessWidget {
   }
 }
 
-class _Title extends StatelessWidget {
-  final String? title;
-  final String? subTitle;
-
-  const _Title({this.title, this.subTitle});
-
-  @override
-  Widget build(BuildContext context) {
-    final titleStyle = Theme.of(context).textTheme.titleLarge;
-
-    return Container(
-      padding: const EdgeInsets.only(top: 10),
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        children: [
-          if (title != null) Text(title!, style: titleStyle),
-          const Spacer(),
-          if (subTitle != null)
-            FilledButton.tonal(
-              style: ButtonStyle(
-                visualDensity: VisualDensity.compact,
-                backgroundColor: WidgetStatePropertyAll(Color(0xFFF46417)),
-                foregroundColor: WidgetStatePropertyAll(Colors.white),
-              ),
-              onPressed: () {},
-              child: Text(
-                subTitle!,
-                style: TextStyle(color: Colors.white),
-              ),
-            )
-        ],
-      ),
-    );
-  }
-}
 
 Future<List<String>> _loadUserPreferredTags() async {
   final prefs = await SharedPreferences.getInstance();
@@ -680,4 +667,55 @@ Future<List<String>> _loadUserPreferredTags() async {
     }
   }
   return preferredTags;
+}
+
+Future<void> fetchTags({
+  required WidgetRef ref,
+  required Function(List<FoodTagEntity>, List<DietaryTagEntity>) onLoaded,
+}) async {
+  final foodBox = Hive.box<FoodTag>('food_tags');
+  final dietaryBox = Hive.box<DietaryTag>('dietary_tags');
+  final metaBox = Hive.box('meta');
+
+  final lastFetch = metaBox.get('tags_last_fetch') as DateTime?;
+  final now = DateTime.now();
+  const cacheDuration = Duration(hours: 1);
+
+  if (foodBox.isNotEmpty &&
+      dietaryBox.isNotEmpty &&
+      lastFetch != null &&
+      now.difference(lastFetch) < cacheDuration) {
+    final cachedFoodTags = foodBox.values.map((e) => e.toFood()).toList();
+    final cachedDietaryTags =
+        dietaryBox.values.map((e) => e.toDietary()).toList();
+    onLoaded(cachedFoodTags, cachedDietaryTags);
+    return;
+  }
+
+  try {
+    await ref.read(getFoodTagsProvider.notifier).fetchFood();
+    await ref.read(getDietaryTagsProvider.notifier).fetchDietaryTags();
+
+    final freshFoodTags = ref.read(getFoodTagsProvider);
+    final freshDietaryTags = ref.read(getDietaryTagsProvider);
+
+    final hiveFoodTags = freshFoodTags.map((e) => e.toHiveFoodModel());
+    final hiveDietaryTags = freshDietaryTags.map((e) => e.toHiveDietaryModel());
+
+    await foodBox.clear();
+    await foodBox.addAll(hiveFoodTags);
+    await dietaryBox.clear();
+    await dietaryBox.addAll(hiveDietaryTags);
+
+    await metaBox.put('tags_last_fetch', now);
+
+    onLoaded(freshFoodTags, freshDietaryTags);
+  } catch (e) {
+    if (foodBox.isNotEmpty && dietaryBox.isNotEmpty) {
+      final fallbackFood = foodBox.values.map((e) => e.toFood()).toList();
+      final fallbackDietary =
+          dietaryBox.values.map((e) => e.toDietary()).toList();
+      onLoaded(fallbackFood, fallbackDietary);
+    }
+  }
 }

@@ -310,7 +310,7 @@ Future.microtask(() async {
                               ),
                             ],
                           ),
-                          FilledButton(
+/*                           FilledButton(
                             style: ButtonStyle(
                               visualDensity: VisualDensity.compact,
                               backgroundColor:
@@ -326,7 +326,7 @@ Future.microtask(() async {
                             ),
                             onPressed: () {},
                             child: Text('Subscribe'),
-                          ),
+                          ), */
                         ],
                       ),
                       SizedBox(

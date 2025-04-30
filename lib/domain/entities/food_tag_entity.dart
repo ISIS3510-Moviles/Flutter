@@ -1,3 +1,5 @@
+import 'package:campus_bites/data/offline/food_tag.dart';
+
 class FoodTagEntity {
   final String id;
   final String name;
@@ -10,4 +12,15 @@ class FoodTagEntity {
     required this.description, 
     this.icon
   });
+}
+
+extension ToFood on FoodTag {
+  FoodTagEntity toFood() {
+    return FoodTagEntity(
+      id: id,
+      name: name,
+      description: '',
+      icon: icon,
+    );
+  }
 }
