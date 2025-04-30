@@ -21,51 +21,83 @@ class ReservationScreen extends ConsumerWidget {
         error: (error, _) => Center(
           child: Text('Error loading reservations: $error'),
         ),
-        data: (reservations) => CustomScrollView(
-          slivers: [
-            const CustomSliverAppbar(),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                child: Text(
-                  'Upcoming reservations',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF277A46),
+        data: (reservations) {
+          if (reservations.isEmpty) {
+            return CustomScrollView(
+              slivers: [
+                const CustomSliverAppbar(),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: Center(
+                      child: Text(
+                        'No reservations found.',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          final Map<String, List<ReservationEntity>> grouped = {};
+          for (final res in reservations) {
+            grouped.putIfAbsent(res.date, () => []).add(res);
+          }
+
+          final sortedKeys = grouped.keys.toList()
+            ..sort((a, b) => DateTime.parse(a).compareTo(DateTime.parse(b)));
+
+          return CustomScrollView(
+            slivers: [
+              const CustomSliverAppbar(),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  child: Text(
+                    'Upcoming reservations',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF277A46),
+                    ),
                   ),
                 ),
               ),
-            ),
-            reservations.isEmpty
-                ? SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: Center(
-                        child: Text(
-                          'No reservations found.',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                      ),
-                    ),
-                  )
-                : SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final reservation = reservations[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12.0),
-                            child: EventCard(reservation: reservation),
-                          );
-                        },
-                        childCount: reservations.length,
+              for (final date in sortedKeys) ...[
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Text(
+                      DateFormat('EEEE, MMMM d, y').format(DateTime.parse(date)),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF11203A),
                       ),
                     ),
                   ),
-          ],
-        ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final reservation = grouped[date]![index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12.0),
+                          child: EventCard(reservation: reservation),
+                        );
+                      },
+                      childCount: grouped[date]!.length,
+                    ),
+                  ),
+                ),
+              ]
+            ],
+          );
+        },
       ),
     );
   }

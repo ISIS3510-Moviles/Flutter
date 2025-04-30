@@ -1,5 +1,7 @@
+import 'package:campus_bites/data/offline/cached_reservation.dart';
 import 'package:campus_bites/data/offline/dietary_tag.dart';
 import 'package:campus_bites/data/offline/food_tag.dart';
+import 'package:campus_bites/data/offline/reservations_by_date.dart';
 import 'package:campus_bites/firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -28,7 +30,7 @@ Future<void> main() async {
   FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
 
   await Hive.initFlutter();
-  
+
   Hive.registerAdapter(QueuedCommentAdapter());
   await Hive.openBox<QueuedComment>('queued_comments');
 
@@ -41,6 +43,12 @@ Future<void> main() async {
 
   Hive.registerAdapter(DietaryTagAdapter());
   await Hive.openBox<DietaryTag>('dietary_tags');
+
+  Hive.registerAdapter(CachedReservationAdapter());
+  await Hive.openBox<CachedReservation>('cached_reservations');
+
+  Hive.registerAdapter(ReservationsByDateAdapter());
+  await Hive.openBox<ReservationsByDate>('reservations_by_date');
 
   CommentQueueManager().startListener(
     onCommentSent: (message) {
