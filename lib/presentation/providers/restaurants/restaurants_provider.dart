@@ -72,8 +72,14 @@ class GetRestaurantsNotifier extends AsyncNotifier<List<RestaurantEntity>> {
 
   Future<List<RestaurantEntity>> fetchByTag(String tagId) async {
     try {
-      final restaurants = await _fetchRestaurantsByTag(tagId);
-      return restaurants;
+      final cached = await _cache.getValidCachedRestaurants();  
+      final filtered = cached.where((restaurant) => (restaurant.foodTagsIds ?? []).contains(tagId)).toList();
+      if (filtered.isNotEmpty) {
+        return filtered;
+      }
+      final remote = await _fetchRestaurantsByTag(tagId);
+      await _cache.saveRestaurants(remote);
+      return remote;
     } catch (_) {
       return [];
     }
