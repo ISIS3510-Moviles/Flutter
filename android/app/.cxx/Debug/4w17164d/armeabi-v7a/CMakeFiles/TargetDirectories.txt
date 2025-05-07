@@ -1,2 +1,0 @@
-C:/Users/danie/Desktop/rush/Flutter/android/app/.cxx/Debug/4w17164d/armeabi-v7a/CMakeFiles/edit_cache.dir
-C:/Users/danie/Desktop/rush/Flutter/android/app/.cxx/Debug/4w17164d/armeabi-v7a/CMakeFiles/rebuild_cache.dir

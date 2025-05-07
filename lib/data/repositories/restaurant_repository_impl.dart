@@ -17,8 +17,6 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
     return restaurantBackendDatasource.getRestaurantById(id);
   }
 
-
-  @override
   Future<List<RestaurantEntity>> getRestaurantsByTag(String tagName) {
     return restaurantBackendDatasource.getRestaurantsByTag(tagName);
   }

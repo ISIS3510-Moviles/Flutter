@@ -1,4 +1,3 @@
-import 'package:campus_bites/domain/entities/user_entity.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -27,8 +26,8 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
 void _checkUserAndProceed() async {
- // await authService.clearSavedPreferences();
-  await authService.setMockedUserData();
+  //await authService.clearSavedPreferences();
+  //await authService.setMockedUserData();
   final userEntity = await authService.getSavedUserData();
 
   setState(() {
