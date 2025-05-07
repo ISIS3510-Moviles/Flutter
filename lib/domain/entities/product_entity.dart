@@ -68,4 +68,17 @@ class ProductEntity {
           .toList(),
     );
   }
+
+    Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'rating': rating,
+      'price': price,
+      'isAvailable': isAvailable,
+      'photo': photo,
+      'tags': tags,
+    };
+  }
 }
