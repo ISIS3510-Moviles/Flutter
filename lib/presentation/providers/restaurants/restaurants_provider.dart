@@ -23,7 +23,7 @@ class GetRestaurantsNotifier extends AsyncNotifier<List<RestaurantEntity>> {
     _fetchRestaurants = repository.getRestaurants;
     _fetchRestaurantsByTag = repository.getRestaurantsByTag;
 
-    // Inicialmente intenta traer del cache
+
     final cached = await _cache.getValidCachedRestaurants();
     if (cached.isNotEmpty) {
       return cached;
