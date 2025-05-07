@@ -1,3 +1,5 @@
+import 'package:campus_bites/data/offline/dietary_tag.dart';
+import 'package:campus_bites/data/offline/food_tag.dart';
 import 'package:campus_bites/firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -32,6 +34,13 @@ Future<void> main() async {
 
   Hive.registerAdapter(QueuedReservationAdapter());
   await Hive.openBox<QueuedReservation>('queued_reservations');
+
+  Hive.registerAdapter(FoodTagAdapter());
+  await Hive.openBox<FoodTag>('food_tags');
+  await Hive.openBox('meta');
+
+  Hive.registerAdapter(DietaryTagAdapter());
+  await Hive.openBox<DietaryTag>('dietary_tags');
 
   CommentQueueManager().startListener(
     onCommentSent: (message) {
