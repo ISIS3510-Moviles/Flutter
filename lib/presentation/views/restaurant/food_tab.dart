@@ -5,7 +5,7 @@ import 'package:campus_bites/presentation/widgets/shared/food_card.dart';
 class FoodTab extends StatelessWidget {
   final RestaurantEntity restaurant;
 
-  FoodTab(this.restaurant, {super.key});
+  const FoodTab(this.restaurant, {super.key});
 
   @override
   Widget build(BuildContext context) {

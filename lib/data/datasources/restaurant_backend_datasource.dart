@@ -33,8 +33,6 @@ Future<List<RestaurantEntity>> getRestaurants(String? searchMatch, List<String>?
   return _jsonToRestaurants(response.data);
 }
 
-
-  @override
   Future<List<RestaurantEntity>> getRestaurantsByTag(String tagId) async {
     final response = await dio.get('/restaurant/by-food-tag/$tagId');
     final data = response.data;

@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:campus_bites/data/datasources/product_backend_datasource.dart';
-import 'package:campus_bites/data/datasources/restaurant_backend_datasource.dart';
 import 'package:campus_bites/domain/entities/entities.dart';
 import 'package:campus_bites/domain/entities/product_entity.dart';
 import 'package:campus_bites/presentation/providers/food-tags/food_tag_provider.dart';

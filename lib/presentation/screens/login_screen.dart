@@ -1,4 +1,3 @@
-import 'package:campus_bites/domain/entities/user_entity.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/services/auth_service.dart';
 import 'package:flutter/material.dart';

@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:campus_bites/domain/entities/entities.dart';
 import 'package:campus_bites/domain/entities/food_tag_entity.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/presentation/providers/dietary-tags/dietary_tag_provider.dart';
