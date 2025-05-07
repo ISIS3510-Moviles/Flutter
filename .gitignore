@@ -46,6 +46,7 @@ google-services.json
 **/android/gradlew.bat
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
+android/app/.cxx/
 
 # Android Studio will place build artifacts here
 /android/app/debug
@@ -83,6 +84,11 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+
+# Flutter platform-specific generated files
+linux/flutter/generated_*
+macos/Flutter/GeneratedPluginRegistrant.swift
+windows/flutter/generated_*
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3
