@@ -1,6 +1,5 @@
 import 'package:campus_bites/data/offline/cached_reservation.dart';
 import 'package:hive/hive.dart';
-import 'queued_reservation.dart';
 
 part 'reservations_by_date.g.dart';
 

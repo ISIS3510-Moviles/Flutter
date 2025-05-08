@@ -1,3 +1,5 @@
+import 'package:campus_bites/data/offline/alerts_by_date.dart';
+import 'package:campus_bites/data/offline/cached_alert.dart';
 import 'package:campus_bites/data/offline/cached_reservation.dart';
 import 'package:campus_bites/data/offline/dietary_tag.dart';
 import 'package:campus_bites/data/offline/food_tag.dart';
@@ -18,7 +20,8 @@ import 'package:campus_bites/data/offline/queued_reservation.dart';
 import 'package:campus_bites/data/offline/reservation_queue_manager.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
@@ -28,9 +31,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
-
   await Hive.initFlutter();
-
   Hive.registerAdapter(QueuedCommentAdapter());
   await Hive.openBox<QueuedComment>('queued_comments');
 
@@ -49,6 +50,12 @@ Future<void> main() async {
 
   Hive.registerAdapter(ReservationsByDateAdapter());
   await Hive.openBox<ReservationsByDate>('reservations_by_date');
+
+  Hive.registerAdapter(CachedAlertAdapter());
+  await Hive.openBox<CachedAlert>('cached_alerts');
+
+  Hive.registerAdapter(AlertsByDateAdapter());
+  await Hive.openBox<AlertsByDate>('alerts_by_date');
 
   CommentQueueManager().startListener(
     onCommentSent: (message) {

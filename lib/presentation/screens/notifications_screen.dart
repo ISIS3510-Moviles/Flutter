@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:campus_bites/domain/entities/alert_entity.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/presentation/providers/alerts/alert_provider.dart';
 import 'package:campus_bites/presentation/widgets/widgets.dart';
@@ -14,7 +15,7 @@ class NotificationsScreen extends ConsumerWidget {
 
   DateTime? _extractDateTime(String message) {
     final re = RegExp(r'on (\d{1,2}/\d{1,2}/\d{4}) at (\d{2}:\d{2})');
-    final m  = re.firstMatch(message);
+    final m = re.firstMatch(message);
     if (m == null) return null;
 
     final dateTimeStr = '${m.group(1)} ${m.group(2)}';
@@ -27,7 +28,7 @@ class NotificationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userId      = GlobalUser().currentUser?.id ?? '0';
+    final userId = GlobalUser().currentUser?.id ?? '0';
     final alertsAsync = ref.watch(getAlertsProvider(userId));
 
     return Scaffold(
@@ -77,8 +78,7 @@ class NotificationsScreen extends ConsumerWidget {
                 ..sort((a, b) => _extractDateTime(a.message)!
                     .compareTo(_extractDateTime(b.message)!));
 
-              final nextReservation =
-                  futureAlerts.isNotEmpty ? futureAlerts.first : null;
+              final nextReservation = futureAlerts.isNotEmpty ? futureAlerts.first : null;
 
               final slivers = <Widget>[const CustomSliverAppbar()];
 
@@ -93,7 +93,7 @@ class NotificationsScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Tu próxima reservación',
+                            'Next reservation',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -102,16 +102,15 @@ class NotificationsScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 8),
                           NotificationCard(
-                            imageUrl: nextReservation.restaurant.profilePhoto ??
+                            imageUrl: nextReservation.restaurant?.profilePhoto ??
                                 'assets/placeholder.png',
-                            title: nextReservation.restaurant.name,
+                            title: nextReservation.restaurant?.name ?? 'Restaurant not found',
                             description: nextReservation.message,
-                            date: DateFormat('dd/MM/yyyy HH:mm')
-                                .format(nextDate),
+                            date: DateFormat('dd/MM/yyyy HH:mm').format(nextDate),
                           ),
                           const SizedBox(height: 24),
                           const Text(
-                            'Otras notificaciones',
+                            'Other notifications',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -125,27 +124,56 @@ class NotificationsScreen extends ConsumerWidget {
                 );
               }
 
-              slivers.add(
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final alert = alerts[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 16, right: 16,),
-                        child: NotificationCard(
-                          imageUrl: alert.restaurant.profilePhoto ??
-                              'assets/placeholder.png',
-                          title: alert.restaurant.name,
-                          description: alert.message,
-                          date: DateFormat('dd/MM/yyyy HH:mm')
-                              .format(alert.date),
+              final groupedAlerts = <String, List<AlertEntity>>{};
+              for (var alert in alerts) {
+                final dateStr = DateFormat('dd/MM/yyyy').format(alert.date);
+                groupedAlerts.putIfAbsent(dateStr, () => []).add(alert);
+              }
+
+              final sortedDates = groupedAlerts.keys.toList()
+                ..sort((a, b) => DateFormat('dd/MM/yyyy')
+                    .parse(b)
+                    .compareTo(DateFormat('dd/MM/yyyy').parse(a)));
+
+              for (final date in sortedDates) {
+                slivers.add(
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                      child: Text(
+                        date,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF277A46),
                         ),
-                      );
-                    },
-                    childCount: alerts.length,
+                      ),
+                    ),
                   ),
-                ),
-              );
+                );
+
+                final alertsForDate = groupedAlerts[date]!;
+
+                slivers.add(
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final alert = alertsForDate[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: NotificationCard(
+                            imageUrl: alert.restaurant?.profilePhoto ?? 'assets/placeholder.png',
+                            title: alert.restaurant?.name ?? 'Restaurant not found',
+                            description: alert.message,
+                            date: DateFormat('HH:mm').format(alert.date),
+                          ),
+                        );
+                      },
+                      childCount: alertsForDate.length,
+                    ),
+                  ),
+                );
+              }
 
               return slivers;
             },
@@ -194,7 +222,6 @@ class NotificationCard extends StatelessWidget {
                   child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
                 ),
                 errorWidget: (context, url, error) {
-                  // Log the error to Firebase Analytics
                   _analytics.logEvent(
                     name: 'image_load_error',
                     parameters: {
@@ -203,8 +230,7 @@ class NotificationCard extends StatelessWidget {
                       'timestamp': DateTime.now().toIso8601String(),
                     },
                   );
-                  
-                  // Return the placeholder image as before
+
                   return Image.asset(
                     'assets/placeholder.png',
                     width: 80,
