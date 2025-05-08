@@ -441,12 +441,6 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                               ),
                             ),
                             onPressed: () async {
-                              await FirebaseAnalytics.instance.logEvent(
-                                name: 'filters_applied',
-                                parameters: {
-                                  'user_id': GlobalUser().currentUser!.id,
-                                },
-                              );
                               final searchText = context
                                       .findAncestorStateOfType<HomeViewState>()
                                       ?._searchText ??
@@ -502,12 +496,21 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
         Checkbox(
           value: map[tagName] ?? false,
           onChanged: (value) {
+
+            analytics.logEvent(
+              name: 'filters_applied',
+              parameters: {
+                'user_id': GlobalUser().currentUser!.id,
+              },
+            );
+
             if (isDietary) {
               analytics.logEvent(
                 name: 'dietary_filter',
                 parameters: {'dietary_filter': tagName},
               );
             }
+            
             setState(() {
               map[tagName] = value!;
             });
