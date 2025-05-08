@@ -150,11 +150,39 @@ class HomeViewState extends ConsumerState<HomeView>
 
   @override
   Widget build(BuildContext context) {
+    const Widget _smallLoader = Center(
+      child: SizedBox(
+        width: 60,
+        height: 60,
+        child: CircularProgressIndicator(),
+      ),
+    );
+
     final bool initialLoading = ref.watch(initialLoadingProvider);
     final restaurantsAsync = ref.watch(getRestaurantsProvider);
+
     if (restaurantsAsync.isLoading) {
-      return CircularProgressIndicator();
+      if (initialLoading) {
+        // loader inicial
+        return _smallLoader;
+      } else {
+        // loader de filtro, pero con scaffold y drawer intactos
+        return Scaffold(
+          key: _scaffoldKey,
+          drawer: CustomDrawer(closeDrawer: () => Navigator.of(context).pop()),
+          body: SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                CustomSliverAppbar(),
+                // en la zona donde irían los restaurantes, ponemos el loader pequeño
+                SliverToBoxAdapter(child: _smallLoader),
+              ],
+            ),
+          ),
+        );
+      }
     }
+
     if (restaurantsAsync.hasError) {
       return Text('Error');
     }
@@ -177,7 +205,7 @@ class HomeViewState extends ConsumerState<HomeView>
       appBar: null,
       key: _scaffoldKey,
       drawer: CustomDrawer(
-        closeDrawer: () => _scaffoldKey.currentState!.openEndDrawer(),
+        closeDrawer: () => context.go('/'),
       ),
       body: SafeArea(
         child: CustomScrollView(
@@ -228,7 +256,7 @@ class HomeViewState extends ConsumerState<HomeView>
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 child: SizedBox(
                   width: 314,
                   child: Column(

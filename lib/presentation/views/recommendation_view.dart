@@ -55,19 +55,19 @@ class RecommendationViewState extends ConsumerState<RecommendationView>
                   padding: const EdgeInsets.only(top: 16),
                   child: Column(
                     children: [
-                      SizedBox(
-                        width: 314,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           children: [
                             _Title(
                                 title: 'Restaurants', subTitle: 'For you'),
                             ...restaurants.map((restaurant) {
                               return RestaurantCard(
-                                id: restaurant.id,
-                                title: restaurant['name'],
-                                rating: restaurant['rating'],
+                                id: restaurant['id'] as String,
+                                title: restaurant['name'] as String,
+                                rating: restaurant['rating'] as double,
                                 distance: 200,
-                                imageUrl: restaurant['profilePhoto'] ?? '',
+                                imageUrl: restaurant['profilePhoto'] as String? ?? '',
                                 tags: List<String>.from(restaurant['tags'] ?? []),
                               );
                             })
