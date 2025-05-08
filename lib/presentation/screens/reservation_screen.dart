@@ -147,7 +147,10 @@ class EventCard extends StatelessWidget {
                     children: [
                       Icon(Icons.people, size: 18, color: Color(0xFF11203A)),
                       const SizedBox(width: 4),
-                      Text(reservation.numberComensals.toString(), style: TextStyle(color: Color(0xFF11203A))),
+                      Text(
+                      '${reservation.numberComensals} ${reservation.numberComensals == 1 ? 'person' : 'people'}',
+                      style: TextStyle(color: Color(0xFF11203A)),
+                      ),
                     ],
                   ),
                   Row(

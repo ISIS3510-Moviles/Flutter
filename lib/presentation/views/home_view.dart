@@ -558,46 +558,98 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
   }
 }
 
-class _TagBox extends StatelessWidget {
-  const _TagBox({required this.tags});
+class _TagBox extends StatefulWidget {
+  const _TagBox({required this.tags, Key? key}) : super(key: key);
 
   final List<FoodTagEntity> tags;
+
+  @override
+  State<_TagBox> createState() => _TagBoxState();
+}
+
+class _TagBoxState extends State<_TagBox> {
+  late final PageController _pageController;
+  late final int _totalPages;
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _totalPages = (widget.tags.length / 8).ceil();
+    _pageController = PageController(initialPage: _currentPage, viewportFraction: 1.0);
+  }
+
+  void _goToPreviousPage() {
+    final prevPage = (_currentPage - 1 + _totalPages) % _totalPages;
+    _pageController.animateToPage(
+      prevPage,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+    setState(() => _currentPage = prevPage);
+  }
+
+  void _goToNextPage() {
+    final nextPage = (_currentPage + 1) % _totalPages;
+    _pageController.animateToPage(
+      nextPage,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+    setState(() => _currentPage = nextPage);
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 160,
-      child: PageView.builder(
-        controller: PageController(viewportFraction: 1.0),
-        itemCount: (tags.length / 8).ceil(),
-        itemBuilder: (context, pageIndex) {
-          final startIndex = pageIndex * 8;
-          final endIndex = (startIndex + 8).clamp(0, tags.length);
-          final pageTags = tags.sublist(startIndex, endIndex);
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: _totalPages,
+            onPageChanged: (index) => setState(() => _currentPage = index),
+            itemBuilder: (context, pageIndex) {
+              final startIndex = pageIndex * 8;
+              final endIndex = (startIndex + 8).clamp(0, widget.tags.length);
+              final pageTags = widget.tags.sublist(startIndex, endIndex);
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: pageTags
-                      .take(4)
-                      .map((tag) => _TagItem(tag: tag))
-                      .toList(),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: pageTags.take(4).map((tag) => _TagItem(tag: tag)).toList(),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: pageTags.skip(4).map((tag) => _TagItem(tag: tag)).toList(),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: pageTags
-                      .skip(4)
-                      .map((tag) => _TagItem(tag: tag))
-                      .toList(),
-                ),
-              ],
+              );
+            },
+          ),
+          // Left Chevron
+          Positioned(
+            left: -2,
+            child: IconButton(
+              icon: const Icon(Icons.chevron_left, size: 32),
+              onPressed: _goToPreviousPage,
             ),
-          );
-        },
+          ),
+          // Right Chevron
+          Positioned(
+            right: -2,
+            child: IconButton(
+              icon: const Icon(Icons.chevron_right, size: 32),
+              onPressed: _goToNextPage,
+            ),
+          ),
+        ],
       ),
     );
   }

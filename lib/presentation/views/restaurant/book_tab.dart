@@ -35,16 +35,23 @@ class BookTabState extends ConsumerState<BookTab> {
   @override
   void initState() {
     super.initState();
+    
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('MM/dd/yyyy').format(now);
+    
+    // Set initial time based on whether it's today
+    String initialTime = _isToday(formattedDate) ? "17:00" : "12:00";
+    
     reservation = ReservationEntity(
       id: "1",
-      date: DateFormat('MM/dd/yyyy').format(DateTime.now()),
-      time: "12:00",
+      date: formattedDate,
+      time: initialTime,
       numberComensals: 1,
       state: PendingState(),
     );
+    
     _dateController = TextEditingController(text: reservation.date);
-    _comensalsController =
-        TextEditingController(text: reservation.numberComensals.toString());
+    _comensalsController = TextEditingController(text: reservation.numberComensals.toString());
 
     _comensalsFocusNode.addListener(() {
       setState(() {
@@ -53,6 +60,13 @@ class BookTabState extends ConsumerState<BookTab> {
             : const Color(0xFF817570);
       });
     });
+  }
+
+  // Helper method to check if a date is today
+  bool _isToday(String dateString) {
+    DateTime date = DateFormat('MM/dd/yyyy').parse(dateString);
+    DateTime now = DateTime.now();
+    return date.day == now.day && date.month == now.month && date.year == now.year;
   }
 
   @override
@@ -71,9 +85,15 @@ class BookTabState extends ConsumerState<BookTab> {
       lastDate: DateTime(2100),
     );
     if (picked != null) {
+      String newDate = DateFormat('MM/dd/yyyy').format(picked);
+      bool isToday = _isToday(newDate);
+      
       setState(() {
-        reservation.date = DateFormat('MM/dd/yyyy').format(picked);
+        reservation.date = newDate;
         _dateController.text = reservation.date;
+        
+        // Update time to a valid value based on the date
+        reservation.time = isToday ? "17:00" : "12:00";
       });
     }
   }
@@ -160,19 +180,32 @@ Future<void> _bookReservation() async {
                   onPressed: () => _selectDate(context),
                 ),
                 border: const OutlineInputBorder(),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF817570), width: 1.0),
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            const Text("Hour",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text("Hour:",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold, 
+                  fontSize: 16,
+                  color: Color(0xFF277A46))),
             DropdownButtonFormField<String>(
               value: reservation.time,
-              items: ["12:00", "13:00", "14:00", "15:00", "16:00"].map((hour) {
-                return DropdownMenuItem(
-                  value: hour,
-                  child: Text(hour),
-                );
-              }).toList(),
+              items: _isToday(reservation.date)
+                  ? ["17:00", "18:00", "19:00"].map((hour) {
+                      return DropdownMenuItem(
+                        value: hour,
+                        child: Text(hour),
+                      );
+                    }).toList()
+                  : ["12:00", "13:00", "14:00", "15:00", "16:00"].map((hour) {
+                      return DropdownMenuItem(
+                        value: hour,
+                        child: Text(hour),
+                      );
+                    }).toList(),
               onChanged: (value) {
                 setState(() {
                   reservation.time = value!;
@@ -180,10 +213,13 @@ Future<void> _bookReservation() async {
               },
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF817570), width: 1.0),
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            const Text("Comensals",
+            const Text("Comensals:",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -195,9 +231,7 @@ Future<void> _bookReservation() async {
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: _comensalsFocusNode.hasFocus
-                        ? Color(0xFF9e5b36)
-                        : _borderColor,
+                    color: Color(0xFF817570),
                     width: 1,
                   ),
                   borderRadius: BorderRadius.circular(5),
