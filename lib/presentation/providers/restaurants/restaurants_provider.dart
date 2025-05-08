@@ -1,13 +1,17 @@
 import 'package:campus_bites/domain/entities/restaurant_entity.dart';
-import 'package:campus_bites/infraestructure/database/isar_instance_provider.dart'; 
+import 'package:campus_bites/infraestructure/database/isar_instance_provider.dart';
 import 'package:campus_bites/presentation/providers/restaurants/restaurant_repository_provider.dart';
 import 'package:campus_bites/services/restaurant_cache_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final getRestaurantsProvider = AsyncNotifierProvider<GetRestaurantsNotifier, List<RestaurantEntity>>(GetRestaurantsNotifier.new);
+final getRestaurantsProvider =
+    AsyncNotifierProvider<GetRestaurantsNotifier, List<RestaurantEntity>>(
+        GetRestaurantsNotifier.new);
 
-typedef RestaurantCallback = Future<List<RestaurantEntity>> Function(String? nameMatch, List<String>? tagsInclude);
-typedef RestaurantByTagCallback = Future<List<RestaurantEntity>> Function(String tagId);
+typedef RestaurantCallback = Future<List<RestaurantEntity>> Function(
+    String? nameMatch, List<String>? tagsInclude);
+typedef RestaurantByTagCallback = Future<List<RestaurantEntity>> Function(
+    String tagId);
 
 class GetRestaurantsNotifier extends AsyncNotifier<List<RestaurantEntity>> {
   late final RestaurantCacheService _cache;
@@ -23,7 +27,6 @@ class GetRestaurantsNotifier extends AsyncNotifier<List<RestaurantEntity>> {
     _fetchRestaurants = repository.getRestaurants;
     _fetchRestaurantsByTag = repository.getRestaurantsByTag;
 
-
     final cached = await _cache.getValidCachedRestaurants();
     if (cached.isNotEmpty) {
       return cached;
@@ -36,21 +39,36 @@ class GetRestaurantsNotifier extends AsyncNotifier<List<RestaurantEntity>> {
 
   Future<void> fetch({String? nameMatch, List<String>? tagsInclude}) async {
     state = const AsyncLoading();
+    print("Fetching restaurants with nameMatch: $nameMatch and tagsInclude: $tagsInclude");
     try {
       final cached = await _cache.getValidCachedRestaurants();
-      if (cached.isNotEmpty) {
-        state = AsyncData(cached);
-        return;
+      List<RestaurantEntity> filterRestaurants(
+          List<RestaurantEntity> restaurants) {
+        return restaurants.where((restaurant) {
+          final nameMatches = nameMatch == null ||
+              restaurant.name.toLowerCase().contains(nameMatch.toLowerCase());
+          final tagsMatch = tagsInclude == null ||
+              (restaurant.tags ?? []).any((tag) => tagsInclude.contains(tag));
+          return nameMatches && tagsMatch;
+        }).toList();
       }
 
-      final remote = await _fetchRestaurants(nameMatch, tagsInclude);
-      await _cache.saveRestaurants(remote);
-      state = AsyncData(remote);
+      try {
+        final remote = await _fetchRestaurants(nameMatch, tagsInclude);
+        await _cache.saveRestaurants(remote);
+        state = AsyncData(remote);
+      } catch (remoteError, stRemote) {
+        final filtered = filterRestaurants(cached);
+        if (filtered.isNotEmpty) {
+          state = AsyncData(filtered);
+        } else {
+          state = AsyncError(remoteError, stRemote);
+        }
+      }
     } catch (e, st) {
       state = AsyncError(e, st);
     }
   }
-
 
   Future<List<RestaurantEntity>> fetchByTag(String tagId) async {
     try {

@@ -1,4 +1,3 @@
-import 'package:campus_bites/domain/entities/dietary_tag_entity.dart';
 import 'package:campus_bites/domain/entities/food_tag_entity.dart';
 import 'package:hive/hive.dart';
 
