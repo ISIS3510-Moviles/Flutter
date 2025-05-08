@@ -234,8 +234,6 @@ class HomeViewState extends ConsumerState<HomeView>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const CustomTitle(
-                          title: 'Restaurants', subTitle: 'Near to you'),
                       if (_isSearching) ...[
                         const Center(
                           child: Padding(
@@ -318,7 +316,13 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
 
   Future<void> _clearPreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    for (var entry in foodTagSelections.entries) {
+      prefs.remove(entry.key);
+    }
+    for (var entry in dietaryTagSelections.entries) {
+      prefs.remove(entry.key);
+    }
+
     setState(() {
       foodTagSelections.updateAll((key, value) => false);
       dietaryTagSelections.updateAll((key, value) => false);
@@ -662,7 +666,8 @@ Future<List<String>> _loadUserPreferredTags() async {
   final preferredTags = <String>[];
 
   for (var key in keys) {
-    if (prefs.getBool(key) == true) {
+    final value = prefs.get(key);
+    if (value is bool && value == true) {
       preferredTags.add(key);
     }
   }
