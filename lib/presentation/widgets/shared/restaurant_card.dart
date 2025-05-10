@@ -3,6 +3,8 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+
 class RestaurantCard extends StatelessWidget {
   final String id;
   final String title;
@@ -10,7 +12,6 @@ class RestaurantCard extends StatelessWidget {
   final double distance;
   final String imageUrl;
   final List<String> tags;
-  final FirebaseAnalytics? analytics;
 
   const RestaurantCard({
     super.key,
@@ -20,7 +21,6 @@ class RestaurantCard extends StatelessWidget {
     required this.distance,
     required this.imageUrl,
     required this.tags,
-    this.analytics,
   });
 
   String formatDistance(double meters) {
@@ -33,16 +33,13 @@ class RestaurantCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (analytics != null) {
-          analytics!.logEvent(
-            name: 'restaurant_visit',
-            parameters: {
-              'restaurant_id': id,
-              'restaurant_name': title,
-            },
-          );
-          print('Restaurant visit logged: $id');
-        }
+        _analytics.logEvent(
+          name: 'restaurant_visit',
+          parameters: {
+            'restaurant_id': id,
+            'restaurant_name': title,
+          },
+        );
         context.push('/restaurant/$id');
       },
       child: Card(

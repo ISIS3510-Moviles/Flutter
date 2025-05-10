@@ -39,9 +39,8 @@ class ProductBackendDatasource extends ProductDatasource {
       final product = ProductMapper.productBackendToEntity(productBackend);
       
       return product;
-    } catch (e, stackTrace) {
+    } catch (e) {
       print('Error fetching product by id: $e');
-      print('Stack trace: $stackTrace');
       throw Exception('Error fetching product by id: $e');
     }
   }

@@ -22,8 +22,6 @@ class TagScreen extends ConsumerStatefulWidget {
   ConsumerState<TagScreen> createState() => TagScreenState();
 }
 
-
-
 class TagScreenState extends ConsumerState<TagScreen>
     with SingleTickerProviderStateMixin {
   late TabController tabController;

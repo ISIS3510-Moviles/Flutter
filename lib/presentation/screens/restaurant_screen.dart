@@ -15,6 +15,8 @@ import 'package:campus_bites/presentation/providers/restaurants/distance_cache_p
 import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
+final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+
 class RestaurantScreen extends ConsumerStatefulWidget {
   final String restaurantId;
 
@@ -33,7 +35,6 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
   String? lastCalculatedRestaurantId;
   StreamSubscription<Position>? _positionStreamSubscription;
   bool _mounted = true;
-  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
   @override
   void initState() {
