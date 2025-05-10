@@ -8,7 +8,6 @@ import 'package:campus_bites/presentation/providers/dietary-tags/dietary_tag_pro
 import 'package:campus_bites/presentation/providers/food-tags/food_tag_provider.dart';
 import 'package:campus_bites/presentation/providers/restaurants/initial_loading_provider.dart';
 import 'package:campus_bites/presentation/providers/restaurants/restaurants_provider.dart';
-import 'package:campus_bites/presentation/views/custom_title.dart';
 import 'package:campus_bites/presentation/widgets/shared/restaurant_card.dart';
 import 'package:campus_bites/presentation/widgets/widgets.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -19,7 +18,6 @@ import 'package:campus_bites/config/router/app_router.dart';
 import 'package:hive/hive.dart';
 
 import 'dart:async';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:campus_bites/presentation/providers/restaurants/distance_cache_provider.dart';
 
@@ -150,7 +148,7 @@ class HomeViewState extends ConsumerState<HomeView>
 
   @override
   Widget build(BuildContext context) {
-    const Widget _smallLoader = Center(
+    const Widget smallLoader = Center(
       child: SizedBox(
         width: 60,
         height: 60,
@@ -164,7 +162,7 @@ class HomeViewState extends ConsumerState<HomeView>
     if (restaurantsAsync.isLoading) {
       if (initialLoading) {
         // loader inicial
-        return _smallLoader;
+        return smallLoader;
       } else {
         // loader de filtro, pero con scaffold y drawer intactos
         return Scaffold(
@@ -175,7 +173,7 @@ class HomeViewState extends ConsumerState<HomeView>
               slivers: [
                 CustomSliverAppbar(),
                 // en la zona donde irían los restaurantes, ponemos el loader pequeño
-                SliverToBoxAdapter(child: _smallLoader),
+                SliverToBoxAdapter(child: smallLoader),
               ],
             ),
           ),
@@ -291,7 +289,6 @@ class HomeViewState extends ConsumerState<HomeView>
                             distance: distanceMeters,
                             imageUrl: restaurant.profilePhoto!,
                             tags: restaurant.tags ?? [],
-                            analytics: _analytics,
                           );
                         }),
                         const SizedBox(height: 20),
@@ -524,25 +521,29 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
         Checkbox(
           value: map[tagName] ?? false,
           onChanged: (value) {
-
-            analytics.logEvent(
-              name: 'filters_applied',
-              parameters: {
-                'user_id': GlobalUser().currentUser!.id,
-              },
-            );
-
-            if (isDietary) {
-              analytics.logEvent(
-                name: 'dietary_filter',
-                parameters: {'dietary_filter': tagName},
-              );
-            }
-            
             setState(() {
               map[tagName] = value!;
             });
             _savePreferences();
+
+            final currentUser = GlobalUser().currentUser;
+            final userId = currentUser?.id ?? 'anonymous_user';
+            
+            _analytics.logEvent(
+              name: 'filters_applied',
+              parameters: {
+                'user_id': userId,
+              },
+            );
+
+            if (isDietary) {
+              _analytics.logEvent(
+                name: 'dietary_filter',
+                parameters: {
+                  'dietary_filter': tagName
+                },
+              );
+            }
           },
         ),
         Expanded(

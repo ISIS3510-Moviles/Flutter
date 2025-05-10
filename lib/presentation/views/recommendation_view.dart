@@ -36,6 +36,7 @@ class RecommendationViewState extends ConsumerState<RecommendationView>
       } else {
       }
     } catch (e) {
+      print('Error fetching restaurants: $e');
     }
   }
   @override
