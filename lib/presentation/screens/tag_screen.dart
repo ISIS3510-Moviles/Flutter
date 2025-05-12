@@ -214,7 +214,6 @@ class _ImageBox extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 errorWidget: (context, url, error) {
-                    // Log the error event to Firebase Analytics
                     _analytics.logEvent(
                       name: 'image_load_error',
                       parameters: {
@@ -224,7 +223,6 @@ class _ImageBox extends StatelessWidget {
                       },
                     );
                     
-                    // Return the placeholder image
                     return Image.asset(
                       'assets/placeholder.png',
                       width: 50,

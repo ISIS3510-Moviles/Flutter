@@ -39,7 +39,6 @@ class BookTabState extends ConsumerState<BookTab> {
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('MM/dd/yyyy').format(now);
     
-    // Set initial time based on whether it's today
     String initialTime = _isToday(formattedDate) ? "17:00" : "12:00";
     
     reservation = ReservationEntity(
@@ -62,7 +61,6 @@ class BookTabState extends ConsumerState<BookTab> {
     });
   }
 
-  // Helper method to check if a date is today
   bool _isToday(String dateString) {
     DateTime date = DateFormat('MM/dd/yyyy').parse(dateString);
     DateTime now = DateTime.now();
@@ -92,7 +90,6 @@ class BookTabState extends ConsumerState<BookTab> {
         reservation.date = newDate;
         _dateController.text = reservation.date;
         
-        // Update time to a valid value based on the date
         reservation.time = isToday ? "17:00" : "12:00";
       });
     }
@@ -131,25 +128,35 @@ Future<void> _bookReservation() async {
       );
     }
   } catch (e) {
-    final manager = ReservationQueueManager();
-    await manager.addToQueue(
-      QueuedReservation(
-        id: reservation.id,
-        userId: GlobalUser().currentUser!.id,
-        date: reservation.date,
-        time: reservation.time,
-        numberComensals: reservation.numberComensals,
-        isCompleted: false,
-        restaurantId: widget.restaurant.id,
-      ),
-    );
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No internet. Reservation saved and will be sent later.'),
+    if (e.toString().contains('cannot be in the past')) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+          ),
+        );
+      }
+    } else {
+      final manager = ReservationQueueManager();
+      await manager.addToQueue(
+        QueuedReservation(
+          id: reservation.id,
+          userId: GlobalUser().currentUser!.id,
+          date: reservation.date,
+          time: reservation.time,
+          numberComensals: reservation.numberComensals,
+          isCompleted: false,
+          restaurantId: widget.restaurant.id,
         ),
       );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No internet. Reservation saved and will be sent later.'),
+          ),
+        );
+      }
     }
   }
 }

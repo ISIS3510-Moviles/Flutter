@@ -698,7 +698,6 @@ class _TagItem extends StatelessWidget {
                           ),
                         ),
                         errorWidget: (context, url, error) {
-                          // Log the error event to Firebase Analytics
                           _analytics.logEvent(
                             name: 'image_load_error',
                             parameters: {
@@ -708,7 +707,6 @@ class _TagItem extends StatelessWidget {
                             },
                           );
 
-                          // Return the placeholder image
                           return Image.asset(
                             'assets/placeholder.png',
                             fit: BoxFit.cover,
