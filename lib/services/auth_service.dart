@@ -196,7 +196,7 @@ class AuthService {
 
   Future<void> setMockedUserData() async {
     final userData = UserEntity(
-      id: '6KALoOH1rJTPJLO9Oir1ooXeEwg2',
+      id: 'KLAt7tOTC7CFvuyXdkVC',
       name: 'Daniel Diaz',
       phone: '',
       email: 'danielf4415@gmail.com',

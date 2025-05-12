@@ -28,9 +28,9 @@ class CommentQueueManager {
           authorId: comment.authorId,
         );
         await comment.delete();
-        onCommentSent?.call("Comment sent successfully!");
+        onCommentSent?.call("Review sent successfully!");
       } catch (e) {
-        onCommentSent?.call("Failed to send comment");
+        onCommentSent?.call("Failed to send review");
         break;
       }
     }

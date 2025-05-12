@@ -38,6 +38,12 @@ Future<String> createReservation({
   try {
     final DateFormat inputFormat = DateFormat('MM/dd/yyyy');
     final DateTime parsedDate = inputFormat.parse(date);
+
+    final DateTime now = DateTime.now();
+    if (parsedDate.isBefore(now)) {
+      throw Exception('The reservation date cannot be in the past.');
+    }
+
     final String formattedDate = DateFormat("yyyy-MM-dd'T'00:00:00'Z'").format(parsedDate.toUtc());
     final requestBody = {
       "date": formattedDate,

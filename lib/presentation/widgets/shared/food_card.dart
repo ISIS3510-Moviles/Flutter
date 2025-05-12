@@ -49,7 +49,6 @@ class FoodCard extends StatelessWidget {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                       errorWidget: (context, url, error) {
-                        // Log the error event to Firebase Analytics
                         _analytics.logEvent(
                           name: 'image_load_error',
                           parameters: {
@@ -59,7 +58,6 @@ class FoodCard extends StatelessWidget {
                           },
                         );
                         
-                        // Return the placeholder image
                         return Image.asset(
                           'assets/placeholder.png',
                           height: 130,
