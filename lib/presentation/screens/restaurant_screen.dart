@@ -35,6 +35,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
   String? lastCalculatedRestaurantId;
   StreamSubscription<Position>? _positionStreamSubscription;
   bool _mounted = true;
+  bool fetchFailed = false;
 
   @override
   void initState() {
@@ -46,35 +47,33 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
         currentTabIndex = tabController.index;
       });
     });
-Future.microtask(() async {
-  final restaurantCache = ref.read(restaurantCacheProvider);
+    Future.microtask(() async {
+      final restaurantCache = ref.read(restaurantCacheProvider);
 
-  final cachedRestaurant = await restaurantCache.get(widget.restaurantId);
-  if (cachedRestaurant != null) {
-    print("Restaurant found in cache: ${cachedRestaurant.name}");
-    ref.read(getSingleRestaurantProvider.notifier).setOne(cachedRestaurant);
-  } else {
-    print("Fetching restaurant from API...");
-    await ref
-        .read(getSingleRestaurantProvider.notifier)
-        .fetchOne(widget.restaurantId);
-    print("Fetching completed.");
+      final cachedRestaurant = await restaurantCache.get(widget.restaurantId);
+      if (cachedRestaurant != null) {
+        ref.read(getSingleRestaurantProvider.notifier).setOne(cachedRestaurant);
+      } else {
+        await ref
+            .read(getSingleRestaurantProvider.notifier)
+            .fetchOne(widget.restaurantId);
 
-    final fetchedList = ref.read(getSingleRestaurantProvider);
-    print("Fetched list: $fetchedList");
+        final fetchedList = ref.read(getSingleRestaurantProvider);
 
-    if (fetchedList.isNotEmpty) {
-      final fetched = fetchedList.first;
-      print("Fetched restaurant: ${fetched.name}");
-      restaurantCache.put(widget.restaurantId, fetched);
-    } else {
-      print("No restaurant data found.");
-    }
-  }
+        if (fetchedList.isNotEmpty) {
+          final fetched = fetchedList.first;
+          restaurantCache.put(widget.restaurantId, fetched);
+        } else {
+          if (mounted) {
+            setState(() {
+              fetchFailed = true;
+            });
+          }
+        }
+      }
 
-  _initLocationAndDistanceIfNeeded();
-});
-
+      _initLocationAndDistanceIfNeeded();
+    });
   }
 
   void _initLocationAndDistanceIfNeeded() {
@@ -125,7 +124,8 @@ Future.microtask(() async {
       });
 
       final restaurants = ref.read(getSingleRestaurantProvider);
-      RestaurantEntity? restaurant = restaurants.isNotEmpty ? restaurants.first : null;
+      RestaurantEntity? restaurant =
+          restaurants.isNotEmpty ? restaurants.first : null;
 
       if (!_mounted) return;
 
@@ -198,30 +198,60 @@ Future.microtask(() async {
   @override
   Widget build(BuildContext context) {
     final restaurants = ref.watch(getSingleRestaurantProvider);
-    RestaurantEntity? restaurant = restaurants.isNotEmpty ? restaurants.first : null;
+    RestaurantEntity? restaurant =
+        restaurants.isNotEmpty ? restaurants.first : null;
 
     List<Widget> tabs = [];
     if (restaurant == null) {
-      for (var i = 0; i < 5; i++) {
-        tabs.add(
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: const Text(
-              'Could not access restaurant information.',
-              style: TextStyle(color: Colors.red, fontSize: 16),
+      if (fetchFailed) {
+        return Scaffold(
+          body: SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                CustomSliverAppbar(),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 100.0),
+                    child: Center(
+                      child: Text(
+                        'Could not access restaurant information.\nPlease check your internet connection and try again.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.red, fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      } else {
+        return Scaffold(
+          body: SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                CustomSliverAppbar(),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 100.0),
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         );
       }
-    } else {
-      tabs = [
-        DescriptionTab(restaurant),
-        FoodTab(restaurant),
-        BookTab(restaurant),
-        ArriveTab(restaurant),
-        ReviewsTab(restaurant),
-      ];
     }
+    tabs = [
+      DescriptionTab(restaurant),
+      FoodTab(restaurant),
+      BookTab(restaurant),
+      ArriveTab(restaurant),
+      ReviewsTab(restaurant),
+    ];
 
     return Scaffold(
       body: SafeArea(
@@ -250,7 +280,7 @@ Future.microtask(() async {
                         'timestamp': DateTime.now().toIso8601String(),
                       },
                     );
-                    
+
                     return Image.asset(
                       'assets/placeholder.png',
                       fit: BoxFit.cover,
