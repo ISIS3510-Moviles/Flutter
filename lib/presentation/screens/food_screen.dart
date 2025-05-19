@@ -175,9 +175,11 @@ class _FoodScreenState extends ConsumerState<FoodScreen> {
               slivers: [
                 const CustomSliverAppbar(),
                 SliverFillRemaining(
+                  hasScrollBody: false,
                   child: Center(
                     child: const Text(
-                      'Product not found. Please check your internet connection.',
+                      'Could not access product information.\nPlease check your internet connection and try again.',
+                      textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 16, color: Colors.red),
                     ),
                   ),

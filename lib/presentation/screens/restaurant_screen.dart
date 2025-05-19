@@ -210,13 +210,16 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
               slivers: [
                 CustomSliverAppbar(),
                 SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 100.0),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.8, 
                     child: Center(
-                      child: Text(
-                        'Could not access restaurant information.\nPlease check your internet connection and try again.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.red, fontSize: 16),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0), 
+                        child: Text(
+                          'Could not access restaurant information.\nPlease check your internet connection and try again.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.red, fontSize: 16),
+                        ),
                       ),
                     ),
                   ),
