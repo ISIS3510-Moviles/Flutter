@@ -8,17 +8,29 @@ class ProductRepositoryImpl extends ProductRepository {
   ProductRepositoryImpl(this.productBackendDatasource);
   
   @override
-  Future<List<ProductEntity>> getProducts() {
-    return productBackendDatasource.getProducts();
+  Future<List<ProductEntity>> getProducts() async {
+    try {
+      return await productBackendDatasource.getProducts();
+    } catch (e) {
+      throw Exception('Error fetching products: $e');
+    }
   }
 
   @override
-  Future<List<ProductEntity>> getProductsByTag(String tagId) {
-    return productBackendDatasource.getProductsByTag(tagId);
+  Future<List<ProductEntity>> getProductsByTag(String tagId) async {
+    try {
+      return await productBackendDatasource.getProductsByTag(tagId);
+    } catch (e) {
+      throw Exception('Error fetching products by tag: $e');
+    }
   }
 
   @override
-  Future<ProductEntity> getProductById(String productId) {
-    return productBackendDatasource.getProductById(productId);
+  Future<ProductEntity> getProductById(String productId) async {
+    try {
+      return await productBackendDatasource.getProductById(productId);
+    } catch (e) {
+      throw Exception('Error fetching product by ID: $e');
+    }
   }
 }
