@@ -26,8 +26,8 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
 void _checkUserAndProceed() async {
-  //await authService.clearSavedPreferences();
-  //await authService.setMockedUserData();
+  await authService.clearSavedPreferences();
+  await authService.setMockedUserData();
   final userEntity = await authService.getSavedUserData();
 
   setState(() {
@@ -66,6 +66,7 @@ void _checkUserAndProceed() async {
     });
 
     try {
+      await authService.signOutGoogle();
       final userCredential = await authService.signInWithGoogle();
       if (userCredential.user != null) {
         if (mounted) {
