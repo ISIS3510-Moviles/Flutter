@@ -4,6 +4,7 @@ import 'package:campus_bites/data/datasources/user_backend_datasource.dart';
 import 'package:campus_bites/domain/entities/product_entity.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:logger/logger.dart';
 import 'package:dio/dio.dart';
@@ -23,6 +24,7 @@ class AuthService {
   static AuthService? _instance;
   final Logger logger = Logger();
   final UserRepositoryImpl userRepository;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   AuthService._internal({required this.userRepository});
 
@@ -40,7 +42,7 @@ class AuthService {
     try {
       logger.i("Starting Google sign-in process...");
 
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       logger.d("Google user obtained: ${googleUser?.email}");
 
       if (googleUser == null) {
@@ -80,6 +82,7 @@ class AuthService {
         savedProductsIds: [],
       );
 
+
       try {
         var userRetrieved = await userRepository.createUser(userEntity);
         GlobalUser().currentUser = userRetrieved;
@@ -102,9 +105,18 @@ class AuthService {
     } catch (e, stackTrace) {
       logger.e("Unexpected authentication error",
           error: e, stackTrace: stackTrace);
-      throw AuthException("Unexpected error during sign-in.");
+      throw AuthException("You cancelled the Sign in process");
     }
   }
+
+  Future<void> signOutGoogle() async {
+    try {
+      await _googleSignIn.signOut();
+    } catch (e) {
+      debugPrint('Google sign-out failed: $e');
+    }
+  }
+
 
   Future<void> saveUser(UserEntity user) async {
     try {
@@ -166,11 +178,9 @@ class AuthService {
   Future<List<ProductEntity>> getSavedProductsData() async {
     final prefs = await SharedPreferences.getInstance();
     final products = prefs.getStringList('user_savedProducts') ?? [];
-    final productData = products.map((e) {
-      final json = jsonDecode(e);
-      return ProductEntity.fromJson(json);
-    }).toList();
-    return productData;
+
+    final parsedProducts = await compute(parseSavedProducts, products);
+    return parsedProducts;
   }
 
   Future<void> clearSavedPreferences() async {
@@ -223,4 +233,12 @@ class AuthService {
     await prefs.setStringList('user_savedProducts', []);
     logger.i("Mocked user data saved successfully in SharedPreferences.");
   }
+}
+
+
+List<ProductEntity> parseSavedProducts(List<String> jsonStrings) {
+  return jsonStrings.map((e) {
+    final json = jsonDecode(e);
+    return ProductEntity.fromJson(json);
+  }).toList();
 }

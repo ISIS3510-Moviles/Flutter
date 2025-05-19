@@ -66,6 +66,7 @@ void _checkUserAndProceed() async {
     });
 
     try {
+      await authService.signOutGoogle();
       final userCredential = await authService.signInWithGoogle();
       if (userCredential.user != null) {
         if (mounted) {
