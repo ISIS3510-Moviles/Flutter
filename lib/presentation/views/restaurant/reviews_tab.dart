@@ -13,6 +13,24 @@ class ReviewsTab extends StatelessWidget {
     super.key,
   });
 
+  void _openReviewForm(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: ReviewForm(
+          restaurantId: restaurant.id,
+          productId: '',
+          authorId: GlobalUser().currentUser!.id,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final comments = restaurant.comments;
@@ -71,15 +89,50 @@ class ReviewsTab extends StatelessWidget {
                 ),
               );
             },
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ElevatedButton.icon(
+            onPressed: () => _openReviewForm(context),
             icon: const Icon(Icons.rate_review),
             label: const Text('Write a Review'),
-            backgroundColor: Theme.of(context).primaryColor,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          if (comments == null || comments.isEmpty)
+            const Text(
+              'No reviews yet.',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+              textAlign: TextAlign.center,
+            )
+          else
+            ...comments.map((comment) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: ReviewCard(
+                  name: comment.authorName,
+                  date: comment.datetime,
+                  review: comment.message,
+                  rating: comment.rating,
+                ),
+              );
+            }),
+          const SizedBox(height: 32),
+        ],
+      ),
     );
   }
 }
+
 
 class ReviewCard extends StatelessWidget {
   final String name;

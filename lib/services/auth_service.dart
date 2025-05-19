@@ -121,6 +121,7 @@ class AuthService {
   Future<void> saveUser(UserEntity user) async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      print(user);
       await prefs.setString('user_id', user.id);
       logger.i("Saved user_id: ${user.id}");
 
@@ -150,9 +151,9 @@ class AuthService {
 
       await prefs.setStringList(
         'user_savedProducts',
-        (user.savedProducts ?? []).map((e) => jsonEncode(e.toJson())).toList(),
+        await compute(serializeProducts, user.savedProducts ?? []),
       );
-      logger.i("Saved user_savedProducts: []");
+      logger.i("Saved user_savedProducts: ${user.savedProducts}");
     } catch (e) {
       logger.e("Error saving user data", error: e);
       throw AuthException("Failed to save user data.");
@@ -241,4 +242,9 @@ List<ProductEntity> parseSavedProducts(List<String> jsonStrings) {
     final json = jsonDecode(e);
     return ProductEntity.fromJson(json);
   }).toList();
+}
+
+
+List<String> serializeProducts(List<ProductEntity> products) {
+  return products.map((e) => jsonEncode(e.toJson())).toList();
 }
