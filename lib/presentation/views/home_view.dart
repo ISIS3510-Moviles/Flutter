@@ -167,7 +167,7 @@ class HomeViewState extends ConsumerState<HomeView>
         // loader de filtro, pero con scaffold y drawer intactos
         return Scaffold(
           key: _scaffoldKey,
-          drawer: CustomDrawer(closeDrawer: () => Navigator.of(context).pop()),
+          drawer: CustomDrawer(closeDrawer: () => context.go('/')),
           body: SafeArea(
             child: CustomScrollView(
               slivers: [
@@ -182,7 +182,7 @@ class HomeViewState extends ConsumerState<HomeView>
     }
 
     if (restaurantsAsync.hasError) {
-      return Text('');
+      return Text('ErrorErrorError');
     }
     final restaurants = restaurantsAsync.value ?? [];
 
@@ -466,6 +466,7 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                               ),
                             ),
                             onPressed: () async {
+                              Navigator.of(context).pop();
                               final searchText = context
                                       .findAncestorStateOfType<HomeViewState>()
                                       ?._searchText ??
@@ -479,13 +480,13 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                                     nameMatch: searchText,
                                     tagsInclude: preferredTags,
                                   );
-                              widget.closeDrawer();
                             },
                             child: Text('Done'),
                           ),
                           const SizedBox(width: 16),
                           TextButton(
                             onPressed: () async {
+                              Navigator.of(context).pop();
                               final searchText = context
                                       .findAncestorStateOfType<HomeViewState>()
                                       ?._searchText ??
@@ -499,7 +500,6 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                                     nameMatch: searchText,
                                     tagsInclude: preferredTags,
                                   );
-                              widget.closeDrawer();
                             },
                             child: Text('Clear'),
                           ),
