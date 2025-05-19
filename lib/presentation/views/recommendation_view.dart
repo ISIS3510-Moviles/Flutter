@@ -67,7 +67,7 @@ class RecommendationViewState extends ConsumerState<RecommendationView>
                                 id: restaurant['id'] as String,
                                 title: restaurant['name'] as String,
                                 rating: restaurant['rating'] as double,
-                                distance: 200,
+                                distance: -1, // Fill with real distance
                                 imageUrl: restaurant['profilePhoto'] as String? ?? '',
                                 tags: List<String>.from(restaurant['tags'] ?? []),
                               );

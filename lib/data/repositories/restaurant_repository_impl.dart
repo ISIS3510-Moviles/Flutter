@@ -8,17 +8,29 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
   RestaurantRepositoryImpl(this.restaurantBackendDatasource);
   
   @override
-  Future<List<RestaurantEntity>> getRestaurants(String? nameMatch, List<String>? tagsInclude) {
-    return restaurantBackendDatasource.getRestaurants(nameMatch, tagsInclude);
+  Future<List<RestaurantEntity>> getRestaurants(String? nameMatch, List<String>? tagsInclude) async {
+    try {
+      return await restaurantBackendDatasource.getRestaurants(nameMatch, tagsInclude);
+    } catch (e) {
+      throw Exception('Error fetching restaurants: $e');
+    }
   }
 
   @override
-  Future<RestaurantEntity> getRestaurantById(String id) {
-    return restaurantBackendDatasource.getRestaurantById(id);
+  Future<RestaurantEntity> getRestaurantById(String id) async {
+    try {
+      return await restaurantBackendDatasource.getRestaurantById(id);
+    } catch (e) {
+      throw Exception('Error fetching restaurant by ID: $e');
+    }
   }
 
-  Future<List<RestaurantEntity>> getRestaurantsByTag(String tagName) {
-    return restaurantBackendDatasource.getRestaurantsByTag(tagName);
+  Future<List<RestaurantEntity>> getRestaurantsByTag(String tagName) async {
+    try {
+      return await restaurantBackendDatasource.getRestaurantsByTag(tagName);
+    } catch (e) {
+      throw Exception('Error fetching restaurants by tag: $e');
+    }
   }
 
 }

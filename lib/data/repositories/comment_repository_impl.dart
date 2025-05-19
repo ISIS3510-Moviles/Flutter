@@ -8,7 +8,11 @@ class CommentRepositoryImpl extends CommentRepository {
   CommentRepositoryImpl(this.commentBackendDatasource);
   
   @override
-  Future<List<CommentEntity>> getComments() {
-    return commentBackendDatasource.getComments();
+  Future<List<CommentEntity>> getComments() async {
+    try {
+      return await commentBackendDatasource.getComments();
+    } catch (e) {
+      throw Exception('Error fetching comments: $e');
+    }
   }
 }

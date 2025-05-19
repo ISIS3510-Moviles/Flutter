@@ -9,7 +9,11 @@ class AlertRepositoryImpl extends AlertRepository {
   AlertRepositoryImpl(this.alertBackendDatasource);
   
   @override
-  Future<List<AlertEntity>> getAlertsByUserId(String id) {
-    return alertBackendDatasource.getAlertsByUserId(id);
+  Future<List<AlertEntity>> getAlertsByUserId(String id) async {
+    try {
+      return await alertBackendDatasource.getAlertsByUserId(id);
+    } catch (e) {
+      throw Exception('Error fetching alerts: $e');
+    }
   }
 }

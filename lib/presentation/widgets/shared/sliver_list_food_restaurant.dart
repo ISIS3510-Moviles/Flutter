@@ -61,7 +61,7 @@ class _RestaurantTab extends StatelessWidget {
           id: restaurant.id,
           title: restaurant.name,
           rating: restaurant.rating ?? 5.0,
-          distance: 0,
+          distance: -1, // Fill with real distance
           imageUrl: restaurant.profilePhoto ?? '',
           tags: restaurant.tags ?? [],
         );
