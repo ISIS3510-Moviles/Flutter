@@ -16,6 +16,10 @@ class ReviewsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final comments = restaurant.comments;
+    
+    // Sort comments by date (most recent first)
+    final sortedComments = comments?.toList()
+      ?..sort((a, b) => b.datetime.compareTo(a.datetime));
 
     return Stack(
       children: [
@@ -24,14 +28,14 @@ class ReviewsTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (comments == null || comments.isEmpty)
+              if (sortedComments == null || sortedComments.isEmpty)
                 const Text(
                   'No reviews yet.',
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                   textAlign: TextAlign.center,
                 )
               else
-                ...comments.map((comment) {
+                ...sortedComments.map((comment) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: ReviewCard(
