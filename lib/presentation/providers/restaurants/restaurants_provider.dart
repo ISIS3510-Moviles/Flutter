@@ -2,6 +2,7 @@ import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:campus_bites/infraestructure/database/isar_instance_provider.dart';
 import 'package:campus_bites/presentation/providers/restaurants/restaurant_repository_provider.dart';
 import 'package:campus_bites/services/restaurant_cache_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 
@@ -67,7 +68,7 @@ class GetRestaurantsNotifier extends AsyncNotifier<List<RestaurantEntity>> {
       try {
         final remote = await _fetchRestaurants(nameMatch, tagsInclude);
         if (nameMatch == null && (tagsInclude == null || tagsInclude.isEmpty)) {
-          await _cache.saveRestaurants(remote);
+          await compute(_cache.saveRestaurants, remote);
         }
         state = AsyncData(remote);
       } catch (remoteError, stRemote) {
