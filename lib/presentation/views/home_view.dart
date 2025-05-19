@@ -570,7 +570,7 @@ class _TagBox extends StatefulWidget {
 
 class _TagBoxState extends State<_TagBox> {
   late final PageController _pageController;
-  late final int _totalPages;
+  late int _totalPages;
   int _currentPage = 0;
 
   @override
@@ -581,6 +581,7 @@ class _TagBoxState extends State<_TagBox> {
   }
 
   void _goToPreviousPage() {
+    if (_totalPages == 0) return;
     final prevPage = (_currentPage - 1 + _totalPages) % _totalPages;
     _pageController.animateToPage(
       prevPage,
@@ -591,6 +592,7 @@ class _TagBoxState extends State<_TagBox> {
   }
 
   void _goToNextPage() {
+    if (_totalPages == 0) return;
     final nextPage = (_currentPage + 1) % _totalPages;
     _pageController.animateToPage(
       nextPage,
