@@ -54,22 +54,41 @@ class HomeViewState extends ConsumerState<HomeView>
     _fetchStartTime = DateTime.now();
 
     WidgetsBinding.instance.addObserver(this);
+    
+    setState(() {
+      _foodTags = [];
+      _dietaryTags = [];
+    });
+    
     _loadUserPreferredTags().then((preferredTags) {
       ref
-          .read(getRestaurantsProvider.notifier)
-          .fetch(nameMatch: _searchText, tagsInclude: preferredTags);
+        .read(getRestaurantsProvider.notifier)
+        .fetch(nameMatch: _searchText, tagsInclude: preferredTags);
     });
+    
     ref.read(getFoodTagsProvider.notifier).fetchFood();
     ref.read(getDietaryTagsProvider.notifier).fetchDietary();
+    
     fetchTags(
       ref: ref,
       onLoaded: (food, dietary) {
-        setState(() {
-          _foodTags = food;
-          _dietaryTags = dietary;
-        });
+        if (mounted) {
+          setState(() {
+            _foodTags = food;
+            _dietaryTags = dietary;
+          });
+        }
+      },
+      onError: (error) {
+        if (mounted) {
+          setState(() {
+            _foodTags = [];
+            _dietaryTags = [];
+          });
+        }
       },
     );
+
     _viewEntryTime = DateTime.now();
   }
 
@@ -571,17 +590,34 @@ class _TagBox extends StatefulWidget {
 
 class _TagBoxState extends State<_TagBox> {
   late final PageController _pageController;
-  late final int _totalPages;
+  int _totalPages = 0;
   int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
-    _totalPages = (widget.tags.length / 8).ceil();
-    _pageController = PageController(initialPage: _currentPage, viewportFraction: 1.0);
+    _calculatePages();
+    _pageController = PageController(initialPage: 0, viewportFraction: 1.0);
+  }
+
+  @override
+  void didUpdateWidget(_TagBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.tags.length != widget.tags.length) {
+      _calculatePages();
+      if (_currentPage >= _totalPages && _totalPages > 0) {
+        _currentPage = 0;
+        _pageController.animateToPage(0, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+      }
+    }
+  }
+
+  void _calculatePages() {
+    _totalPages = widget.tags.isEmpty ? 0 : (widget.tags.length / 8).ceil();
   }
 
   void _goToPreviousPage() {
+    if (_totalPages <= 1) return;
     final prevPage = (_currentPage - 1 + _totalPages) % _totalPages;
     _pageController.animateToPage(
       prevPage,
@@ -592,6 +628,7 @@ class _TagBoxState extends State<_TagBox> {
   }
 
   void _goToNextPage() {
+    if (_totalPages <= 1) return;
     final nextPage = (_currentPage + 1) % _totalPages;
     _pageController.animateToPage(
       nextPage,
@@ -603,6 +640,17 @@ class _TagBoxState extends State<_TagBox> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.tags.isEmpty) {
+      return SizedBox(
+        height: 160,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    final showChevrons = _totalPages > 1;
+
     return SizedBox(
       height: 160,
       child: Stack(
@@ -636,24 +684,32 @@ class _TagBoxState extends State<_TagBox> {
             },
           ),
           // Left Chevron
-          Positioned(
-            left: -2,
-            child: IconButton(
-              icon: const Icon(Icons.chevron_left, size: 32),
-              onPressed: _goToPreviousPage,
+          if (showChevrons)
+            Positioned(
+              left: -2,
+              child: IconButton(
+                icon: const Icon(Icons.chevron_left, size: 32),
+                onPressed: _goToPreviousPage,
+              ),
             ),
-          ),
           // Right Chevron
-          Positioned(
-            right: -2,
-            child: IconButton(
-              icon: const Icon(Icons.chevron_right, size: 32),
-              onPressed: _goToNextPage,
+          if (showChevrons)
+            Positioned(
+              right: -2,
+              child: IconButton(
+                icon: const Icon(Icons.chevron_right, size: 32),
+                onPressed: _goToNextPage,
+              ),
             ),
-          ),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 }
 
@@ -760,32 +816,37 @@ Future<List<String>> _loadUserPreferredTags() async {
 Future<void> fetchTags({
   required WidgetRef ref,
   required Function(List<FoodTagEntity>, List<DietaryTagEntity>) onLoaded,
+  Function(String)? onError,
 }) async {
-  final foodBox = Hive.box<FoodTag>('food_tags');
-  final dietaryBox = Hive.box<DietaryTag>('dietary_tags');
-  final metaBox = Hive.box('meta');
-
-  final lastFetch = metaBox.get('tags_last_fetch') as DateTime?;
-  final now = DateTime.now();
-  const cacheDuration = Duration(hours: 1);
-
-  if (foodBox.isNotEmpty &&
-      dietaryBox.isNotEmpty &&
-      lastFetch != null &&
-      now.difference(lastFetch) < cacheDuration) {
-    final cachedFoodTags = foodBox.values.map((e) => e.toFood()).toList();
-    final cachedDietaryTags =
-        dietaryBox.values.map((e) => e.toDietary()).toList();
-    onLoaded(cachedFoodTags, cachedDietaryTags);
-    return;
-  }
-
   try {
+    final foodBox = Hive.box<FoodTag>('food_tags');
+    final dietaryBox = Hive.box<DietaryTag>('dietary_tags');
+    final metaBox = Hive.box('meta');
+
+    final lastFetch = metaBox.get('tags_last_fetch') as DateTime?;
+    final now = DateTime.now();
+    const cacheDuration = Duration(hours: 1);
+
+    if (foodBox.isNotEmpty &&
+        dietaryBox.isNotEmpty &&
+        lastFetch != null &&
+        now.difference(lastFetch) < cacheDuration) {
+      final cachedFoodTags = foodBox.values.map((e) => e.toFood()).toList();
+      final cachedDietaryTags =
+          dietaryBox.values.map((e) => e.toDietary()).toList();
+      onLoaded(cachedFoodTags, cachedDietaryTags);
+      return;
+    }
+
     await ref.read(getFoodTagsProvider.notifier).fetchFood();
     await ref.read(getDietaryTagsProvider.notifier).fetchDietaryTags();
 
     final freshFoodTags = ref.read(getFoodTagsProvider);
     final freshDietaryTags = ref.read(getDietaryTagsProvider);
+
+    if (freshFoodTags.isEmpty && freshDietaryTags.isEmpty) {
+      throw Exception('No tags received from API');
+    }
 
     final hiveFoodTags = freshFoodTags.map((e) => e.toHiveFoodModel());
     final hiveDietaryTags = freshDietaryTags.map((e) => e.toHiveDietaryModel());
@@ -799,11 +860,22 @@ Future<void> fetchTags({
 
     onLoaded(freshFoodTags, freshDietaryTags);
   } catch (e) {
-    if (foodBox.isNotEmpty && dietaryBox.isNotEmpty) {
-      final fallbackFood = foodBox.values.map((e) => e.toFood()).toList();
-      final fallbackDietary =
-          dietaryBox.values.map((e) => e.toDietary()).toList();
-      onLoaded(fallbackFood, fallbackDietary);
+    try {
+      final foodBox = Hive.box<FoodTag>('food_tags');
+      final dietaryBox = Hive.box<DietaryTag>('dietary_tags');
+      
+      if (foodBox.isNotEmpty || dietaryBox.isNotEmpty) {
+        final fallbackFood = foodBox.values.map((e) => e.toFood()).toList();
+        final fallbackDietary =
+            dietaryBox.values.map((e) => e.toDietary()).toList();
+        onLoaded(fallbackFood, fallbackDietary);
+      } else {
+        onError?.call('Failed to load tags and no cached data available');
+        onLoaded([], []);
+      }
+    } catch (cacheError) {
+      onError?.call('Failed to load tags');
+      onLoaded([], []);
     }
   }
 }
