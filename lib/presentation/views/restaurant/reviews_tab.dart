@@ -33,8 +33,7 @@ class ReviewsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final comments = restaurant.comments?.toList()
-      ?..sort((a, b) => b.datetime.compareTo(a.datetime));
+    final comments = restaurant.comments;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
