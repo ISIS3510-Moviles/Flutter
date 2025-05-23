@@ -182,8 +182,9 @@ class HomeViewState extends ConsumerState<HomeView>
     }
 
     if (restaurantsAsync.hasError) {
-      return Text('ErrorErrorError');
+      return Text('');
     }
+    
     final restaurants = restaurantsAsync.value ?? [];
 
     if (!initialLoading && restaurants.isNotEmpty && !_hasLoggedLoadTime) {
