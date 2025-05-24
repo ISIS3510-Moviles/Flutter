@@ -1,4 +1,3 @@
-import 'package:campus_bites/domain/entities/completed_state.dart';
 import 'package:campus_bites/domain/entities/reservation_entity.dart';
 import 'package:campus_bites/globals/GlobalRestaurant.dart';
 import 'package:campus_bites/presentation/providers/reservations/reservation_provider_restaurant.dart';

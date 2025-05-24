@@ -27,11 +27,11 @@ class GetRestaurantsNotifier extends AsyncNotifier<List<RestaurantEntity>> {
 
     try {
       isar = await ref.watch(isarInstanceProvider.future);
-    } catch (e, st) {
+    } catch (e) {
       print('⚠️ Error al inicializar Isar (offline?): $e');
     }
 
-    _cache = RestaurantCacheService(isar);  // isar puede ser null ahora
+    _cache = RestaurantCacheService(isar);
 
     _fetchRestaurants = repository.getRestaurants;
     _fetchRestaurantsByTag = repository.getRestaurantsByTag;
@@ -71,7 +71,7 @@ class GetRestaurantsNotifier extends AsyncNotifier<List<RestaurantEntity>> {
           await compute(_cache.saveRestaurants, remote);
         }
         state = AsyncData(remote);
-      } catch (remoteError, stRemote) {
+      } catch (remoteError) {
         final filtered = filterRestaurants(cached);
         if (filtered.isNotEmpty) {
           state = AsyncData(filtered);

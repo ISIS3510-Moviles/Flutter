@@ -46,7 +46,6 @@ class HomeViewState extends ConsumerState<HomeView>
   bool _isSearching = false;
 
   List<FoodTagEntity> _foodTags = [];
-  List<DietaryTagEntity> _dietaryTags = [];
 
   @override
   void initState() {
@@ -57,7 +56,6 @@ class HomeViewState extends ConsumerState<HomeView>
     
     setState(() {
       _foodTags = [];
-      _dietaryTags = [];
     });
     
     _loadUserPreferredTags().then((preferredTags) {
@@ -75,7 +73,6 @@ class HomeViewState extends ConsumerState<HomeView>
         if (mounted) {
           setState(() {
             _foodTags = food;
-            _dietaryTags = dietary;
           });
         }
       },
@@ -83,7 +80,6 @@ class HomeViewState extends ConsumerState<HomeView>
         if (mounted) {
           setState(() {
             _foodTags = [];
-            _dietaryTags = [];
           });
         }
       },
@@ -580,7 +576,7 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
 }
 
 class _TagBox extends StatefulWidget {
-  const _TagBox({required this.tags, Key? key}) : super(key: key);
+  const _TagBox({required this.tags});
 
   final List<FoodTagEntity> tags;
 
@@ -683,7 +679,6 @@ class _TagBoxState extends State<_TagBox> {
               );
             },
           ),
-          // Left Chevron
           if (showChevrons)
             Positioned(
               left: -2,
@@ -692,7 +687,6 @@ class _TagBoxState extends State<_TagBox> {
                 onPressed: _goToPreviousPage,
               ),
             ),
-          // Right Chevron
           if (showChevrons)
             Positioned(
               right: -2,

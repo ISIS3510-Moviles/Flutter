@@ -266,7 +266,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                 height: 200,
                 width: double.infinity,
                 child: CachedNetworkImage(
-                  imageUrl: restaurant?.profilePhoto ?? '',
+                  imageUrl: restaurant.profilePhoto ?? '',
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
                     width: 80,
@@ -311,7 +311,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                restaurant?.name ?? 'Restaurant',
+                                restaurant.name,
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -342,23 +342,6 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                               ),
                             ],
                           ),
-/*                           FilledButton(
-                            style: ButtonStyle(
-                              visualDensity: VisualDensity.compact,
-                              backgroundColor:
-                                  WidgetStateProperty.all(Color(0xFFF46417)),
-                              foregroundColor:
-                                  WidgetStateProperty.all(Colors.white),
-                              fixedSize: WidgetStateProperty.all(Size(120, 50)),
-                              shape: WidgetStateProperty.all(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            ),
-                            onPressed: () {},
-                            child: Text('Subscribe'),
-                          ), */
                         ],
                       ),
                       SizedBox(

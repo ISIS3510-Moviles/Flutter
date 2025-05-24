@@ -25,7 +25,6 @@ class BookTab extends ConsumerStatefulWidget {
 class BookTabState extends ConsumerState<BookTab> {
   late ReservationEntity reservation;
   final FocusNode _comensalsFocusNode = FocusNode();
-  Color _borderColor = const Color(0xFF817570);
   late TextEditingController _dateController;
   late TextEditingController _comensalsController;
 
@@ -51,14 +50,6 @@ class BookTabState extends ConsumerState<BookTab> {
     
     _dateController = TextEditingController(text: reservation.date);
     _comensalsController = TextEditingController(text: reservation.numberComensals.toString());
-
-    _comensalsFocusNode.addListener(() {
-      setState(() {
-        _borderColor = _comensalsFocusNode.hasFocus
-            ? Colors.black
-            : const Color(0xFF817570);
-      });
-    });
   }
 
   bool _isToday(String dateString) {
