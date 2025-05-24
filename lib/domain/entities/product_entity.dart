@@ -1,3 +1,4 @@
+import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:isar/isar.dart';
 import 'package:campus_bites/data/mappers/dietary_tag_mapper.dart';
 import 'package:campus_bites/data/mappers/food_tag_mapper.dart';
@@ -6,7 +7,6 @@ import 'package:campus_bites/data/mappers/restaurant_mapper.dart';
 import 'package:campus_bites/data/models/ingredient_backend.dart';
 import 'package:campus_bites/data/models/restaurant_backend.dart';
 import 'package:campus_bites/domain/entities/dietary_tag_entity.dart';
-import 'package:campus_bites/domain/entities/entities.dart';
 import 'package:campus_bites/domain/entities/food_tag_entity.dart';
 import 'package:campus_bites/domain/entities/ingredient_entity.dart';
 
