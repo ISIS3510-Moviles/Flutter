@@ -8,7 +8,6 @@ analyzer:
 linter:
   rules:
     # enforce const constructors where possible
-    avoid_redundant_argument_values: true
     prefer_const_constructors: true
     prefer_const_literals_to_create_immutables: true
     # catch unnecessary rebuilds

@@ -204,17 +204,20 @@ class EventCard extends ConsumerWidget {
                             GlobalRestaurant().currentRestaurant?.id ?? '0';
                         ref.invalidate(
                             getReservationsRestaurantProvider(restaurantId));
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Reservation cancelled.')),
-                        );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Reservation cancelled.')),
+                          );
+                        }
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content:
-                                  Text('Error cancelling reservation: $e')),
-                        );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text('Error cancelling reservation: $e')),
+                          );
+                        }
                       }
                     }
                   },
