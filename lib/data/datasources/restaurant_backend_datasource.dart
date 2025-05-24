@@ -62,12 +62,12 @@ class RestaurantBackendDatasource extends RestaurantDatasource {
       final response = await dio.post(
         '/restaurant/check',
         data: {
-          'name': restaurantBackend.name ,
+          'name': restaurantBackend.name,
           'email': restaurantBackend.email ?? '',
           'phone': restaurantBackend.phone ?? '',
-          'description': restaurantBackend.description ,
-          'latitude': restaurantBackend.latitude ,
-          'longitude': restaurantBackend.longitude ,
+          'description': restaurantBackend.description,
+          'latitude': restaurantBackend.latitude,
+          'longitude': restaurantBackend.longitude,
           'routeIndications': restaurantBackend.routeIndications,
           'openingTime': restaurantBackend.openingTime.toIso8601String(),
           'closingTime': restaurantBackend.closingTime.toIso8601String(),
@@ -98,6 +98,50 @@ class RestaurantBackendDatasource extends RestaurantDatasource {
           createdRestaurantBackend);
     } catch (e) {
       throw Exception('Error creating restaurant: $e');
+    }
+  }
+
+  @override
+  Future<RestaurantEntity> updateRestaurant(RestaurantEntity restaurant) async {
+    try {
+      final restaurantBackend =
+          RestaurantMapper.restaurantEntityToBackend(restaurant);
+      final restaurantId = restaurant.id;
+
+      // Log de datos que se van a enviar
+      print('[DEBUG] Sending PATCH to /restaurant/$restaurantId with data:');
+      print({
+        'name': restaurantBackend.name,
+        'description': restaurantBackend.description,
+        'latitude': restaurantBackend.latitude,
+        'longitude': restaurantBackend.longitude,
+        'routeIndications': restaurantBackend.routeIndications,
+        'profilePhoto': restaurantBackend.profilePhoto ?? '',
+        'overviewPhoto': restaurantBackend.overviewPhoto ?? '',
+      });
+
+      final response = await dio.patch(
+        '/restaurant/$restaurantId',
+        data: {
+          'name': restaurantBackend.name,
+          'description': restaurantBackend.description,
+          'latitude': restaurantBackend.latitude,
+          'longitude': restaurantBackend.longitude,
+          'routeIndications': restaurantBackend.routeIndications,
+          'profilePhoto': restaurantBackend.profilePhoto ?? '',
+          'overviewPhoto': restaurantBackend.overviewPhoto ?? '',
+        },
+      );
+
+      // Log del tipo de respuesta y contenido
+      print('[DEBUG] PATCH response type: ${response.data.runtimeType}');
+      print('[DEBUG] PATCH response data: ${response.data}');
+
+
+      return restaurant;
+  
+    } catch (e) {
+      throw Exception('Error updating restaurant: $e');
     }
   }
 }

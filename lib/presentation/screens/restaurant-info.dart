@@ -1,3 +1,6 @@
+import 'package:campus_bites/data/datasources/restaurant_backend_datasource.dart';
+import 'package:campus_bites/domain/entities/restaurant_entity.dart';
+import 'package:campus_bites/globals/GlobalRestaurant.dart';
 import 'package:flutter/material.dart';
 
 class RestaurantInfo {
@@ -42,21 +45,58 @@ class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
     locationDescriptionController.dispose();
     super.dispose();
   }
+final _datasource = RestaurantBackendDatasource();
+void _saveForm() async {
+  if (_formKey.currentState!.validate()) {
+    final current = GlobalRestaurant().currentRestaurant!;
 
-  void _saveForm() {
-    if (_formKey.currentState!.validate()) {
+    final updatedRestaurant = RestaurantEntity(
+      id: current.id,
+      name: current.name,
+      email: current.email,
+      phone: current.phone,
+      description: descriptionController.text,
+      latitude: double.tryParse(latitudeController.text) ?? 0,
+      longitude: double.tryParse(longitudeController.text) ?? 0,
+      routeIndications: locationDescriptionController.text,
+      openingTime: current.openingTime,
+      closingTime: current.closingTime,
+      opensHolidays: current.opensHolidays,
+      opensWeekends: current.opensWeekends,
+      isActive: current.isActive,
+      address: current.address,
+      overviewPhoto: mainPhotoController.text,
+      profilePhoto: homePhotoController.text,
+      comments: current.comments,
+      photos: current.photos,
+      foodTagsIds: current.foodTagsIds,
+      dietaryTagsIds: current.dietaryTagsIds,
+      tags: current.tags,
+      alertsIds: current.alertsIds,
+      reservationsIds: current.reservationsIds,
+      suscribersIds: current.suscribersIds,
+      visitsIds: current.visitsIds,
+      commentsIds: current.commentsIds,
+      productsIds: current.productsIds,
+      products: current.products,
+    );
+
+    try {
+      final result = await _datasource.updateRestaurant(updatedRestaurant);
       setState(() {
-        info.mainPhoto = mainPhotoController.text;
-        info.homePhoto = homePhotoController.text;
-        info.description = descriptionController.text;
-        info.latitude = double.tryParse(latitudeController.text) ?? 0;
-        info.longitude = double.tryParse(longitudeController.text) ?? 0;
-        info.locationDescription = locationDescriptionController.text;
+        GlobalRestaurant().currentRestaurant = result;
       });
-
-      print(info.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Restaurant updated successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Update failed: $e')),
+      );
     }
   }
+}
+
 
   Widget _buildTextField(String label, String helper, TextEditingController controller,
       {TextInputType keyboardType = TextInputType.text}) {
