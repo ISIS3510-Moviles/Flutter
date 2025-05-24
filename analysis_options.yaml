@@ -7,8 +7,27 @@ analyzer:
 
 linter:
   rules:
-    # enforce const constructors where possible
+    # Avoid allocating a new closure on each forEach
+    avoid_function_literals_in_foreach_calls: true
+
+    # Don’t do slow I/O inside async methods without awaitable results
+    avoid_slow_async_io: true
+
+    # Eliminate the tiny microtask overhead of unnecessary awaits
+    unnecessary_await_in_return: true
+
+    # Turn as much of your widget tree into compile-time constants as possible
     prefer_const_constructors: true
     prefer_const_literals_to_create_immutables: true
-    # catch unnecessary rebuilds
+
+    # Helps Flutter skip subtree rebuilds when widgets reorder
     use_key_in_widget_constructors: true
+
+    # Removes needless lambdas (another closure/alloc avoidance)
+    unnecessary_lambdas: true
+
+    # Avoid creating a new List just to spread it
+    unnecessary_to_list_in_spreads: true
+
+    # Compile-time literal concatenation is folded into a single constant
+    prefer_adjacent_string_concatenation: true

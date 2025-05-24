@@ -75,13 +75,11 @@ class _ArriveTabState extends State<ArriveTab> {
               scrollGesturesEnabled: true,
               rotateGesturesEnabled: true,
               tiltGesturesEnabled: true,
-              gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+              gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{
                 Factory<OneSequenceGestureRecognizer>(
-                    () => EagerGestureRecognizer()),
+                    EagerGestureRecognizer.new),
               },
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
+              onMapCreated: _controller.complete,
             ),
           ),
           const SizedBox(height: 16),

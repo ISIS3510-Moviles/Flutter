@@ -106,7 +106,7 @@ class RestaurantCard extends StatelessWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: tags.map((tag) => _buildTag(tag)).toList(),
+                      children: tags.map(_buildTag).toList(),
                     ),
                   ],
                 ),

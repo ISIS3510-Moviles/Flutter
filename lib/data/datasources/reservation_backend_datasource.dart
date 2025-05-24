@@ -12,9 +12,7 @@ class ReservationBackendDatasource extends ReservationDatasource {
   List<ReservationEntity> _jsonToReservations(
       List<ReservationBackend> backEntities) {
     return backEntities
-        .map((e) => ReservationMapper.reservationBackendToEntity(
-              e,
-            ))
+        .map(ReservationMapper.reservationBackendToEntity)
         .toList();
   }
 

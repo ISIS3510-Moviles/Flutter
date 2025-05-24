@@ -20,7 +20,7 @@ class ProductMapper {
           : null,
       ingredients: productBackend.ingredients != null
           ? productBackend.ingredients!
-              .map((ingredient) => IngredientMapper.ingredientBackendToEntity(ingredient))
+              .map(IngredientMapper.ingredientBackendToEntity)
               .toList()
           : [],
       foodTags: FoodTagMapper.foodTagBackendToEntity(productBackend.foodTags),
