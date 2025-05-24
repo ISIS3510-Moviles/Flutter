@@ -33,4 +33,12 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
     }
   }
 
+  @override
+  Future<RestaurantEntity> createRestaurant(RestaurantEntity restaurant) async {
+    try {
+      return await restaurantBackendDatasource.createRestaurant(restaurant);
+    } catch (e) {
+      throw Exception('Error creating restaurant: $e');
+    }
+  }
 }

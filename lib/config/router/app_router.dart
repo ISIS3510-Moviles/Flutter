@@ -1,3 +1,4 @@
+import 'package:campus_bites/presentation/screens/home-screen-restaurant.dart';
 import 'package:campus_bites/presentation/screens/login_screen.dart';
 import 'package:campus_bites/presentation/screens/profile_screen.dart';
 import 'package:campus_bites/presentation/screens/reservation_screen.dart';
@@ -8,7 +9,6 @@ import 'package:campus_bites/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:campus_bites/presentation/screens/food_screen.dart';
 import 'package:flutter/widgets.dart';
-
 
 final authService = AuthService();
 final RouteObserver<ModalRoute<dynamic>> routeObserver =
@@ -71,4 +71,22 @@ final appRouter = GoRouter(initialLocation: '/login', observers: [
           )
         ]),
       ]),
+  StatefulShellRoute.indexedStack(
+    builder: (context, state, child) => HomeScreenRestaurant(childView: child),
+    branches: [
+      StatefulShellBranch(routes: [
+        GoRoute(path: '/restaurant-home', builder: (_, __) => const HomeView()),
+      ]),
+      StatefulShellBranch(routes: [
+        GoRoute(
+            path: '/restaurant/reservations',
+            builder: (_, __) => const HomeView()),
+      ]),
+      StatefulShellBranch(routes: [
+        GoRoute(
+            path: '/restaurant/products',
+            builder: (_, __) => const HomeView()),
+      ]),
+    ],
+  ),
 ]);

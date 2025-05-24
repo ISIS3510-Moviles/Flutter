@@ -1,3 +1,4 @@
+import 'package:campus_bites/globals/GlobalRestaurant.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -25,38 +26,37 @@ class LoginScreenState extends State<LoginScreen> {
     _checkUserAndProceed();
   }
 
-void _checkUserAndProceed() async {
-  //await authService.clearSavedPreferences();
-  //await authService.setMockedUserData();
-  final userEntity = await authService.getSavedUserData();
+  void _checkUserAndProceed() async {
+    //await authService.clearSavedPreferences();
+    //await authService.setMockedUserData();
+    final userEntity = await authService.getSavedUserData();
 
-  setState(() {
-    isCheckingPreferences = false;
-  });
+    setState(() {
+      isCheckingPreferences = false;
+    });
 
-  final userId = userEntity.id;
+    final userId = userEntity.id;
 
-  if (userId.isEmpty) {
-    debugPrint('User data not found locally. Please log in manually.');
-  } else {
-    debugPrint('User data found in saved preferences:');
-    debugPrint('user_id: ${userEntity.id}');
-    debugPrint('user_name: ${userEntity.name}');
-    debugPrint('user_email: ${userEntity.email}');
-    debugPrint('user_phone: ${userEntity.phone}');
-    debugPrint('user_role: ${userEntity.role}');
-    debugPrint('user_premium: ${userEntity.isPremium}');
-    debugPrint('institution_Id: ${userEntity.institutionId}');
-    debugPrint('user_savedProductsIds: ${userEntity.savedProductsIds}');
+    if (userId.isEmpty) {
+      debugPrint('User data not found locally. Please log in manually.');
+    } else {
+      debugPrint('User data found in saved preferences:');
+      debugPrint('user_id: ${userEntity.id}');
+      debugPrint('user_name: ${userEntity.name}');
+      debugPrint('user_email: ${userEntity.email}');
+      debugPrint('user_phone: ${userEntity.phone}');
+      debugPrint('user_role: ${userEntity.role}');
+      debugPrint('user_premium: ${userEntity.isPremium}');
+      debugPrint('institution_Id: ${userEntity.institutionId}');
+      debugPrint('user_savedProductsIds: ${userEntity.savedProductsIds}');
 
-    GlobalUser().currentUser = userEntity;
+      GlobalUser().currentUser = userEntity;
 
-    if (mounted) {
-      context.go('/');
+      if (mounted) {
+        context.go('/');
+      }
     }
   }
-}
-
 
   void _signInWithGoogle() async {
     if (isLoading) return;
@@ -76,6 +76,34 @@ void _checkUserAndProceed() async {
         if (mounted) {
           _showErrorSnackbar('Failed to sign in with Google. User is null.');
         }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackbar('Error: ${e.toString()}');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _signInWithGoogleRestaurant() async {
+    if (isLoading) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      await authService.signOutGoogle();
+      final restaurantCredential =
+          await authService.signInWithGoogleRestaurant();
+      GlobalRestaurant().currentRestaurant = restaurantCredential;
+      if (mounted) {
+        context.go('/restaurant-home');
       }
     } catch (e) {
       if (mounted) {
@@ -157,6 +185,40 @@ void _checkUserAndProceed() async {
                           )
                         : Text(
                             'Log in with Google',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF0D1B3D),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                ),
+                onPressed: isLoading ? null : _signInWithGoogleRestaurant,
+                icon: const Icon(Icons.storefront, color: Colors.white),
+                label: SizedBox(
+                  width: 180,
+                  child: Center(
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            'Log in as restaurant',
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,

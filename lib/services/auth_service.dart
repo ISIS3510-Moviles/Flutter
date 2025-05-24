@@ -1,7 +1,11 @@
 import 'dart:convert';
 
+import 'package:campus_bites/data/datasources/restaurant_backend_datasource.dart';
 import 'package:campus_bites/data/datasources/user_backend_datasource.dart';
+import 'package:campus_bites/data/repositories/restaurant_repository_impl.dart';
 import 'package:campus_bites/domain/entities/product_entity.dart';
+import 'package:campus_bites/domain/entities/restaurant_entity.dart';
+import 'package:campus_bites/globals/GlobalRestaurant.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -108,6 +112,84 @@ class AuthService {
       throw AuthException("You cancelled the Sign in process");
     }
   }
+
+Future<RestaurantEntity> signInWithGoogleRestaurant() async {
+  try {
+    logger.i("Starting Google sign-in process for restaurant...");
+
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    logger.d("Google user obtained: ${googleUser?.email}");
+
+    if (googleUser == null) {
+      logger.e("The user canceled the sign-in process.");
+      throw AuthException("Sign-in was canceled by the user.");
+    }
+
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+    if (googleAuth.accessToken == null || googleAuth.idToken == null) {
+      throw AuthException("Missing authentication tokens from Google.");
+    }
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final UserCredential userCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+    final user = userCredential.user;
+
+    if (user == null) {
+      throw AuthException("Failed to retrieve authenticated user information.");
+    }
+
+    final now = DateTime.now();
+    final restaurantEntity = RestaurantEntity(
+      id: '',
+      name: "Unnamed Restaurant",
+      email: user.email ?? "",
+      phone: user.phoneNumber ?? "",
+      description: "Default description",
+      latitude: 0.0,
+      longitude: 0.0,
+      routeIndications: "No route indications provided",
+      openingTime: DateTime(now.year, now.month, now.day, 8),
+      closingTime: DateTime(now.year, now.month, now.day, 22),
+      opensHolidays: false,
+      opensWeekends: true,
+      isActive: true,
+      address: null,
+      overviewPhoto: null,
+      profilePhoto: null,
+      comments: [],
+      photos: [],
+      foodTagsIds: [],
+      dietaryTagsIds: [],
+      tags: [],
+      alertsIds: [],
+      reservationsIds: [],
+      suscribersIds: [],
+      visitsIds: [],
+      commentsIds: [],
+      productsIds: [],
+      products: [],
+    );
+
+    final restaurantRepository = RestaurantRepositoryImpl(RestaurantBackendDatasource());
+    final restaurantRetrieved = await restaurantRepository.createRestaurant(restaurantEntity);
+    GlobalRestaurant().currentRestaurant = restaurantRetrieved;
+    logger.i("Restaurant retrieved successfully from the database");
+    return restaurantEntity;
+  } on FirebaseAuthException catch (e) {
+    logger.e("FirebaseAuthException", error: e.message);
+    throw AuthException("Authentication failed: ${e.message}");
+  } catch (e, stackTrace) {
+    logger.e("Unexpected authentication error", error: e, stackTrace: stackTrace);
+    throw AuthException("You cancelled the Sign in process");
+  }
+}
+
 
   Future<void> signOutGoogle() async {
     try {

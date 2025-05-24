@@ -1,4 +1,5 @@
 import 'package:campus_bites/domain/entities/reservation_entity.dart';
+import 'package:campus_bites/globals/GlobalRestaurant.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/presentation/providers/reservations/reservation_provider.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';

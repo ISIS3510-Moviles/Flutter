@@ -1,5 +1,6 @@
-import 'package:campus_bites/domain/entities/entities.dart';
+
 import 'package:campus_bites/domain/entities/product_entity.dart';
+import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:campus_bites/presentation/widgets/shared/responsive_food_list.dart';
 import 'package:flutter/material.dart';
 import 'package:campus_bites/presentation/widgets/shared/restaurant_card.dart';

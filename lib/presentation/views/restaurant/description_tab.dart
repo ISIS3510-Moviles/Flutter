@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:campus_bites/domain/entities/entities.dart';
+import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
