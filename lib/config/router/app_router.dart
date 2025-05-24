@@ -2,6 +2,7 @@ import 'package:campus_bites/presentation/screens/home-screen-restaurant.dart';
 import 'package:campus_bites/presentation/screens/login_screen.dart';
 import 'package:campus_bites/presentation/screens/profile_screen.dart';
 import 'package:campus_bites/presentation/screens/reservation_screen.dart';
+import 'package:campus_bites/presentation/screens/reservation_screen_restaurant.dart';
 import 'package:campus_bites/presentation/screens/screens.dart';
 import 'package:campus_bites/presentation/screens/tag_screen.dart';
 import 'package:campus_bites/presentation/views/views.dart';
@@ -11,21 +12,55 @@ import 'package:campus_bites/presentation/screens/food_screen.dart';
 import 'package:flutter/widgets.dart';
 
 final authService = AuthService();
-final RouteObserver<ModalRoute<dynamic>> routeObserver =
-    RouteObserver<ModalRoute<dynamic>>();
+final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
 
-final appRouter = GoRouter(initialLocation: '/login', observers: [
-  routeObserver
-], routes: [
-  GoRoute(
-    path: '/login',
-    builder: (context, state) => LoginScreen(),
-  ),
-  StatefulShellRoute.indexedStack(
+final appRouter = GoRouter(
+  initialLocation: '/login',
+  observers: [routeObserver],
+  routes: [
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => LoginScreen(),
+    ),
+
+    // Primero las rutas de restaurante
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, child) => HomeScreenRestaurant(childView: child),
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/restaurant-panel',
+              builder: (_, __) => const ReservationScreenRestaurant(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/restaurant-panel/reservations',
+              builder: (_, __) => const ReservationScreenRestaurant(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/restaurant-panel/products',
+              builder: (_, __) => const ReservationScreenRestaurant(),
+            ),
+          ],
+        ),
+      ],
+    ),
+
+    // Luego las rutas de usuarios
+    StatefulShellRoute.indexedStack(
       builder: (context, state, child) => HomeScreen(childView: child),
       branches: [
-        StatefulShellBranch(routes: [
-          GoRoute(
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
               path: '/',
               builder: (context, state) => const HomeView(),
               routes: [
@@ -34,11 +69,12 @@ final appRouter = GoRouter(initialLocation: '/login', observers: [
                   builder: (context, state) => ProfileScreen(),
                 ),
                 GoRoute(
-                    path: 'restaurant/:restaurantId',
-                    builder: (context, state) {
-                      final restaurantId = state.pathParameters['restaurantId'];
-                      return RestaurantScreen(restaurantId: restaurantId ?? '');
-                    }),
+                  path: 'restaurant/:restaurantId',
+                  builder: (context, state) {
+                    final restaurantId = state.pathParameters['restaurantId'];
+                    return RestaurantScreen(restaurantId: restaurantId ?? '');
+                  },
+                ),
                 GoRoute(
                   path: 'tags/:tagId',
                   builder: (context, state) {
@@ -54,39 +90,30 @@ final appRouter = GoRouter(initialLocation: '/login', observers: [
                   },
                 ),
                 GoRoute(
-                    path: 'notifications',
-                    builder: (context, state) => const NotificationsScreen())
-              ]),
-        ]),
-        StatefulShellBranch(routes: [
-          GoRoute(
-            path: '/reservations',
-            builder: (context, state) => const ReservationScreen(),
-          )
-        ]),
-        StatefulShellBranch(routes: [
-          GoRoute(
-            path: '/recommendations',
-            builder: (context, state) => RecommendationView(),
-          )
-        ]),
-      ]),
-  StatefulShellRoute.indexedStack(
-    builder: (context, state, child) => HomeScreenRestaurant(childView: child),
-    branches: [
-      StatefulShellBranch(routes: [
-        GoRoute(path: '/restaurant-home', builder: (_, __) => const HomeView()),
-      ]),
-      StatefulShellBranch(routes: [
-        GoRoute(
-            path: '/restaurant/reservations',
-            builder: (_, __) => const HomeView()),
-      ]),
-      StatefulShellBranch(routes: [
-        GoRoute(
-            path: '/restaurant/products',
-            builder: (_, __) => const HomeView()),
-      ]),
-    ],
-  ),
-]);
+                  path: 'notifications',
+                  builder: (context, state) => const NotificationsScreen(),
+                ),
+              ],
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/reservations',
+              builder: (context, state) => const ReservationScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/recommendations',
+              builder: (context, state) => RecommendationView(),
+            ),
+          ],
+        ),
+      ],
+    ),
+  ],
+);

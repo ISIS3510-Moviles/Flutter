@@ -6,6 +6,7 @@ class ReservationEntity {
   String time;
   int numberComensals;
   ReservationState state;
+  bool hasBeenCancelled;
 
   ReservationEntity({
     required this.id,
@@ -13,6 +14,7 @@ class ReservationEntity {
     required this.time,
     required this.numberComensals,
     required this.state,
+    this.hasBeenCancelled = false,
   });
 
   void setState(ReservationState newState) {
