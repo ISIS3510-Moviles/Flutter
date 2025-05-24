@@ -59,7 +59,7 @@ class _ArriveTabState extends State<ArriveTab> {
               initialCameraPosition: _restaurantLocation,
               markers: {
                 Marker(
-                  markerId: MarkerId('restaurantLocation'),
+                  markerId: const MarkerId('restaurantLocation'),
                   position: _restaurantLocation.target,
                   infoWindow: InfoWindow(
                   title: widget.restaurant.name,

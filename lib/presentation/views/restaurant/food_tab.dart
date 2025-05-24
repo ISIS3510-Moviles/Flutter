@@ -10,9 +10,9 @@ class FoodTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (restaurant.products == null || restaurant.products!.isEmpty) {
-      return Center(
+      return const Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Text(
             'No food items available.',
             style: TextStyle(fontSize: 16, color: Colors.grey),

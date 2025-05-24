@@ -105,7 +105,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
       return;
     }
 
-    final locationSettings = LocationSettings(
+    final locationSettings = const LocationSettings(
       accuracy: LocationAccuracy.bestForNavigation,
       distanceFilter: 5,
     );
@@ -208,13 +208,13 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
           body: SafeArea(
             child: CustomScrollView(
               slivers: [
-                CustomSliverAppbar(),
+                const CustomSliverAppbar(),
                 SliverToBoxAdapter(
                   child: SizedBox(
                     height: MediaQuery.of(context).size.height * 0.8, 
-                    child: Center(
+                    child: const Center(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0), 
+                        padding: EdgeInsets.symmetric(horizontal: 16.0), 
                         child: Text(
                           'Could not access restaurant information.\nPlease check your internet connection and try again.',
                           textAlign: TextAlign.center,
@@ -229,14 +229,14 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
           ),
         );
       } else {
-        return Scaffold(
+        return const Scaffold(
           body: SafeArea(
             child: CustomScrollView(
               slivers: [
                 CustomSliverAppbar(),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 100.0),
+                    padding: EdgeInsets.only(top: 100.0),
                     child: Center(
                       child: CircularProgressIndicator(),
                     ),
@@ -260,7 +260,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            CustomSliverAppbar(),
+            const CustomSliverAppbar(),
             SliverToBoxAdapter(
               child: SizedBox(
                 height: 200,
@@ -272,7 +272,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                     width: 80,
                     height: 80,
                     alignment: Alignment.center,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: const CircularProgressIndicator(strokeWidth: 2),
                   ),
                   errorWidget: (context, url, error) {
                     _analytics.logEvent(
@@ -312,7 +312,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                             children: [
                               Text(
                                 restaurant.name,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -320,7 +320,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                               Row(
                                 children: [
                                   isCalculatingDistance
-                                      ? SizedBox(
+                                      ? const SizedBox(
                                           width: 12,
                                           height: 12,
                                           child: CircularProgressIndicator(
@@ -330,12 +330,12 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                                                     Colors.grey),
                                           ),
                                         )
-                                      : Icon(Icons.location_on,
+                                      : const Icon(Icons.location_on,
                                           size: 16, color: Colors.grey),
-                                  SizedBox(width: 4),
+                                  const SizedBox(width: 4),
                                   Text(
                                     distanceText,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 18, color: Colors.grey),
                                   ),
                                 ],
@@ -348,7 +348,7 @@ class RestaurantScreenState extends ConsumerState<RestaurantScreen>
                         height: 50,
                         child: TabBar(
                           controller: tabController,
-                          tabs: [
+                          tabs: const [
                             Tab(icon: Icon(Icons.description_outlined)),
                             Tab(icon: Icon(Icons.menu_book_outlined)),
                             Tab(icon: Icon(Icons.calendar_month_outlined)),

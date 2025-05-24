@@ -67,7 +67,7 @@ final appRouter = GoRouter(
               routes: [
                 GoRoute(
                   path: 'profile',
-                  builder: (context, state) => ProfileScreen(),
+                  builder: (context, state) => const ProfileScreen(),
                 ),
                 GoRoute(
                   path: 'restaurant/:restaurantId',
@@ -110,7 +110,7 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/recommendations',
-              builder: (context, state) => RecommendationView(),
+              builder: (context, state) => const RecommendationView(),
             ),
           ],
         ),

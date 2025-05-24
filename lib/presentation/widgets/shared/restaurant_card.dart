@@ -62,7 +62,7 @@ class RestaurantCard extends StatelessWidget {
                     width: 80,
                     height: 80,
                     alignment: Alignment.center,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: const CircularProgressIndicator(strokeWidth: 2),
                   ),
                   errorWidget: (context, url, error) => Image.asset(
                     'assets/placeholder.png',
@@ -72,37 +72,37 @@ class RestaurantCard extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.star_border_outlined,
+                        const Icon(Icons.star_border_outlined,
                             size: 18, color: Color(0xFFF9A825)),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(rating.toString()),
                       ],
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     if (distance >= 0)
                       Row(
                         children: [
-                          Icon(Icons.directions_walk, size: 18),
-                          SizedBox(width: 4),
+                          const Icon(Icons.directions_walk, size: 18),
+                          const SizedBox(width: 4),
                           Text(formatDistance(distance)),
                         ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -120,14 +120,14 @@ class RestaurantCard extends StatelessWidget {
 
   Widget _buildTag(String label) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Color(0xFFF9A825),
+        color: const Color(0xFFF9A825),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         label,
-        style: TextStyle(color: Colors.white, fontSize: 12),
+        style: const TextStyle(color: Colors.white, fontSize: 12),
       ),
     );
   }

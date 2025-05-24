@@ -81,7 +81,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            CustomSliverAppbar(),
+            const CustomSliverAppbar(),
             SliverList(
               delegate: SliverChildListDelegate(
                 [
@@ -116,7 +116,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFF9A825),
+                              backgroundColor: const Color(0xFFF9A825),
                             ),
                             child: const Text("Logout"),
                           ),

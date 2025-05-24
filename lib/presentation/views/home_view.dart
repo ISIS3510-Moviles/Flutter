@@ -183,7 +183,7 @@ class HomeViewState extends ConsumerState<HomeView>
         return Scaffold(
           key: _scaffoldKey,
           drawer: CustomDrawer(closeDrawer: () => context.go('/')),
-          body: SafeArea(
+          body: const SafeArea(
             child: CustomScrollView(
               slivers: [
                 CustomSliverAppbar(),
@@ -197,7 +197,7 @@ class HomeViewState extends ConsumerState<HomeView>
     }
 
     if (restaurantsAsync.hasError) {
-      return Text('');
+      return const Text('');
     }
     
     final restaurants = restaurantsAsync.value ?? [];
@@ -224,7 +224,7 @@ class HomeViewState extends ConsumerState<HomeView>
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            CustomSliverAppbar(),
+            const CustomSliverAppbar(),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(top: 16),
@@ -404,11 +404,11 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
             child: _foodTags.isEmpty && _dietaryTags.isEmpty
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Food tags',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w700),
@@ -436,7 +436,7 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                         ],
                       ),
                       const SizedBox(height: 48),
-                      Text(
+                      const Text(
                         'Dietary tags',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w700),
@@ -471,10 +471,10 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                             style: ButtonStyle(
                               visualDensity: VisualDensity.compact,
                               backgroundColor:
-                                  WidgetStateProperty.all(Color(0xFFF46417)),
+                                  WidgetStateProperty.all(const Color(0xFFF46417)),
                               foregroundColor:
                                   WidgetStateProperty.all(Colors.white),
-                              fixedSize: WidgetStateProperty.all(Size(140, 50)),
+                              fixedSize: WidgetStateProperty.all(const Size(140, 50)),
                               shape: WidgetStateProperty.all(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -497,7 +497,7 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                                     tagsInclude: preferredTags,
                                   );
                             },
-                            child: Text('Done'),
+                            child: const Text('Done'),
                           ),
                           const SizedBox(width: 16),
                           TextButton(
@@ -517,7 +517,7 @@ class _CustomDrawerState extends ConsumerState<CustomDrawer> {
                                     tagsInclude: preferredTags,
                                   );
                             },
-                            child: Text('Clear'),
+                            child: const Text('Clear'),
                           ),
                         ],
                       ),
@@ -603,7 +603,7 @@ class _TagBoxState extends State<_TagBox> {
       _calculatePages();
       if (_currentPage >= _totalPages && _totalPages > 0) {
         _currentPage = 0;
-        _pageController.animateToPage(0, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+        _pageController.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
       }
     }
   }
@@ -637,7 +637,7 @@ class _TagBoxState extends State<_TagBox> {
   @override
   Widget build(BuildContext context) {
     if (widget.tags.isEmpty) {
-      return SizedBox(
+      return const SizedBox(
         height: 160,
         child: Center(
           child: CircularProgressIndicator(),
@@ -743,7 +743,7 @@ class _TagItem extends StatelessWidget {
                           width: 80,
                           height: 80,
                           alignment: Alignment.center,
-                          child: CircularProgressIndicator(
+                          child: const CircularProgressIndicator(
                             strokeWidth: 2,
                             color: Colors.white,
                           ),

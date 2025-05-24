@@ -37,7 +37,7 @@ class FoodTagMapper {
           icon: tag['icon'] as String?,
         );
       } else {
-        return FoodTagEntity(
+        return const FoodTagEntity(
           id: 'Unknown',
           name: 'Unknown',
           description: '',

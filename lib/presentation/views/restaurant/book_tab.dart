@@ -229,7 +229,7 @@ Future<void> _bookReservation() async {
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: Color(0xFF817570),
+                    color: const Color(0xFF817570),
                     width: 1,
                   ),
                   borderRadius: BorderRadius.circular(5),
