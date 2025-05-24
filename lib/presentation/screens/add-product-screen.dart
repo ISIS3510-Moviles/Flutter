@@ -1,6 +1,6 @@
 import 'package:campus_bites/data/datasources/product_backend_datasource.dart';
 import 'package:campus_bites/domain/entities/product_entity.dart';
-import 'package:campus_bites/domain/entities/restaurant_entity.dart';
+import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar_restaurant.dart';
 import 'package:flutter/material.dart';
 
 class TemporalProduct {
@@ -70,24 +70,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
         rating: 0.0,
         isAvailable: true,
         ingredients: [],
-        foodTags: [], 
+        foodTags: [],
         dietaryTags: [],
       );
 
       final datasource = ProductBackendDatasource();
       final createdProducts = await datasource.createProduct(productEntity);
 
-      print('Product created:');
-      for (final p in createdProducts) {
-        print(p);
-      }
-
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product created successfully')),
       );
     } catch (e) {
-      print('Error creating product: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error creating product')),
@@ -97,117 +91,77 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   Widget _buildLabeledInput(String label, TextEditingController controller,
       {int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-        const SizedBox(height: 4),
-        TextField(
-          controller: controller,
-          maxLines: maxLines,
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-            filled: true,
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.clear),
-              onPressed: () => controller.clear(),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          const SizedBox(height: 4),
+          TextField(
+            controller: controller,
+            maxLines: maxLines,
+            keyboardType: keyboardType,
+            decoration: InputDecoration(
+              filled: true,
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: () => controller.clear(),
+              ),
+              border: const OutlineInputBorder(),
+              hintText: 'Input',
             ),
-            border: const OutlineInputBorder(),
-            hintText: 'Input',
           ),
-        ),
-        const SizedBox(height: 4),
-        Text('The ${label.toLowerCase()}'),
-        const SizedBox(height: 12),
-      ],
-    );
-  }
-
-  Widget _buildAddableList({
-    required String label,
-    required TextEditingController controller,
-    required List<String> list,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  filled: true,
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () => controller.clear(),
-                  ),
-                  border: const OutlineInputBorder(),
-                  hintText: 'Input',
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                padding: const EdgeInsets.all(14),
-              ),
-              onPressed: () {
-                if (controller.text.isNotEmpty) {
-                  setState(() {
-                    list.add(controller.text.trim());
-                    controller.clear();
-                  });
-                }
-              },
-              child: const Icon(Icons.add, color: Colors.black),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text('The description of the location'),
-        const SizedBox(height: 12),
-      ],
+          const SizedBox(height: 4),
+          Text('The ${label.toLowerCase()}'),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add product')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            _buildLabeledInput("Product photo", _photoUrlController),
-            _buildLabeledInput("Product name", _nameController),
-            _buildLabeledInput(
-              "Product description",
-              _descriptionController,
-              maxLines: 4,
-            ),
-            _buildLabeledInput(
-              "Product price",
-              _priceController,
-              keyboardType: TextInputType.number,
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green[700],
-                padding: const EdgeInsets.symmetric(vertical: 16),
+      body: CustomScrollView(
+        slivers: [
+          const CustomSliverAppbarRestaurant(),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  _buildLabeledInput("Product photo", _photoUrlController),
+                  _buildLabeledInput("Product name", _nameController),
+                  _buildLabeledInput(
+                    "Product description",
+                    _descriptionController,
+                    maxLines: 4,
+                  ),
+                  _buildLabeledInput(
+                    "Product price",
+                    _priceController,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[700],
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    onPressed: _createProduct,
+                    child: const Text(
+                      'Create product',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
-              onPressed: _createProduct,
-              child: const Text(
-                'Create product',
-                style: TextStyle(color: Colors.white),
-              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
