@@ -1,3 +1,6 @@
+import 'package:campus_bites/data/datasources/product_backend_datasource.dart';
+import 'package:campus_bites/domain/entities/product_entity.dart';
+import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:flutter/material.dart';
 
 class TemporalProduct {
@@ -47,7 +50,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final List<String> ingredients = [];
   final List<String> tags = [];
 
-  void _createProduct() {
+  void _createProduct() async {
     final product = TemporalProduct(
       photoUrl: _photoUrlController.text,
       name: _nameController.text,
@@ -57,10 +60,39 @@ class _AddProductScreenState extends State<AddProductScreen> {
       tags: List.from(tags),
     );
 
-    print(product);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Producto creado. Ver consola')),
-    );
+    try {
+      final productEntity = ProductEntity(
+        id: '',
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        photo: product.photoUrl,
+        rating: 0.0,
+        isAvailable: true,
+        ingredients: [],
+        foodTags: [], 
+        dietaryTags: [],
+      );
+
+      final datasource = ProductBackendDatasource();
+      final createdProducts = await datasource.createProduct(productEntity);
+
+      print('Product created:');
+      for (final p in createdProducts) {
+        print(p);
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product created successfully')),
+      );
+    } catch (e) {
+      print('Error creating product: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error creating product')),
+      );
+    }
   }
 
   Widget _buildLabeledInput(String label, TextEditingController controller,
@@ -162,16 +194,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
               "Product price",
               _priceController,
               keyboardType: TextInputType.number,
-            ),
-            _buildAddableList(
-              label: "Ingredients",
-              controller: _ingredientController,
-              list: ingredients,
-            ),
-            _buildAddableList(
-              label: "Tags",
-              controller: _tagController,
-              list: tags,
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
