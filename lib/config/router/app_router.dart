@@ -3,6 +3,7 @@ import 'package:campus_bites/presentation/screens/login_screen.dart';
 import 'package:campus_bites/presentation/screens/profile_screen.dart';
 import 'package:campus_bites/presentation/screens/reservation_screen.dart';
 import 'package:campus_bites/presentation/screens/reservation_screen_restaurant.dart';
+import 'package:campus_bites/presentation/screens/restaurant-info.dart';
 import 'package:campus_bites/presentation/screens/screens.dart';
 import 'package:campus_bites/presentation/screens/tag_screen.dart';
 import 'package:campus_bites/presentation/views/views.dart';
@@ -31,7 +32,7 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/restaurant-panel',
-              builder: (_, __) => const ReservationScreenRestaurant(),
+              builder: (_, __) => const RestaurantInfoScreen(),
             ),
           ],
         ),
