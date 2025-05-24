@@ -39,6 +39,7 @@ class LoginScreenState extends State<LoginScreen> {
 
     if (userId.isEmpty) {
       debugPrint('User data not found locally. Please log in manually.');
+      debugPrint('user_id: ${userEntity.id}');
     } else {
       debugPrint('User data found in saved preferences:');
       debugPrint('user_id: ${userEntity.id}');
@@ -51,7 +52,7 @@ class LoginScreenState extends State<LoginScreen> {
       debugPrint('user_savedProductsIds: ${userEntity.savedProductsIds}');
 
       GlobalUser().currentUser = userEntity;
-
+      
       if (mounted) {
         context.go('/');
       }
@@ -103,7 +104,7 @@ class LoginScreenState extends State<LoginScreen> {
           await authService.signInWithGoogleRestaurant();
       GlobalRestaurant().currentRestaurant = restaurantCredential;
       if (mounted) {
-        context.go('/restaurant-home');
+        context.go('/restaurant-panel');
       }
     } catch (e) {
       if (mounted) {

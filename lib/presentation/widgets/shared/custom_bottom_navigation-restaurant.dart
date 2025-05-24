@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 class CustomBottomNavigationRestaurant extends StatelessWidget {
   final StatefulNavigationShell childView;
-  
+
   const CustomBottomNavigationRestaurant({
     super.key,
     required this.childView,
@@ -14,19 +14,19 @@ class CustomBottomNavigationRestaurant extends StatelessWidget {
     return BottomNavigationBar(
       elevation: 0,
       currentIndex: childView.currentIndex,
-      onTap: (index) => childView.goBranch(index),
+      onTap: childView.goBranch,
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home_max_outlined),
-          label: 'Edit'
+          label: 'Edit',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.table_bar_outlined),
-          label: 'Reservations'
+          label: 'Reservations',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.favorite_outline),
-          label: 'Add products'
+          label: 'Add products',
         ),
       ],
     );

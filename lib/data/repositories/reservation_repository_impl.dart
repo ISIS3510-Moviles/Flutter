@@ -16,4 +16,22 @@ class ReservationRepositoryImpl extends ReservationRepository {
       throw Exception('Error fetching reservations: $e');
     }
   }
+
+@override
+  Future<List<ReservationEntity>> getReservationsByRestaurantId(String id) async {
+    try {
+      return await reservationBackendDatasource.getReservationsByRestaurantId(id);
+    } catch (e) {
+      throw Exception('Error fetching reservations: $e');
+    }
+  }
+
+  @override
+  Future<List<ReservationEntity>> cancelReservation(String id) async {
+    try {
+      return await reservationBackendDatasource.cancelReservation(id);
+    } catch (e) {
+      throw Exception('Error fetching reservations: $e');
+    }
+  }
 }

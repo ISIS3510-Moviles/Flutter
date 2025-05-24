@@ -10,6 +10,7 @@ class ReservationMapper {
       time: reservationBackend.time,
       numberComensals: reservationBackend.numberComensals,
       state: reservationBackend.isCompleted ? CompletedState() : PendingState(),
+      hasBeenCancelled: reservationBackend.hasBeenCancelled ?? false,
     );
   }
 }

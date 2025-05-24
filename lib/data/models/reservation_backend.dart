@@ -4,6 +4,7 @@ class ReservationBackend {
   final String time;
   final int numberComensals;
   final bool isCompleted;
+  final bool? hasBeenCancelled;
 
   ReservationBackend({
     required this.id,
@@ -11,6 +12,7 @@ class ReservationBackend {
     required this.time,
     required this.numberComensals,
     required this.isCompleted,
+    this.hasBeenCancelled,
   });
 
   factory ReservationBackend.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class ReservationBackend {
       time: json['time'],
       numberComensals: json['numberComensals'],
       isCompleted: json['isCompleted'],
+      hasBeenCancelled: json['hasBeenCancelled'] as bool,
     );
   }
 

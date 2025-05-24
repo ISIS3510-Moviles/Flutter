@@ -180,7 +180,7 @@ Future<RestaurantEntity> signInWithGoogleRestaurant() async {
     final restaurantRetrieved = await restaurantRepository.createRestaurant(restaurantEntity);
     GlobalRestaurant().currentRestaurant = restaurantRetrieved;
     logger.i("Restaurant retrieved successfully from the database");
-    return restaurantEntity;
+    return restaurantRetrieved;
   } on FirebaseAuthException catch (e) {
     logger.e("FirebaseAuthException", error: e.message);
     throw AuthException("Authentication failed: ${e.message}");
