@@ -7,7 +7,7 @@ class CustomSliverAppbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return SliverAppBar(
+    return const SliverAppBar(
       floating: true,
       flexibleSpace: FlexibleSpaceBar(
         title: _CustomAppbar(),

@@ -34,12 +34,12 @@ class RestaurantMapper {
       visitsIds: restaurantBackend.visitsIds,
       commentsIds: restaurantBackend.commentsIds,
       comments: restaurantBackend.comments
-              ?.map((e) => CommentMapper.commentBackendToEntity(e))
+              ?.map(CommentMapper.commentBackendToEntity)
               .toList() ??
           [],
       productsIds: restaurantBackend.productsIds,
       products: restaurantBackend.products
-              ?.map((e) => ProductMapper.productBackendToEntity(e))
+              ?.map(ProductMapper.productBackendToEntity)
               .toList() ??
           [],
     );

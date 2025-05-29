@@ -19,7 +19,7 @@ class CustomTitle extends StatelessWidget {
           const Spacer(),
           if (subTitle != null)
             FilledButton.tonal(
-              style: ButtonStyle(
+              style: const ButtonStyle(
                 visualDensity: VisualDensity.compact,
                 backgroundColor: WidgetStatePropertyAll(Color(0xFFF46417)),
                 foregroundColor: WidgetStatePropertyAll(Colors.white),
@@ -27,7 +27,7 @@ class CustomTitle extends StatelessWidget {
               onPressed: () {},
               child: Text(
                 subTitle!,
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
             )
         ],

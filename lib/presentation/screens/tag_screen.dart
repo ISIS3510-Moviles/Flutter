@@ -118,7 +118,7 @@ Future<void> _fetchData() async {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            CustomSliverAppbar(),
+            const CustomSliverAppbar(),
             SliverToBoxAdapter(
               child: _ImageBox(
                 title: tagName.isNotEmpty ? tagName : 'Loading...',
@@ -126,9 +126,9 @@ Future<void> _fetchData() async {
               ),
             ),
             if (isLoading)
-              SliverToBoxAdapter(
+              const SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(32.0),
+                  padding: EdgeInsets.all(32.0),
                   child: Center(child: CircularProgressIndicator()),
                 ),
               )
@@ -211,7 +211,7 @@ class _ImageBox extends StatelessWidget {
                   width: 80,
                   height: 80,
                   alignment: Alignment.center,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: const CircularProgressIndicator(strokeWidth: 2),
                 ),
                 errorWidget: (context, url, error) {
                     _analytics.logEvent(

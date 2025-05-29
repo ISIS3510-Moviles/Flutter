@@ -30,7 +30,7 @@ class DescriptionTab extends StatelessWidget {
                 width: 80,
                 height: 80,
                 alignment: Alignment.center,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: const CircularProgressIndicator(strokeWidth: 2),
               ),
               errorWidget: (context, url, error) {
                 _analytics.logEvent(

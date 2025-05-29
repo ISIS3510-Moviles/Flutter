@@ -14,7 +14,7 @@ class CustomBottomNavigation extends StatelessWidget {
     return BottomNavigationBar(
       elevation: 0,
       currentIndex: childView.currentIndex,
-      onTap: (index) => childView.goBranch(index),
+      onTap: childView.goBranch,
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home_max_outlined),

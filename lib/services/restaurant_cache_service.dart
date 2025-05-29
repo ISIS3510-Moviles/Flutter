@@ -10,7 +10,7 @@ class RestaurantCacheService {
     if (_isar == null) return [];
 
     final now = DateTime.now();
-    final all = await _isar!.restaurantEntitys.where().findAll();
+    final all = await _isar.restaurantEntitys.where().findAll();
     if (all.isEmpty) return [];
 
     final firstTimestamp = all.first.cachedAt;
@@ -25,9 +25,9 @@ class RestaurantCacheService {
     final now = DateTime.now();
     final updated = restaurants.map((r) => r..cachedAt = now).toList();
 
-    await _isar!.writeTxn(() async {
-      await _isar!.restaurantEntitys.clear();
-      await _isar!.restaurantEntitys.putAll(updated);
+    await _isar.writeTxn(() async {
+      await _isar.restaurantEntitys.clear();
+      await _isar.restaurantEntitys.putAll(updated);
     });
   }
 }

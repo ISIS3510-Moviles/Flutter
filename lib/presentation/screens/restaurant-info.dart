@@ -53,7 +53,6 @@ class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
   void _saveForm() async {
     if (_formKey.currentState!.validate()) {
       final current = GlobalRestaurant().currentRestaurant!;
-
       final updatedRestaurant = RestaurantEntity(
         id: current.id,
         name: current.name,

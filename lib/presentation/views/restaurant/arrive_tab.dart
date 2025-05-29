@@ -59,7 +59,7 @@ class _ArriveTabState extends State<ArriveTab> {
               initialCameraPosition: _restaurantLocation,
               markers: {
                 Marker(
-                  markerId: MarkerId('restaurantLocation'),
+                  markerId: const MarkerId('restaurantLocation'),
                   position: _restaurantLocation.target,
                   infoWindow: InfoWindow(
                   title: widget.restaurant.name,
@@ -75,13 +75,11 @@ class _ArriveTabState extends State<ArriveTab> {
               scrollGesturesEnabled: true,
               rotateGesturesEnabled: true,
               tiltGesturesEnabled: true,
-              gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+              gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{
                 Factory<OneSequenceGestureRecognizer>(
-                    () => EagerGestureRecognizer()),
+                    EagerGestureRecognizer.new),
               },
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
+              onMapCreated: _controller.complete,
             ),
           ),
           const SizedBox(height: 16),

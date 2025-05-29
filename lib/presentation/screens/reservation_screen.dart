@@ -1,5 +1,4 @@
 import 'package:campus_bites/domain/entities/reservation_entity.dart';
-import 'package:campus_bites/globals/GlobalRestaurant.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/presentation/providers/reservations/reservation_provider.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
@@ -24,12 +23,12 @@ class ReservationScreen extends ConsumerWidget {
         ),
         data: (reservations) {
           if (reservations.isEmpty) {
-            return CustomScrollView(
+            return const CustomScrollView(
               slivers: [
-                const CustomSliverAppbar(),
+                CustomSliverAppbar(),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    padding: EdgeInsets.symmetric(vertical: 20.0),
                     child: Center(
                       child: Text(
                         'No reservations found.',
@@ -53,9 +52,9 @@ class ReservationScreen extends ConsumerWidget {
           return CustomScrollView(
             slivers: [
               const CustomSliverAppbar(),
-              SliverToBoxAdapter(
+              const SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                   child: Text(
                     'Upcoming reservations',
                     style: TextStyle(
@@ -128,37 +127,37 @@ class EventCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.date_range, size: 18, color: Color(0xFF11203A)),
+                      const Icon(Icons.date_range, size: 18, color: Color(0xFF11203A)),
                       const SizedBox(width: 4),
                       Text(
                         DateFormat('EEEE, MMMM d, y').format(DateTime.parse(reservation.date)),
-                        style: TextStyle(color: Color(0xFF11203A)),
+                        style: const TextStyle(color: Color(0xFF11203A)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.hourglass_bottom, size: 18, color: Color(0xFF11203A)),
+                      const Icon(Icons.hourglass_bottom, size: 18, color: Color(0xFF11203A)),
                       const SizedBox(width: 4),
-                      Text(reservation.time, style: TextStyle(color: Color(0xFF11203A))),
+                      Text(reservation.time, style: const TextStyle(color: Color(0xFF11203A))),
                     ],
                   ),
                   Row(
                     children: [
-                      Icon(Icons.people, size: 18, color: Color(0xFF11203A)),
+                      const Icon(Icons.people, size: 18, color: Color(0xFF11203A)),
                       const SizedBox(width: 4),
                       Text(
                       '${reservation.numberComensals} ${reservation.numberComensals == 1 ? 'person' : 'people'}',
-                      style: TextStyle(color: Color(0xFF11203A)),
+                      style: const TextStyle(color: Color(0xFF11203A)),
                       ),
                     ],
                   ),
                   Row(
                     children: [
-                      Icon(Icons.info_outline, size: 18, color: Color(0xFF11203A)),
+                      const Icon(Icons.info_outline, size: 18, color: Color(0xFF11203A)),
                       const SizedBox(width: 4),
-                      Text(reservation.state.getStatus(), style: TextStyle(color: Color(0xFF11203A))),
+                      Text(reservation.state.getStatus(), style: const TextStyle(color: Color(0xFF11203A))),
                     ],
                   ),
                 ],

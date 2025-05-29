@@ -288,7 +288,7 @@ Future<RestaurantEntity> signInWithGoogleRestaurant() async {
   }
 
   Future<void> setMockedUserData() async {
-    final userData = UserEntity(
+    final userData = const UserEntity(
       id: 'KLAt7tOTC7CFvuyXdkVC',
       name: 'Daniel Diaz',
       phone: '',

@@ -49,7 +49,7 @@ class RecommendationViewState extends ConsumerState<RecommendationView>
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            CustomSliverAppbar(),      
+            const CustomSliverAppbar(),      
             SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 return Padding(
@@ -60,7 +60,7 @@ class RecommendationViewState extends ConsumerState<RecommendationView>
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           children: [
-                            _Title(
+                            const _Title(
                                 title: 'Restaurants', subTitle: 'For you'),
                             ...restaurants.map((restaurant) {
                               return RestaurantCard(
@@ -107,7 +107,7 @@ class _Title extends StatelessWidget {
             const Spacer(),
             if (subTitle != null)
               FilledButton.tonal(
-                style: ButtonStyle(
+                style: const ButtonStyle(
                   visualDensity: VisualDensity.compact,
                   backgroundColor: WidgetStatePropertyAll(Color(0xFFF46417)),
                   foregroundColor: WidgetStatePropertyAll(Colors.white),
@@ -115,7 +115,7 @@ class _Title extends StatelessWidget {
                 onPressed: () {},
                 child: Text(
                   subTitle!,
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                 ),
               )
           ],

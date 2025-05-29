@@ -171,13 +171,13 @@ class _FoodScreenState extends ConsumerState<FoodScreen> {
               ],
             );
           } else {
-            return CustomScrollView(
+            return const CustomScrollView(
               slivers: [
-                const CustomSliverAppbar(),
+                CustomSliverAppbar(),
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(
-                    child: const Text(
+                    child: Text(
                       'Could not access product information.\nPlease check your internet connection and try again.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 16, color: Colors.red),

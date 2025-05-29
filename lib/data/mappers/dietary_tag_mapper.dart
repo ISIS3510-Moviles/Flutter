@@ -33,7 +33,7 @@ class DietaryTagMapper {
           description: tag['description']?.toString() ?? '',
         );
       } else {
-        return DietaryTagEntity(
+        return const DietaryTagEntity(
           id: 'Unknown',
           name: 'Unknown',
           description: '',

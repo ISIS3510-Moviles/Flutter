@@ -1,6 +1,5 @@
 import 'package:campus_bites/domain/entities/product_entity.dart';
 import 'package:campus_bites/domain/entities/user_entity.dart';
-import 'package:campus_bites/globals/GlobalRestaurant.dart';
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/presentation/providers/users/user_provider.dart';
 import 'package:campus_bites/services/auth_service.dart';
@@ -82,7 +81,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            CustomSliverAppbar(),
+            const CustomSliverAppbar(),
             SliverList(
               delegate: SliverChildListDelegate(
                 [
@@ -117,7 +116,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFF9A825),
+                              backgroundColor: const Color(0xFFF9A825),
                             ),
                             child: const Text("Logout"),
                           ),

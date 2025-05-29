@@ -10,9 +10,7 @@ class AlertBackendDatasource extends AlertDatasource {
 
   List<AlertEntity> _jsonToAlerts(List<AlertBackend> backEntities) {
     return backEntities
-        .map((e) => AlertMapper.alertBackendToEntity(
-              e,
-            ))
+        .map(AlertMapper.alertBackendToEntity)
         .toList();
   }
 
