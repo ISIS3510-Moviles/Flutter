@@ -1,3 +1,4 @@
+import 'package:campus_bites/presentation/screens/add-product-screen.dart';
 import 'package:campus_bites/presentation/screens/home-screen-restaurant.dart';
 import 'package:campus_bites/presentation/screens/login_screen.dart';
 import 'package:campus_bites/presentation/screens/profile_screen.dart';
@@ -48,7 +49,7 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/restaurant-panel/products',
-              builder: (_, __) => const ReservationScreenRestaurant(),
+              builder: (_, __) => AddProductScreen(),
             ),
           ],
         ),
@@ -67,7 +68,7 @@ final appRouter = GoRouter(
               routes: [
                 GoRoute(
                   path: 'profile',
-                  builder: (context, state) => const ProfileScreen(),
+                  builder: (context, state) => ProfileScreen(),
                 ),
                 GoRoute(
                   path: 'restaurant/:restaurantId',
@@ -110,7 +111,7 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/recommendations',
-              builder: (context, state) => const RecommendationView(),
+              builder: (context, state) => RecommendationView(),
             ),
           ],
         ),

@@ -80,16 +80,21 @@ class ProductEntity {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'description': description,
-      'rating': rating,
-      'price': price,
-      'isAvailable': isAvailable,
-      'photo': photo,
-      'tags': tags,
-    };
-  }
+Map<String, dynamic> toJson() {
+  return {
+    'name': name,
+    'description': description,
+    'price': price,
+    'photo': photo,
+    'restaurant_id': restaurant?.id ?? '', 
+    'rating': rating,
+    'ingredientsIds': ingredients?.map((e) => e.id).toList() ?? [],
+    'discountsIds': [],
+    'commentsIds': [],
+    'foodTagIds': foodTags?.map((e) => e.id).toList() ?? [],
+    'dietaryTagIds': dietaryTags?.map((e) => e.id).toList() ?? [],
+  };
+}
+
+  
 }

@@ -1,3 +1,4 @@
+import 'package:campus_bites/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class CustomSliverAppbarRestaurant extends StatelessWidget {
@@ -5,30 +6,20 @@ class CustomSliverAppbarRestaurant extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return const SliverAppBar(
       floating: true,
-      flexibleSpace: FlexibleSpaceBar(
-        title: _CustomAppbar(),
-      ),
-      backgroundColor: Color(0xFFF9A825),
-    );
-  }
-}
-
-class _CustomAppbar extends StatelessWidget {
-  const _CustomAppbar();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: SizedBox(
-        width: double.infinity,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+      pinned: true,
+      backgroundColor: const Color(0xFFF9A825),
+      title: const Text('Restaurant Information'),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: () async {
+            await AuthService().signOutGoogle();
+            context.go('/login');
+          },
         ),
-      ),
+      ],
     );
   }
 }
