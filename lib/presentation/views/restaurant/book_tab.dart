@@ -192,7 +192,7 @@ Future<void> _bookReservation() async {
             DropdownButtonFormField<String>(
               value: reservation.time,
               items: _isToday(reservation.date)
-                  ? ["17:00", "18:00", "19:00"].map((hour) {
+                  ? ["17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"].map((hour) {
                       return DropdownMenuItem(
                         value: hour,
                         child: Text(hour),
