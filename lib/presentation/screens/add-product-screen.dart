@@ -35,6 +35,8 @@ TemporalProduct:
 }
 
 class AddProductScreen extends StatefulWidget {
+  const AddProductScreen({super.key});
+
   @override
   State<AddProductScreen> createState() => _AddProductScreenState();
 }

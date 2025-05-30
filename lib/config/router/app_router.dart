@@ -82,7 +82,7 @@ final appRouter = GoRouter(
                   'user_type': 'restaurant',
                   'panel_section': 'products',
                 });
-                return AddProductScreen();
+                return const AddProductScreen();
               },
             ),
           ],
@@ -112,7 +112,7 @@ final appRouter = GoRouter(
                       'user_type': 'customer',
                       'screen_type': 'profile',
                     });
-                    return ProfileScreen();
+                    return const ProfileScreen();
                   },
                 ),
                 GoRoute(
@@ -185,7 +185,7 @@ final appRouter = GoRouter(
                   'user_type': 'customer',
                   'screen_type': 'recommendations',
                 });
-                return RecommendationView();
+                return const RecommendationView();
               },
             ),
           ],

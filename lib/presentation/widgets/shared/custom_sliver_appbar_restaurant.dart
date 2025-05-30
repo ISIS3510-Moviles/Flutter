@@ -17,6 +17,7 @@ class CustomSliverAppbarRestaurant extends StatelessWidget {
           icon: const Icon(Icons.logout),
           onPressed: () async {
             await AuthService().signOutGoogle();
+            if (!context.mounted) return;
             context.go('/login');
           },
         ),

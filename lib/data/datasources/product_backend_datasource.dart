@@ -45,8 +45,6 @@ class ProductBackendDatasource extends ProductDatasource {
     return products;
   }
 
-  @override
-  @override
   Future<List<ProductEntity>> createProduct(ProductEntity product) async {
     try {
       final payload = {
