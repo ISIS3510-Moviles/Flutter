@@ -4,6 +4,7 @@ import 'package:campus_bites/data/models/comment_backend.dart';
 import 'package:campus_bites/domain/datasources/comment_datasource.dart';
 import 'package:campus_bites/domain/entities/comment_entity.dart';
 import 'package:dio/dio.dart';
+import 'package:campus_bites/globals/lru_cache_delete_old_restaurant.dart';
 
 class CommentBackendDatasource extends CommentDatasource {
   final dio = Dio(BaseOptions(baseUrl: Environment.backendApi));
@@ -51,6 +52,7 @@ class CommentBackendDatasource extends CommentDatasource {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        LruCacheDeleteOldRestaurant.instance.invalidate(restaurantId);
         return response.data['id'];
       } else {
         throw Exception('Failed to create comment: ${response.statusCode}');

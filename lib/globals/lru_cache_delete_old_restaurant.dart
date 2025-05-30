@@ -19,8 +19,7 @@ class LruCacheDeleteOldRestaurant {
 
   final LruCache<String, CacheEntry> _cache;
   final int maxTime;
-
-
+  
   LruCacheDeleteOldRestaurant._(this._cache, this.maxTime);
 
   factory LruCacheDeleteOldRestaurant({required int capacity, required int maxTime}) {
@@ -28,6 +27,13 @@ class LruCacheDeleteOldRestaurant {
         LruCache<String, CacheEntry>(capacity),
         maxTime,
       );
+    return _instance!;
+  }
+
+  static LruCacheDeleteOldRestaurant get instance {
+    if (_instance == null) {
+      throw StateError('LruCacheDeleteOldRestaurant has not been initialized. Call the factory constructor first.');
+    }
     return _instance!;
   }
 
@@ -46,5 +52,9 @@ class LruCacheDeleteOldRestaurant {
 
   void put(String key, RestaurantEntity restaurant) {
     _cache.put(key, CacheEntry(restaurant));
+  }
+
+  void invalidate(String key) {
+    _cache.remove(key);
   }
 }
