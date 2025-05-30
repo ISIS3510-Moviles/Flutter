@@ -16,7 +16,8 @@ class LoginScreen extends StatefulWidget {
 
 class LoginScreenState extends State<LoginScreen> {
   late final AuthService authService;
-  bool isLoading = false;
+  bool isLoadingUser = false;
+  bool isLoadingRestaurant = false;
   bool isCheckingPreferences = true;
 
   @override
@@ -60,10 +61,10 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   void _signInWithGoogle() async {
-    if (isLoading) return;
+    if (isLoadingUser) return;
 
     setState(() {
-      isLoading = true;
+      isLoadingUser = true;
     });
 
     try {
@@ -85,17 +86,17 @@ class LoginScreenState extends State<LoginScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          isLoading = false;
+          isLoadingUser = false;
         });
       }
     }
   }
 
   void _signInWithGoogleRestaurant() async {
-    if (isLoading) return;
+    if (isLoadingRestaurant) return;
 
     setState(() {
-      isLoading = true;
+      isLoadingRestaurant = true;
     });
 
     try {
@@ -113,7 +114,7 @@ class LoginScreenState extends State<LoginScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          isLoading = false;
+          isLoadingRestaurant = false;
         });
       }
     }
@@ -169,13 +170,13 @@ class LoginScreenState extends State<LoginScreen> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 ),
-                onPressed: isLoading ? null : _signInWithGoogle,
+                onPressed: isLoadingUser ? null : _signInWithGoogle,
                 icon:
                     const Icon(Icons.verified_user_sharp, color: Colors.white),
                 label: SizedBox(
                   width: 180,
                   child: Center(
-                    child: isLoading
+                    child: isLoadingUser
                         ? const SizedBox(
                             width: 20,
                             height: 20,
@@ -195,6 +196,7 @@ class LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 30),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0D1B3D),
@@ -204,12 +206,12 @@ class LoginScreenState extends State<LoginScreen> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 ),
-                onPressed: isLoading ? null : _signInWithGoogleRestaurant,
+                onPressed: isLoadingRestaurant ? null : _signInWithGoogleRestaurant,
                 icon: const Icon(Icons.storefront, color: Colors.white),
                 label: SizedBox(
                   width: 180,
                   child: Center(
-                    child: isLoading
+                    child: isLoadingRestaurant
                         ? const SizedBox(
                             width: 20,
                             height: 20,
