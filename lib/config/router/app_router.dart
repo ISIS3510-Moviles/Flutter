@@ -12,9 +12,22 @@ import 'package:campus_bites/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:campus_bites/presentation/screens/food_screen.dart';
 import 'package:flutter/widgets.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 final authService = AuthService();
 final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
+final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+
+void _logScreenView(String screenName, {Map<String, dynamic>? parameters}) {
+  _analytics.logEvent(
+    name: 'used_functionality',
+    parameters: {
+      'functionality': screenName,
+      'timestamp': DateTime.now().toIso8601String(),
+      ...?parameters,
+    },
+  );
+}
 
 final appRouter = GoRouter(
   initialLocation: '/login',
@@ -22,7 +35,10 @@ final appRouter = GoRouter(
   routes: [
     GoRoute(
       path: '/login',
-      builder: (context, state) => LoginScreen(),
+      builder: (context, state) {
+        _logScreenView('Login Screen');
+        return LoginScreen();
+      },
     ),
 
     // Primero las rutas de restaurante
@@ -33,7 +49,13 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/restaurant-panel',
-              builder: (_, __) => const RestaurantInfoScreen(),
+              builder: (context, state) {
+                _logScreenView('Restaurant Panel - Info', parameters: {
+                  'user_type': 'restaurant',
+                  'panel_section': 'info',
+                });
+                return const RestaurantInfoScreen();
+              },
             ),
           ],
         ),
@@ -41,7 +63,13 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/restaurant-panel/reservations',
-              builder: (_, __) => const ReservationScreenRestaurant(),
+              builder: (context, state) {
+                _logScreenView('Restaurant Panel - Reservations', parameters: {
+                  'user_type': 'restaurant',
+                  'panel_section': 'reservations',
+                });
+                return const ReservationScreenRestaurant();
+              },
             ),
           ],
         ),
@@ -49,7 +77,13 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/restaurant-panel/products',
-              builder: (_, __) => AddProductScreen(),
+              builder: (context, state) {
+                _logScreenView('Restaurant Panel - Add Products', parameters: {
+                  'user_type': 'restaurant',
+                  'panel_section': 'products',
+                });
+                return AddProductScreen();
+              },
             ),
           ],
         ),
@@ -64,16 +98,31 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/',
-              builder: (context, state) => const HomeView(),
+              builder: (context, state) {
+                _logScreenView('Home Screen', parameters: {
+                  'user_type': 'customer',
+                });
+                return const HomeView();
+              },
               routes: [
                 GoRoute(
                   path: 'profile',
-                  builder: (context, state) => ProfileScreen(),
+                  builder: (context, state) {
+                    _logScreenView('View user profile', parameters: {
+                      'user_type': 'customer',
+                      'screen_type': 'profile',
+                    });
+                    return ProfileScreen();
+                  },
                 ),
                 GoRoute(
                   path: 'restaurant/:restaurantId',
                   builder: (context, state) {
                     final restaurantId = state.pathParameters['restaurantId'];
+                    _logScreenView('View restaurant details', parameters: {
+                      'user_type': 'customer',
+                      'screen_type': 'restaurant_detail',
+                    });
                     return RestaurantScreen(restaurantId: restaurantId ?? '');
                   },
                 ),
@@ -81,6 +130,10 @@ final appRouter = GoRouter(
                   path: 'tags/:tagId',
                   builder: (context, state) {
                     final tagId = state.pathParameters['tagId'];
+                    _logScreenView('View tag screen', parameters: {
+                      'user_type': 'customer',
+                      'screen_type': 'tag_filter',
+                    });
                     return TagScreen(tagId: tagId ?? "");
                   },
                 ),
@@ -88,12 +141,22 @@ final appRouter = GoRouter(
                   path: 'food/:foodId',
                   builder: (context, state) {
                     final foodId = state.pathParameters['foodId'];
+                    _logScreenView('View food details', parameters: {
+                      'user_type': 'customer',
+                      'screen_type': 'food_detail',
+                    });
                     return FoodScreen(foodId: foodId!);
                   },
                 ),
                 GoRoute(
                   path: 'notifications',
-                  builder: (context, state) => const NotificationsScreen(),
+                  builder: (context, state) {
+                    _logScreenView('View notifications', parameters: {
+                      'user_type': 'customer',
+                      'screen_type': 'notifications',
+                    });
+                    return const NotificationsScreen();
+                  },
                 ),
               ],
             ),
@@ -103,7 +166,13 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/reservations',
-              builder: (context, state) => const ReservationScreen(),
+              builder: (context, state) {
+                _logScreenView('View user reservations', parameters: {
+                  'user_type': 'customer',
+                  'screen_type': 'reservations',
+                });
+                return const ReservationScreen();
+              },
             ),
           ],
         ),
@@ -111,7 +180,13 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/recommendations',
-              builder: (context, state) => RecommendationView(),
+              builder: (context, state) {
+                _logScreenView('View recommendations', parameters: {
+                  'user_type': 'customer',
+                  'screen_type': 'recommendations',
+                });
+                return RecommendationView();
+              },
             ),
           ],
         ),
