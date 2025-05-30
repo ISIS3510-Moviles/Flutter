@@ -41,6 +41,7 @@ migrate_working_dir/
 **/android/captures/
 **/android/gradlew
 **/android/gradlew.bat
+**/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
 android/app/.cxx/
 
