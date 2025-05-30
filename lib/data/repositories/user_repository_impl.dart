@@ -9,17 +9,17 @@ class UserRepositoryImpl extends UserRepository {
 
   @override
   Future<UserEntity?> getUser(String document) async {
-    return await datasource.getUser(document);
+    return datasource.getUser(document);
   }
 
   @override
   Future<List<UserEntity>> getAllUsers() async {
-    return await datasource.getUsers();
+    return datasource.getUsers();
   }
 
   @override
   Future<UserEntity> createUser(UserEntity user) async {
-    return await datasource.createUser(user);
+    return datasource.createUser(user);
   }
 
   @override

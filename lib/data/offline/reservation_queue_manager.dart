@@ -20,11 +20,15 @@ Future<void> tryToSendQueuedReservations({
   final reservations = _box.values.toList();
   final now = DateTime.now();
 
+  final Set<String> seenDateTimes = {};
+
   for (var reservation in reservations) {
     try {
       final parts = reservation.date.split('/');
       if (parts.length != 3) {
-        throw Exception("Invalid date format: ${reservation.date}");
+        await reservation.delete();
+        onReservationSent?.call("Invalid date format: ${reservation.date}");
+        continue;
       }
 
       final month = int.tryParse(parts[0]);
@@ -32,19 +36,35 @@ Future<void> tryToSendQueuedReservations({
       final year = int.tryParse(parts[2]);
 
       if (month == null || day == null || year == null) {
-        throw Exception("Invalid date: ${reservation.date}");
+        await reservation.delete();
+        onReservationSent?.call("Invalid date: ${reservation.date}");
+        continue;
       }
 
       final timeParts = reservation.time.split(":");
       if (timeParts.length != 2) {
-        throw Exception("Invalid time format: ${reservation.time}");
+        await reservation.delete();
+        onReservationSent?.call("Invalid time format: ${reservation.time}");
+        continue;
       }
 
       final hour = int.tryParse(timeParts[0]);
       final minute = int.tryParse(timeParts[1]);
 
       if (hour == null || minute == null) {
-        throw Exception("Invalid time: ${reservation.time}");
+        await reservation.delete();
+        onReservationSent?.call("Invalid time: ${reservation.time}");
+        continue;
+      }
+
+      final dateTimeKey = '${reservation.date}_${reservation.time}';
+
+      if (seenDateTimes.contains(dateTimeKey)) {
+        await reservation.delete();
+        onReservationSent?.call("Reservation discarded: duplicate date and time.");
+        continue;
+      } else {
+        seenDateTimes.add(dateTimeKey);
       }
 
       final reservationDateTime = DateTime(
@@ -58,11 +78,15 @@ Future<void> tryToSendQueuedReservations({
       final difference = reservationDateTime.difference(now);
 
       if (difference.isNegative) {
-        throw Exception("Cannot send reservation: it is in the past.");
+        await reservation.delete();
+        onReservationSent?.call("Cannot send reservation: it is in the past.");
+        continue;
       }
 
       if (difference.inHours < 6) {
-        throw Exception("Cannot send reservation: must be at least 6 hours in advance.");
+        await reservation.delete();
+        onReservationSent?.call("Cannot send reservation: must be at least 6 hours in advance.");
+        continue;
       }
 
       await ReservationBackendDatasource().createReservation(

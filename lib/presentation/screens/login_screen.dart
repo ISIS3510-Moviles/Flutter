@@ -4,6 +4,7 @@ import 'package:campus_bites/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService authService = AuthService();
@@ -16,8 +17,10 @@ class LoginScreen extends StatefulWidget {
 
 class LoginScreenState extends State<LoginScreen> {
   late final AuthService authService;
-  bool isLoading = false;
+  bool isLoadingUser = false;
+  bool isLoadingRestaurant = false;
   bool isCheckingPreferences = true;
+  final _connectivity = Connectivity();
 
   @override
   void initState() {
@@ -60,10 +63,16 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   void _signInWithGoogle() async {
-    if (isLoading) return;
+    if (isLoadingUser) return;
+
+    final connectivityResult = await _connectivity.checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none){
+      _showErrorSnackbar('No internet connection. Please try again later.');
+      return;
+    }
 
     setState(() {
-      isLoading = true;
+      isLoadingUser = true;
     });
 
     try {
@@ -85,17 +94,23 @@ class LoginScreenState extends State<LoginScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          isLoading = false;
+          isLoadingUser = false;
         });
       }
     }
   }
 
   void _signInWithGoogleRestaurant() async {
-    if (isLoading) return;
+    if (isLoadingRestaurant) return;
+
+    final connectivityResult = await _connectivity.checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none){
+      _showErrorSnackbar('No internet connection. Please try again later.');
+      return;
+    }
 
     setState(() {
-      isLoading = true;
+      isLoadingRestaurant = true;
     });
 
     try {
@@ -113,7 +128,7 @@ class LoginScreenState extends State<LoginScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          isLoading = false;
+          isLoadingRestaurant = false;
         });
       }
     }
@@ -125,7 +140,6 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     if (isCheckingPreferences || GlobalUser().currentUser != null) {
@@ -169,13 +183,13 @@ class LoginScreenState extends State<LoginScreen> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 ),
-                onPressed: isLoading ? null : _signInWithGoogle,
+                onPressed: isLoadingUser ? null : _signInWithGoogle,
                 icon:
                     const Icon(Icons.verified_user_sharp, color: Colors.white),
                 label: SizedBox(
                   width: 180,
                   child: Center(
-                    child: isLoading
+                    child: isLoadingUser
                         ? const SizedBox(
                             width: 20,
                             height: 20,
@@ -195,6 +209,7 @@ class LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 30),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0D1B3D),
@@ -204,12 +219,12 @@ class LoginScreenState extends State<LoginScreen> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 ),
-                onPressed: isLoading ? null : _signInWithGoogleRestaurant,
+                onPressed: isLoadingRestaurant ? null : _signInWithGoogleRestaurant,
                 icon: const Icon(Icons.storefront, color: Colors.white),
                 label: SizedBox(
                   width: 180,
                   child: Center(
-                    child: isLoading
+                    child: isLoadingRestaurant
                         ? const SizedBox(
                             width: 20,
                             height: 20,
