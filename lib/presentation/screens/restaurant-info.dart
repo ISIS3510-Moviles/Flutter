@@ -1,11 +1,11 @@
 import 'package:campus_bites/data/datasources/restaurant_backend_datasource.dart';
 import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:campus_bites/globals/GlobalRestaurant.dart';
-import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar_restaurant.dart';
 import 'package:flutter/material.dart';
 
 class RestaurantInfo {
+  String name = '';
   String mainPhoto = '';
   String homePhoto = '';
   String description = '';
@@ -15,7 +15,7 @@ class RestaurantInfo {
 
   @override
   String toString() {
-    return 'Main photo: $mainPhoto\nHome photo: $homePhoto\nDescription: $description\nCoordinates: ($latitude, $longitude)\nLocation: $locationDescription';
+    return 'Name:$name\nMain photo: $mainPhoto\nHome photo: $homePhoto\nDescription: $description\nCoordinates: ($latitude, $longitude)\nLocation: $locationDescription';
   }
 }
 
@@ -30,6 +30,7 @@ class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
   final _formKey = GlobalKey<FormState>();
   final info = RestaurantInfo();
 
+  final nameController = TextEditingController();
   final mainPhotoController = TextEditingController();
   final homePhotoController = TextEditingController();
   final descriptionController = TextEditingController();
@@ -41,6 +42,7 @@ class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
 
   @override
   void dispose() {
+    nameController.dispose();
     mainPhotoController.dispose();
     homePhotoController.dispose();
     descriptionController.dispose();
@@ -89,10 +91,12 @@ class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
         setState(() {
           GlobalRestaurant().currentRestaurant = result;
         });
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Restaurant updated successfully')),
         );
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Update failed: $e')),
         );
@@ -130,6 +134,7 @@ class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
+                    _buildTextField('Name', 'The name of the restaurant', nameController),
                     _buildTextField('Main photo', 'The url of the photo restaurant', mainPhotoController),
                     _buildTextField('Home photo', 'The url of the home of the restaurant', homePhotoController),
                     _buildTextField('Restaurant description', 'The description of the restaurant', descriptionController),
