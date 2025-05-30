@@ -69,7 +69,7 @@ class LoginScreenState extends State<LoginScreen> {
     if (connectivityResult == ConnectivityResult.none){
       _showErrorSnackbar('No internet connection. Please try again later.');
       return;
-    };
+    }
 
     setState(() {
       isLoadingUser = true;
@@ -107,7 +107,7 @@ class LoginScreenState extends State<LoginScreen> {
     if (connectivityResult == ConnectivityResult.none){
       _showErrorSnackbar('No internet connection. Please try again later.');
       return;
-    };
+    }
 
     setState(() {
       isLoadingRestaurant = true;
