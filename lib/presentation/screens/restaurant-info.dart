@@ -1,23 +1,11 @@
+import 'dart:async';
+
 import 'package:campus_bites/data/datasources/restaurant_backend_datasource.dart';
 import 'package:campus_bites/domain/entities/restaurant_entity.dart';
 import 'package:campus_bites/globals/GlobalRestaurant.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar_restaurant.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-
-class RestaurantInfo {
-  String name = '';
-  String mainPhoto = '';
-  String homePhoto = '';
-  String description = '';
-  double latitude = 0;
-  double longitude = 0;
-  String locationDescription = '';
-
-  @override
-  String toString() {
-    return 'Name:$name\nMain photo: $mainPhoto\nHome photo: $homePhoto\nDescription: $description\nCoordinates: ($latitude, $longitude)\nLocation: $locationDescription';
-  }
-}
 
 class RestaurantInfoScreen extends StatefulWidget {
   const RestaurantInfoScreen({super.key});
@@ -28,7 +16,6 @@ class RestaurantInfoScreen extends StatefulWidget {
 
 class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
   final _formKey = GlobalKey<FormState>();
-  final info = RestaurantInfo();
 
   final nameController = TextEditingController();
   final mainPhotoController = TextEditingController();
@@ -39,9 +26,22 @@ class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
   final locationDescriptionController = TextEditingController();
 
   final _datasource = RestaurantBackendDatasource();
+  final Map<String, RestaurantEntity> _pendingUpdates = {};
+
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen(_onConnectivityChanged);
+
+    _refreshFormFields();
+  }
 
   @override
   void dispose() {
+    _connectivitySubscription.cancel();
     nameController.dispose();
     mainPhotoController.dispose();
     homePhotoController.dispose();
@@ -50,6 +50,60 @@ class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
     longitudeController.dispose();
     locationDescriptionController.dispose();
     super.dispose();
+  }
+
+  void _onConnectivityChanged(ConnectivityResult result) {
+    if (result != ConnectivityResult.none) {
+      _processPendingUpdates();
+    }
+  }
+
+  void _refreshFormFields() {
+    final current = GlobalRestaurant().currentRestaurant;
+    if (current == null) return;
+
+    setState(() {
+      nameController.text = current.name;
+      mainPhotoController.text = current.profilePhoto ?? 'mainPhoto.jpg';
+      homePhotoController.text =
+          (current.photos != null && current.photos!.isNotEmpty)
+              ? current.photos![0]
+              : 'photo.jpg';
+      descriptionController.text = current.description;
+      latitudeController.text = current.latitude.toString();
+      longitudeController.text = current.longitude.toString();
+      locationDescriptionController.text = current.routeIndications;
+    });
+  }
+
+  Future<void> _processPendingUpdates() async {
+    if (_pendingUpdates.isEmpty) return;
+
+    final updates = Map<String, RestaurantEntity>.from(_pendingUpdates);
+
+    for (final entry in updates.entries) {
+      try {
+        final updatedResult = await _datasource.updateRestaurant(entry.value);
+        setState(() {
+          GlobalRestaurant().currentRestaurant = updatedResult;
+          _pendingUpdates.remove(entry.key);
+          _refreshFormFields();
+        });
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('Pending update for the restaurant sent successfully')),
+        );
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('Failed to send pending update for the restaurant')),
+        );
+      }
+    }
   }
 
   void _saveForm() async {
@@ -86,10 +140,25 @@ class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
         products: current.products,
       );
 
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        setState(() {
+          _pendingUpdates[updatedRestaurant.id] = updatedRestaurant;
+          GlobalRestaurant().currentRestaurant = updatedRestaurant;
+          _refreshFormFields();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('No internet connection. Update saved locally.')),
+        );
+        return;
+      }
+
       try {
         final result = await _datasource.updateRestaurant(updatedRestaurant);
         setState(() {
           GlobalRestaurant().currentRestaurant = result;
+          _refreshFormFields();
         });
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -104,14 +173,16 @@ class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
     }
   }
 
-  Widget _buildTextField(String label, String helper, TextEditingController controller,
+  Widget _buildTextField(
+      String label, String helper, TextEditingController controller,
       {TextInputType keyboardType = TextInputType.text}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
-        validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+        validator: (value) =>
+            value == null || value.isEmpty ? 'Required' : null,
         decoration: InputDecoration(
           labelText: label,
           helperText: helper,
@@ -134,27 +205,43 @@ class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    _buildTextField('Name', 'The name of the restaurant', nameController),
-                    _buildTextField('Main photo', 'The url of the photo restaurant', mainPhotoController),
-                    _buildTextField('Home photo', 'The url of the home of the restaurant', homePhotoController),
-                    _buildTextField('Restaurant description', 'The description of the restaurant', descriptionController),
+                    _buildTextField(
+                        'Name', 'The name of the restaurant', nameController),
+                    _buildTextField('Main photo',
+                        'The url of the photo restaurant', mainPhotoController),
+                    _buildTextField(
+                        'Home photo',
+                        'The url of the home of the restaurant',
+                        homePhotoController),
+                    _buildTextField(
+                        'Restaurant description',
+                        'The description of the restaurant',
+                        descriptionController),
                     const SizedBox(height: 10),
                     const Align(
                       alignment: Alignment.centerLeft,
-                      child: Text('Coordinates', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: Text('Coordinates',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                     Row(
                       children: [
                         Expanded(
-                          child: _buildTextField('Latitude', 'Latitude', latitudeController, keyboardType: TextInputType.number),
+                          child: _buildTextField(
+                              'Latitude', 'Latitude', latitudeController,
+                              keyboardType: TextInputType.number),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: _buildTextField('Longitude', 'Longitude', longitudeController, keyboardType: TextInputType.number),
+                          child: _buildTextField(
+                              'Longitude', 'Longitude', longitudeController,
+                              keyboardType: TextInputType.number),
                         ),
                       ],
                     ),
-                    _buildTextField('Location description', 'The description of the location', locationDescriptionController),
+                    _buildTextField(
+                        'Location description',
+                        'The description of the location',
+                        locationDescriptionController),
                     const SizedBox(height: 20),
                     Center(
                       child: ElevatedButton(
