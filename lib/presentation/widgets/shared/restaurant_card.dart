@@ -12,6 +12,7 @@ class RestaurantCard extends StatelessWidget {
   final double distance;
   final String imageUrl;
   final List<String> tags;
+  final String? origin;
 
   const RestaurantCard({
     super.key,
@@ -21,6 +22,7 @@ class RestaurantCard extends StatelessWidget {
     required this.distance,
     required this.imageUrl,
     required this.tags,
+    this.origin,
   });
 
   String formatDistance(double meters) {
@@ -40,6 +42,16 @@ class RestaurantCard extends StatelessWidget {
             'restaurant_name': title,
           },
         );
+        if (origin != null) {
+          _analytics.logEvent(
+            name: 'restaurant_visit_origin',
+            parameters: {
+              'restaurant_id': id,
+              'restaurant_name': title,
+              'origin': origin ?? 'unknown',
+            },
+          );
+        }
         context.push('/restaurant/$id');
       },
       child: Card(

@@ -7,9 +7,12 @@ import 'package:campus_bites/data/datasources/reservation_backend_datasource.dar
 import 'package:campus_bites/globals/GlobalUser.dart';
 import 'package:campus_bites/presentation/providers/alerts/alert_provider.dart';
 import 'package:campus_bites/presentation/providers/reservations/reservation_provider.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
+final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
 class BookTab extends ConsumerStatefulWidget {
   final RestaurantEntity restaurant;
@@ -110,6 +113,17 @@ Future<void> _bookReservation() async {
       restaurantId: widget.restaurant.id,
     );
 
+    _analytics.logEvent(
+      name: 'reservation_created',
+      parameters: {
+        'user_id': userId,
+        'restaurant_id': widget.restaurant.id,
+        'date': reservation.date,
+        'time': reservation.time,
+        'number_comensals': reservation.numberComensals,
+      },
+    );
+    
     ref.invalidate(getReservationsProvider(userId));
     ref.invalidate(getAlertsProvider(userId));
 

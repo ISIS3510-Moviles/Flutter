@@ -70,6 +70,7 @@ class RecommendationViewState extends ConsumerState<RecommendationView>
                                 distance: -1, // Fill with real distance
                                 imageUrl: restaurant['profilePhoto'] as String? ?? '',
                                 tags: List<String>.from(restaurant['tags'] ?? []),
+                                origin: 'recommendation',
                               );
                             })
                           ],
