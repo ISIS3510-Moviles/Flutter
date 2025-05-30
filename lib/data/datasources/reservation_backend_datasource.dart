@@ -54,16 +54,17 @@ Future<List<ReservationEntity>> cancelReservation(String reservationId) async {
     required String restaurantId,
   }) async {
     try {
-      final DateFormat inputFormat = DateFormat('MM/dd/yyyy');
-      final DateTime parsedDate = inputFormat.parse(date);
+      final String dateTimeString = '$date $time';
+      final DateFormat inputFormat = DateFormat('MM/dd/yyyy HH:mm');
+      final DateTime parsedDateTime = inputFormat.parse(dateTimeString);
 
       final DateTime now = DateTime.now();
-      if (parsedDate.isBefore(now)) {
+      if (parsedDateTime.isBefore(now)) {
         throw Exception('The reservation date cannot be in the past.');
       }
 
       final String formattedDate =
-          DateFormat("yyyy-MM-dd'T'00:00:00'Z'").format(parsedDate.toUtc());
+          DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(parsedDateTime.toUtc());
       final requestBody = {
         "date": formattedDate,
         "time": time,
@@ -71,7 +72,6 @@ Future<List<ReservationEntity>> cancelReservation(String reservationId) async {
         "isCompleted": isCompleted,
         "restaurant_id": restaurantId,
         "user_id": userId,
-        
       };
 
       final response = await dio.post(
