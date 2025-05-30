@@ -22,7 +22,7 @@ class ReservationBackend {
       time: json['time'],
       numberComensals: json['numberComensals'],
       isCompleted: json['isCompleted'],
-      hasBeenCancelled: json['hasBeenCancelled'] as bool,
+      hasBeenCancelled: (json['hasBeenCancelled'] ?? false) as bool,
     );
   }
 

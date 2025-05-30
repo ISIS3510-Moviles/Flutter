@@ -57,7 +57,7 @@ class _RestaurantInfoScreenState extends State<RestaurantInfoScreen> {
       final current = GlobalRestaurant().currentRestaurant!;
       final updatedRestaurant = RestaurantEntity(
         id: current.id,
-        name: current.name,
+        name: nameController.text,
         email: current.email,
         phone: current.phone,
         description: descriptionController.text,

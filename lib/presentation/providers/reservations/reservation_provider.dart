@@ -1,5 +1,6 @@
 import 'package:campus_bites/data/offline/cached_reservation.dart';
 import 'package:campus_bites/data/offline/reservations_by_date.dart';
+import 'package:campus_bites/domain/entities/completed_state.dart';
 import 'package:campus_bites/domain/entities/pending_state.dart';
 import 'package:campus_bites/domain/entities/reservation_entity.dart';
 import 'package:campus_bites/presentation/providers/reservations/reservation_repository_provider.dart';

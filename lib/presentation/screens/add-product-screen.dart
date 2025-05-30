@@ -1,7 +1,10 @@
 import 'package:campus_bites/data/datasources/product_backend_datasource.dart';
+import 'package:campus_bites/data/offline/queued_product.dart';
 import 'package:campus_bites/domain/entities/product_entity.dart';
 import 'package:campus_bites/presentation/widgets/shared/custom_sliver_appbar_restaurant.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 class TemporalProduct {
   final String photoUrl;
@@ -35,8 +38,6 @@ TemporalProduct:
 }
 
 class AddProductScreen extends StatefulWidget {
-  const AddProductScreen({super.key});
-
   @override
   State<AddProductScreen> createState() => _AddProductScreenState();
 }
@@ -62,8 +63,45 @@ class _AddProductScreenState extends State<AddProductScreen> {
       tags: List.from(tags),
     );
 
+    final connectivity = Connectivity();
+    final result = await connectivity.checkConnectivity();
+
+    void resetForm() {
+      _photoUrlController.clear();
+      _nameController.clear();
+      _descriptionController.clear();
+      _priceController.text = '0.0';
+      _ingredientController.clear();
+      _tagController.clear();
+      ingredients.clear();
+      tags.clear();
+      setState(() {});
+    }
+
+    if (result == ConnectivityResult.none) {
+      final queuedProduct = QueuedProduct(
+        photoUrl: product.photoUrl,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        ingredients: product.ingredients,
+        tags: product.tags,
+      );
+      await Hive.box<QueuedProduct>('queued_products').add(queuedProduct);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No connection. Product saved for later.'),
+        ),
+      );
+
+      resetForm();
+      return;
+    }
+
     try {
-      final productEntity = ProductEntity(
+      final entity = ProductEntity(
         id: '',
         name: product.name,
         description: product.description,
@@ -76,17 +114,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
         dietaryTags: [],
       );
 
-      final datasource = ProductBackendDatasource();
-      final createdProducts = await datasource.createProduct(productEntity);
+      await ProductBackendDatasource().createProduct(entity);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Product created successfully')),
+        const SnackBar(content: Text('Product created successfully.')),
       );
+
+      resetForm();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error creating product')),
+        const SnackBar(content: Text('Error creating product.')),
       );
     }
   }

@@ -186,7 +186,7 @@ Future<RestaurantEntity> signInWithGoogleRestaurant() async {
     throw AuthException("Authentication failed: ${e.message}");
   } catch (e, stackTrace) {
     logger.e("Unexpected authentication error", error: e, stackTrace: stackTrace);
-    throw AuthException("You cancelled the Sign in process");
+    throw AuthException("You cancelled the Sign in process or there was an internet error");
   }
 }
 

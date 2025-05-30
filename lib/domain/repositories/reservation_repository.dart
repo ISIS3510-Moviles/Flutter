@@ -4,4 +4,5 @@ abstract class ReservationRepository {
   Future<List<ReservationEntity>> getReservationsByUserId(String id);
   Future<List<ReservationEntity>> getReservationsByRestaurantId(String id);
   Future<List<ReservationEntity>> cancelReservation(String id);
+  Future<List<ReservationEntity>> confirmReservation(String id);
 }
