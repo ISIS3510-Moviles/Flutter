@@ -3,8 +3,14 @@ import 'package:campus_bites/data/offline/cached_alert.dart';
 import 'package:campus_bites/data/offline/cached_reservation.dart';
 import 'package:campus_bites/data/offline/dietary_tag.dart';
 import 'package:campus_bites/data/offline/food_tag.dart';
+import 'package:campus_bites/data/offline/product_queue_manager.dart';
+import 'package:campus_bites/data/offline/queued_product.dart';
+import 'package:campus_bites/data/offline/queued_reservation_action.dart';
+import 'package:campus_bites/data/offline/reservation_action_queue_manager.dart';
 import 'package:campus_bites/data/offline/reservations_by_date.dart';
 import 'package:campus_bites/firebase_options.dart';
+import 'package:campus_bites/globals/GlobalRestaurant.dart';
+import 'package:campus_bites/presentation/providers/reservations/reservation_provider_restaurant.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -57,6 +63,12 @@ Future<void> main() async {
   Hive.registerAdapter(AlertsByDateAdapter());
   await Hive.openBox<AlertsByDate>('alerts_by_date');
 
+  Hive.registerAdapter(QueuedProductAdapter());
+  await Hive.openBox<QueuedProduct>('queued_products');
+
+  Hive.registerAdapter(QueuedReservationActionAdapter());
+  await Hive.openBox<QueuedReservationAction>('queued_reservation_actions');
+
   CommentQueueManager().startListener(
     onCommentSent: (message) {
       scaffoldMessengerKey.currentState?.showSnackBar(
@@ -66,6 +78,22 @@ Future<void> main() async {
   );
   ReservationQueueManager().startListener(
     onReservationSent: (message) {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    },
+  );
+
+  ProductQueueManager().startListener(
+    onProductSent: (message) {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    },
+  );
+
+  ReservationActionQueueManager().startListener(
+    onActionSent: (message) {
       scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(content: Text(message)),
       );

@@ -82,7 +82,7 @@ final appRouter = GoRouter(
                   'user_type': 'restaurant',
                   'panel_section': 'products',
                 });
-                return const AddProductScreen();
+                return AddProductScreen();
               },
             ),
           ],

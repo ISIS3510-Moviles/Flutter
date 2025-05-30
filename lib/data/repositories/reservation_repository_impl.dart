@@ -11,6 +11,8 @@ class ReservationRepositoryImpl extends ReservationRepository {
   @override
   Future<List<ReservationEntity>> getReservationsByUserId(String id) async {
     try {
+      print('Fetching reservations for user ID: $id');
+      
       return await reservationBackendDatasource.getReservationsByUserId(id);
     } catch (e) {
       throw Exception('Error fetching reservations: $e');
@@ -30,6 +32,15 @@ class ReservationRepositoryImpl extends ReservationRepository {
   Future<List<ReservationEntity>> cancelReservation(String id) async {
     try {
       return await reservationBackendDatasource.cancelReservation(id);
+    } catch (e) {
+      throw Exception('Error fetching reservations: $e');
+    }
+  }
+
+  @override
+  Future<List<ReservationEntity>> confirmReservation(String id) async {
+    try {
+      return await reservationBackendDatasource.confirmReservation(id);
     } catch (e) {
       throw Exception('Error fetching reservations: $e');
     }
