@@ -4,6 +4,7 @@ import 'package:campus_bites/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService authService = AuthService();
@@ -19,6 +20,7 @@ class LoginScreenState extends State<LoginScreen> {
   bool isLoadingUser = false;
   bool isLoadingRestaurant = false;
   bool isCheckingPreferences = true;
+  final _connectivity = Connectivity();
 
   @override
   void initState() {
@@ -63,6 +65,12 @@ class LoginScreenState extends State<LoginScreen> {
   void _signInWithGoogle() async {
     if (isLoadingUser) return;
 
+    final connectivityResult = await _connectivity.checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none){
+      _showErrorSnackbar('No internet connection. Please try again later.');
+      return;
+    };
+
     setState(() {
       isLoadingUser = true;
     });
@@ -95,6 +103,12 @@ class LoginScreenState extends State<LoginScreen> {
   void _signInWithGoogleRestaurant() async {
     if (isLoadingRestaurant) return;
 
+    final connectivityResult = await _connectivity.checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none){
+      _showErrorSnackbar('No internet connection. Please try again later.');
+      return;
+    };
+
     setState(() {
       isLoadingRestaurant = true;
     });
@@ -126,7 +140,6 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     if (isCheckingPreferences || GlobalUser().currentUser != null) {
